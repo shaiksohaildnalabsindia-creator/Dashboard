@@ -21,7 +21,7 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
     width: 90%;
-    max-width: 600px;
+    max-width: 700px;
   }
 
   .box {
@@ -62,14 +62,21 @@
 
 <div class="dashboard">
 
-  <!-- Box 1 -->
+  <!-- Parcel Entry -->
+  <div class="box" onclick="window.location.href='index.html'">
+    <div class="icon">📝</div>
+    <div class="title">Parcel Entry</div>
+    <div class="desc">Start parcel entry & scanning</div>
+  </div>
+
+  <!-- Scanner -->
   <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/Scanner/'">
     <div class="icon">📦</div>
     <div class="title">Scanner</div>
     <div class="desc">Open parcel scanner page</div>
   </div>
 
-  <!-- Box 2 -->
+  <!-- Camera -->
   <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/camera/'">
     <div class="icon">📷</div>
     <div class="title">Camera</div>
