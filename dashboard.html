@@ -3,54 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Operations Dashboard</title>
+<title>Dashboard</title>
 
 <style>
   body {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg,#667eea,#764ba2);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
   }
 
   .dashboard {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
     width: 90%;
-    max-width: 400px;
+    max-width: 600px;
+  }
+
+  .box {
+    background: white;
+    border-radius: 14px;
+    padding: 30px 20px;
     text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  }
-
-  h2 {
-    margin-bottom: 25px;
-    color: #333;
-  }
-
-  button {
-    width: 100%;
-    padding: 15px;
-    margin: 10px 0;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 8px;
     cursor: pointer;
-    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     transition: 0.3s;
   }
 
-  .entry { background: #ff6f61; }
-  .scanner { background: #28a745; }
-  .upload { background: #007bff; }
+  .box:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+  }
 
-  button:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
+  .icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .desc {
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
   }
 </style>
 </head>
@@ -58,19 +61,21 @@
 <body>
 
 <div class="dashboard">
-  <h2>Parcel Management Dashboard</h2>
 
-  <button class="entry" onclick="location.href='index.html'">
-    📦 Parcel Entry
-  </button>
+  <!-- Box 1 -->
+  <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/Scanner/'">
+    <div class="icon">📦</div>
+    <div class="title">Scanner</div>
+    <div class="desc">Open parcel scanner page</div>
+  </div>
 
-  <button class="scanner" onclick="location.href='scanner_camera.html'">
-    📷 Camera Scanner
-  </button>
+  <!-- Box 2 -->
+  <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/camera/'">
+    <div class="icon">📷</div>
+    <div class="title">Camera</div>
+    <div class="desc">Open camera capture page</div>
+  </div>
 
-  <button class="upload" onclick="location.href='upload_images.html'">
-    🖼 Upload Sample Images
-  </button>
 </div>
 
 </body>
