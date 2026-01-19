@@ -1,50 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations Dashboard</title>
 
-        header {
-            background: #1e1e1e;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            font-size: 18px;
-        }
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-        .container {
-            display: flex;
-            height: calc(100vh - 50px);
-        }
+  .dashboard {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
 
-        iframe {
-            flex: 1;
-            border: none;
-        }
+  h2 {
+    margin-bottom: 25px;
+    color: #333;
+  }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-        }
-    </style>
+  button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    transition: 0.3s;
+  }
+
+  .entry { background: #ff6f61; }
+  .scanner { background: #28a745; }
+  .upload { background: #007bff; }
+
+  button:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+</style>
 </head>
+
 <body>
 
-<header>
-    Scanner & Camera Dashboard
-</header>
+<div class="dashboard">
+  <h2>Parcel Management Dashboard</h2>
 
-<div class="container">
-    <iframe src="https://shaiksohaildnalabsindia-creator.github.io/Scanner/" title="Scanner"></iframe>
-    <iframe src="https://shaiksohaildnalabsindia-creator.github.io/camera/" title="Camera"></iframe>
+  <button class="entry" onclick="location.href='index.html'">
+    📦 Parcel Entry
+  </button>
+
+  <button class="scanner" onclick="location.href='scanner_camera.html'">
+    📷 Camera Scanner
+  </button>
+
+  <button class="upload" onclick="location.href='upload_images.html'">
+    🖼 Upload Sample Images
+  </button>
 </div>
 
 </body>
