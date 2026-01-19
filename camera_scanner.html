@@ -3,9 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parcel Camera Scanner</title>
+<title>Camera Barcode Scanner</title>
 <style>
-  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: linear-gradient(135deg,#a8edea,#fed6e3); }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg,#a8edea,#fed6e3);
+  }
   h2 { color:#ff6f61; margin-bottom: 15px; }
   video { width:90%; max-width:400px; border:1px solid #ccc; border-radius:6px; }
   #status, #progress, #timestamp { margin-top:10px; font-weight:bold; color:#333; }
@@ -21,6 +26,7 @@
 <p id="status"></p>
 <p id="timestamp"></p>
 <p id="progress"></p>
+
 <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script type="module">
@@ -34,14 +40,10 @@ const timestampEl = document.getElementById("timestamp");
 const progressEl = document.getElementById("progress");
 const beep = document.getElementById("beep-sound");
 
-const params = new URLSearchParams(window.location.search);
-const totalCount = Number(params.get("count") || 0);
-const courier = params.get("courier") || "";
+const totalCount = 5; // Example: max number of parcels to scan
+document.getElementById("info").textContent = `Parcels to scan: ${totalCount}`;
 
-document.getElementById("info").textContent =
-  `Courier: ${courier} | Parcels to scan: ${totalCount}`;
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
+const WEB_APP_URL = "YOUR_GOOGLE_SCRIPT_URL";
 
 let scanned = new Set();
 progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
@@ -53,19 +55,26 @@ reader.decodeFromVideoDevice(null, video, async (result) => {
 
   scanned.add(code);
   resultEl.textContent = code;
-  beep.currentTime = 0; beep.play().catch(()=>{}); if(navigator.vibrate) navigator.vibrate(200);
 
+  // Play beep + vibrate
+  beep.currentTime = 0;
+  beep.play().catch(() => {});
+  if (navigator.vibrate) navigator.vibrate(200);
+
+  // Save to Google Sheet
   try {
     await fetch(WEB_APP_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ page:"page2", tracking: code }),
+      body: JSON.stringify({ page:"scanner", tracking: code }),
       mode: "no-cors"
     });
+
     const now = new Date();
     statusEl.textContent = `Saved ✅`;
     timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
-  } catch(err){
+
+  } catch (err) {
     console.error(err);
     statusEl.textContent = "Error saving ❌";
     timestampEl.textContent = "";
@@ -73,9 +82,9 @@ reader.decodeFromVideoDevice(null, video, async (result) => {
 
   progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
 
-  if(scanned.size >= totalCount){
+  if (scanned.size >= totalCount) {
     statusEl.textContent = "All parcels scanned! Redirecting to Dashboard...";
-    setTimeout(()=>{ window.location.href = "dashboard.html"; }, 2000);
+    setTimeout(() => { window.location.href = "./dashboard.html"; }, 1500);
   }
 });
 </script>
