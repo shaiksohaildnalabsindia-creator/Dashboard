@@ -5,19 +5,16 @@
 <title>Upload Sample Images</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; margin:0; background:#f7f7f7; }
-  h2 { text-align:center; }
-  select, input, button { margin:10px 0; display:block; width:100%; font-size:16px; padding:10px; box-sizing:border-box; }
-  button { background:#007bff; color:white; border:none; border-radius:5px; cursor:pointer; display:flex; align-items:center; justify-content:center; position:relative; }
-  button:disabled { opacity:0.7; cursor:not-allowed; }
-  button:hover:enabled { background:#0056b3; }
-  .preview-container { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; position:relative; }
-  .preview { display:flex; align-items:center; justify-content:center; width:100px; height:100px; border:1px solid #ccc; border-radius:5px; overflow:hidden; background:white; position:relative; }
-  .preview img { max-width:100%; max-height:100%; object-fit:cover; }
-  .remove-btn { position:absolute; top:2px; right:2px; background:red; color:white; border:none; border-radius:50%; width:20px; height:20px; font-size:14px; line-height:16px; text-align:center; cursor:pointer; z-index:1; }
-  #addMoreBtn { width:50px; height:50px; font-size:24px; display:flex; align-items:center; justify-content:center; margin-top:10px; flex-shrink:0; }
-  .spinner { border:2px solid rgba(255,255,255,0.3); border-top:2px solid white; border-radius:50%; width:16px; height:16px; margin-left:8px; animation:spin 0.8s linear infinite; }
-  @keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+  body { font-family: Arial; padding: 20px; margin: 0; background: #f7f7f7; }
+  h2 { text-align: center; }
+  select, input, button { margin: 10px 0; width: 100%; padding: 10px; box-sizing: border-box; }
+  button { background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button:disabled { opacity: 0.7; cursor: not-allowed; }
+  .preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .preview { width: 100px; height: 100px; border: 1px solid #ccc; border-radius: 5px; overflow: hidden; position: relative; background: white; }
+  .preview img { width: 100%; height: 100%; object-fit: cover; }
+  .remove-btn { position: absolute; top: 2px; right: 2px; background: red; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
+  #addMoreBtn { width: 50px; height: 50px; font-size: 24px; display: flex; align-items: center; justify-content: center; }
 </style>
 </head>
 <body>
@@ -36,7 +33,7 @@
 <button id="uploadBtn">Upload</button>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxK9JgL7RtAwn_EDZ89LSxfPCJjXw6uFHbjMxU62618OkSXbrz2qzBKuEsFy7IvQZvgwg/exec";
+const WEB_APP_URL = "YOUR_GOOGLE_SCRIPT_URL";
 
 const trackingSelect = document.getElementById("trackingSelect");
 const previewContainer = document.getElementById("previewContainer");
@@ -44,73 +41,47 @@ const uploadBtn = document.getElementById("uploadBtn");
 const addMoreBtn = document.getElementById("addMoreBtn");
 let filesToUpload = [];
 
-// Fetch today's tracking numbers
-fetch(WEB_APP_URL).then(res=>res.json()).then(data=>{
-  if(!data || data.length===0){
-    const option=document.createElement("option");
-    option.value=""; option.textContent="No tracking numbers today";
-    trackingSelect.appendChild(option);
-    return;
-  }
-  data.forEach(tracking=>{
-    const option=document.createElement("option");
-    option.value=tracking; option.textContent=tracking;
-    trackingSelect.appendChild(option);
+// Add more images
+addMoreBtn.addEventListener("click", () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.capture = "environment";
+  input.style.display = "none";
+  input.addEventListener("change", e => {
+    const fileList = e.target.files;
+    if(fileList.length>0){
+      for(const file of fileList){
+        const wrapper = document.createElement("div");
+        wrapper.className = "preview";
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        const removeBtn = document.createElement("button");
+        removeBtn.className="remove-btn"; removeBtn.textContent="×";
+        removeBtn.onclick=()=>{ wrapper.remove(); filesToUpload.splice(filesToUpload.indexOf(file),1); };
+        wrapper.appendChild(img); wrapper.appendChild(removeBtn);
+        previewContainer.insertBefore(wrapper, addMoreBtn);
+        filesToUpload.push(file);
+      }
+    }
   });
-}).catch(console.error);
-
-function handleFileInput(file){
-  const wrapper=document.createElement("div"); wrapper.className="preview";
-  const img=document.createElement("img"); img.src=URL.createObjectURL(file);
-  const removeBtn=document.createElement("button"); removeBtn.className="remove-btn"; removeBtn.textContent="×";
-  removeBtn.addEventListener("click",()=>{ filesToUpload.splice(filesToUpload.indexOf(file),1); wrapper.remove(); });
-  wrapper.appendChild(img); wrapper.appendChild(removeBtn); previewContainer.insertBefore(wrapper, addMoreBtn);
-  filesToUpload.push(file);
-}
-
-addMoreBtn.addEventListener("click",()=>{
-  const input=document.createElement("input"); input.type="file"; input.accept="image/*"; input.capture="environment"; input.style.display="none";
-  input.addEventListener("change",(e)=>{ [...e.target.files].forEach(f=>handleFileInput(f)); });
   document.body.appendChild(input); input.click(); document.body.removeChild(input);
 });
 
-function resizeImage(file,maxSize=1000000){
-  return new Promise((resolve)=>{
-    const img=new Image(); const reader=new FileReader();
-    reader.onload=e=>img.src=e.target.result;
-    reader.readAsDataURL(file);
-    img.onload=function(){
-      const canvas=document.createElement("canvas"); const ctx=canvas.getContext("2d");
-      let width=img.width; let height=img.height;
-      const maxWidth=1024; const maxHeight=1024;
-      if(width>maxWidth||height>maxHeight){ if(width>height){ height=Math.round(height*maxWidth/width); width=maxWidth; }else{ width=Math.round(width*maxHeight/height); height=maxHeight; } }
-      canvas.width=width; canvas.height=height; ctx.drawImage(img,0,0,width,height);
-      canvas.toBlob(blob=>{ const reader=new FileReader(); reader.onloadend=()=>resolve(reader.result); reader.readAsDataURL(blob); },"image/webp",0.8);
-    };
-  });
-}
-
-uploadBtn.addEventListener("click",()=>{
+// Upload Images
+uploadBtn.addEventListener("click", async () => {
   const tracking = trackingSelect.value;
-  if(!tracking) return alert("Please select a tracking number");
-  if(filesToUpload.length===0) return alert("Please select at least one image");
+  if(!tracking) return alert("Select tracking number");
+  if(filesToUpload.length==0) return alert("Select images");
 
-  uploadBtn.disabled=true; uploadBtn.textContent="Uploading"; 
-  const spinner=document.createElement("span"); spinner.className="spinner"; uploadBtn.appendChild(spinner);
-
-  Promise.all(filesToUpload.map(f=>resizeImage(f,1000000))).then(results=>{
-    const imagesParam=results.join("|");
-    fetch(WEB_APP_URL,{ method:"POST", body:new URLSearchParams({tracking, image:imagesParam}) })
-      .then(res=>res.json()).then(data=>{
-        if(data.success){
-          alert("Uploaded successfully! Redirecting to Dashboard...");
-          previewContainer.querySelectorAll(".preview").forEach(div=>div.remove());
-          filesToUpload=[];
-          setTimeout(()=>{ window.location.href="dashboard.html"; }, 1500);
-        } else { alert("Error: "+(data.error||"Unknown error")); }
-      }).catch(err=>alert("Error: "+err))
-      .finally(()=>{ uploadBtn.disabled=false; uploadBtn.textContent="Upload"; });
-  });
+  uploadBtn.disabled=true; uploadBtn.textContent="Uploading...";
+  const imagesParam = filesToUpload.map(f=>URL.createObjectURL(f)).join("|");
+  try {
+    await fetch(WEB_APP_URL, { method:"POST", body:new URLSearchParams({tracking, image:imagesParam}) });
+    alert("Uploaded successfully! Redirecting to Dashboard...");
+    setTimeout(()=>{ window.location.href="./dashboard.html"; }, 1500);
+  } catch(err){ alert("Upload failed"); }
+  finally { uploadBtn.disabled=false; uploadBtn.textContent="Upload"; }
 });
 </script>
 
