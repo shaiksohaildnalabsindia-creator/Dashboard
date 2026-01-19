@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcel Entry</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#f9d423,#ff4e50);
+    color: #333;
+    text-align: center;
+    padding: 30px;
+  }
+  h2 {
+    color: #fff;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px #000;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    margin: 15px 0 5px;
+  }
+  select, button {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    width: 200px;
+    margin-bottom: 15px;
+  }
+  button {
+    background-color: #ff6f61;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+  button:hover {
+    background-color: #ff3b2e;
+  }
+</style>
+</head>
+<body>
+
+<h2>Parcel Entry Form</h2>
+
+<form id="parcelForm">
+  <label for="courier">Parcels From:</label>
+  <select id="courier" required>
+    <option value="" disabled selected>Select Courier</option>
+    <option value="Bluedart">Bluedart</option>
+    <option value="FedEx">FedEx</option>
+    <option value="DTDC">DTDC</option>
+    <option value="Others">Others</option>
+  </select>
+
+  <label for="count">Parcel Count:</label>
+  <select id="count" required>
+    <option value="" disabled selected>Select Count</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+  </select>
+
+  <br>
+  <button type="submit">Start Scanning</button>
+</form>
+
+<script>
+document.getElementById("parcelForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const courier = document.getElementById("courier").value;
+  const count = document.getElementById("count").value;
+
+  if(!courier || !count){
+    alert("Please select courier and count");
+    return;
+  }
+
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
+
+  // Send Page 1 data to Sheet1
+  await fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ page:"page1", courier, count }),
+    mode: "no-cors"
+  });
+
+  // Redirect to scanner page
+  window.location.href = `scanner_camera.html?courier=${encodeURIComponent(courier)}&count=${count}`;
+});
+</script>
+
+</body>
+</html>
