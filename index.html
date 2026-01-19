@@ -14,6 +14,7 @@
     font-family: Arial, sans-serif;
     background: linear-gradient(135deg, #667eea, #764ba2);
   }
+
   .dashboard {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -21,6 +22,7 @@
     width: 90%;
     max-width: 700px;
   }
+
   .box {
     background: white;
     border-radius: 14px;
@@ -30,44 +32,49 @@
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     transition: 0.3s;
   }
+
   .box:hover {
     transform: translateY(-6px);
     box-shadow: 0 15px 35px rgba(0,0,0,0.3);
   }
-  .icon { font-size: 48px; margin-bottom: 15px; }
-  .title { font-size: 18px; font-weight: bold; color: #333; }
-  .desc { margin-top: 8px; color: #666; font-size: 14px; }
+
+  .icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .desc {
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
+  }
 </style>
 </head>
 <body>
-<div class="dashboard">
-  <!-- Parcel Entry -->
-  <div class="box" onclick="window.location.href='parcel_entry_form.html'">
-    <div class="icon">📝</div>
-    <div class="title">Parcel Entry</div>
-    <div class="desc">Start parcel entry & scanning</div>
-  </div>
 
-  <!-- Scanner -->
-  <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/Scanner/'">
+<div class="dashboard">
+
+  <!-- Scanner Box -->
+  <div class="box" onclick="window.location.href='scanner_camera.html'">
     <div class="icon">📦</div>
     <div class="title">Scanner</div>
-    <div class="desc">Open parcel scanner page</div>
+    <div class="desc">Open parcel scanner</div>
   </div>
 
-  <!-- Camera -->
-  <div class="box" onclick="window.location.href='https://shaiksohaildnalabsindia-creator.github.io/camera/'">
-    <div class="icon">📷</div>
-    <div class="title">Camera</div>
-    <div class="desc">Open camera capture page</div>
-  </div>
-
-  <!-- Upload Images -->
+  <!-- Image Upload Box -->
   <div class="box" onclick="window.location.href='upload_images.html'">
-    <div class="icon">📤</div>
-    <div class="title">Upload Images</div>
-    <div class="desc">Upload parcel images</div>
+    <div class="icon">📷</div>
+    <div class="title">Image Upload</div>
+    <div class="desc">Upload sample images</div>
   </div>
+
 </div>
+
 </body>
 </html>
