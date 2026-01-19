@@ -91,7 +91,7 @@ reader.decodeFromVideoDevice(null, video, async (result) => {
   // All scanned → redirect back to index
   if (scanned.size >= totalCount) {
     statusEl.textContent = "All parcels scanned! Redirecting...";
-    setTimeout(() => { window.location.href = "parcel_entry.html"; }, 2000);
+    setTimeout(() => { window.location.href = "index.html"; }, 2000);
   }
 });
 </script>
