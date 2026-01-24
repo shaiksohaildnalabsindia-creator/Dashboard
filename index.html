@@ -1,405 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parcel Dashboard</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background: #f0f0f0;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivered Today Parcels</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            background-color: #f7f7f7;
+        }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 10px;
-    color: #ff6f61;
-  }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
 
-  .dashboard {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
 
-  .box {
-    flex: 1 1 400px;
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  }
+        table, th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+        }
 
-  /* --- Camera Box Styles --- */
-  #video {
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
+        th, td {
+            padding: 10px;
+            font-size: 14px;
+        }
 
-  #status, #progress, #timestamp {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
-  }
+        th {
+            background-color: #f2f2f2;
+        }
 
-  #result {
-    font-weight: bold;
-    font-size: 18px;
-    color: #000;
-  }
+        img {
+            width: 100px; /* Resize image as needed */
+            height: auto;
+            border-radius: 8px;
+        }
 
-  /* --- Upload Box Styles --- */
-  select, input, button { 
-    margin: 10px 0; 
-    display: block; 
-    width: 100%; 
-    box-sizing: border-box; 
-    font-size: 16px;
-    padding: 10px;
-  }
-
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  button:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  button:hover:enabled {
-    background-color: #0056b3;
-  }
-
-  .preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
-    position: relative;
-  }
-
-  .preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100px;
-    height: 100px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-    background-color: white;
-  }
-
-  .preview img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-  }
-
-  .remove-btn {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background-color: red;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 14px;
-    line-height: 16px;
-    text-align: center;
-    cursor: pointer;
-    z-index: 1;
-  }
-
-  #addMoreBtn {
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
-    flex-shrink: 0;
-  }
-
-  .spinner {
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top: 2px solid white;
-    border-radius: 50%;
-    width: 16px;
-    height: 16px;
-    margin-left: 8px;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
-  }
-
-  @media (max-width: 900px) {
-    .dashboard {
-      flex-direction: column;
-    }
-  }
-</style>
+        .no-image {
+            font-style: italic;
+            color: #888;
+        }
+    </style>
 </head>
 <body>
 
-<h2>Parcel Dashboard</h2>
+    <h1>Delivered Today Parcels</h1>
+    <table id="parcelTable">
+        <thead>
+            <tr>
+                <th>Tracking Number</th>
+                <th>From Address</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically inserted here -->
+        </tbody>
+    </table>
 
-<div class="dashboard">
+    <script>
+        // Replace with your actual Apps Script URL to fetch parcel data
+        const url = "https://script.google.com/macros/s/AKfycbyapy6A8FGc2vkvmJsVo3HxQniEmrGtg9zEPqmeq0bo2IwsdCwEsgekD6tK2xgsrQr7hQ/exec";
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("parcelTable").getElementsByTagName('tbody')[0];
 
-  <!-- Box 1: Camera Scanner -->
-  <div class="box">
-    <h3>Parcel Camera Scanner</h3>
-    <p id="info"></p>
-    <video id="video" autoplay playsinline></video>
-    <p><b>Last Scanned:</b> <span id="result">None</span></p>
-    <p id="status"></p>
-    <p id="timestamp"></p>
-    <p id="progress"></p>
-    <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-  </div>
+                // Loop through the parcels data
+                data.forEach(parcel => {
+                    const row = tableBody.insertRow();
+                    
+                    const trackingCell = row.insertCell(0);
+                    trackingCell.textContent = parcel.trackingNumber || 'N/A';
 
-  <!-- Box 2: Upload Images -->
-  <div class="box">
-    <h3>Upload Sample Images</h3>
-    <label for="trackingSelect">Select Tracking Number:</label>
-    <select id="trackingSelect">
-      <option value="">Select Tracking Number</option>
-    </select>
+                    const addressCell = row.insertCell(1);
+                    addressCell.textContent = parcel.fromAddress || 'No Address Available';
 
-    <div class="preview-container" id="previewContainer">
-      <button type="button" id="addMoreBtn">+</button>
-    </div>
-
-    <button id="uploadBtn">Upload</button>
-  </div>
-
-</div>
-
-<script type="module">
-/* ----------------- Camera Scanner ----------------- */
-import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
-
-const reader = new BrowserMultiFormatReader();
-const video = document.getElementById("video");
-const resultEl = document.getElementById("result");
-const statusEl = document.getElementById("status");
-const timestampEl = document.getElementById("timestamp");
-const progressEl = document.getElementById("progress");
-const beep = document.getElementById("beep-sound");
-
-const params = new URLSearchParams(window.location.search);
-const totalCount = Number(params.get("count") || 0);
-const courier = params.get("courier") || "";
-
-document.getElementById("info").textContent = `Courier: ${courier} | Parcels to scan: ${totalCount}`;
-
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
-
-let scanned = new Set();
-progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
-
-reader.decodeFromVideoDevice(null, video, async (result) => {
-  if (!result) return;
-  const code = result.getText().trim();
-  if (scanned.has(code)) return;
-
-  scanned.add(code);
-  resultEl.textContent = code;
-
-  beep.currentTime = 0;
-  beep.play().catch(() => {});
-  if (navigator.vibrate) navigator.vibrate(200);
-
-  try {
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ page:"page2", tracking: code }),
-      mode: "no-cors"
-    });
-    const now = new Date();
-    statusEl.textContent = `Saved ✅`;
-    timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Error saving ❌";
-    timestampEl.textContent = "";
-  }
-
-  progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
-
-  if (scanned.size >= totalCount) {
-    statusEl.textContent = "All parcels scanned! Redirecting...";
-    setTimeout(() => { window.location.href = "index.html"; }, 2000);
-  }
-});
-
-/* ----------------- Upload Images ----------------- */
-const uploadBtn = document.getElementById("uploadBtn");
-const addMoreBtn = document.getElementById("addMoreBtn");
-const trackingSelect = document.getElementById("trackingSelect");
-const previewContainer = document.getElementById("previewContainer");
-
-const UPLOAD_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxK9JgL7RtAwn_EDZ89LSxfPCJjXw6uFHbjMxU62618OkSXbrz2qzBKuEsFy7IvQZvgwg/exec";
-
-let filesToUpload = [];
-
-/* Fetch today's tracking numbers */
-fetch(UPLOAD_WEB_APP_URL)
-  .then(res => res.json())
-  .then(data => {
-    if (!data || data.length === 0) {
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "No tracking numbers today";
-      trackingSelect.appendChild(option);
-      return;
-    }
-    data.forEach(tracking => {
-      const option = document.createElement("option");
-      option.value = tracking;
-      option.textContent = tracking;
-      trackingSelect.appendChild(option);
-    });
-  })
-  .catch(console.error);
-
-/* Image handling functions */
-function handleFileInput(file) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "preview";
-
-  const img = document.createElement("img");
-  img.src = URL.createObjectURL(file);
-
-  const removeBtn = document.createElement("button");
-  removeBtn.className = "remove-btn";
-  removeBtn.textContent = "×";
-
-  removeBtn.addEventListener("click", () => {
-    const index = filesToUpload.indexOf(file);
-    if (index > -1) filesToUpload.splice(index, 1);
-    wrapper.remove();
-  });
-
-  wrapper.appendChild(img);
-  wrapper.appendChild(removeBtn);
-  previewContainer.insertBefore(wrapper, addMoreBtn);
-  filesToUpload.push(file);
-}
-
-addMoreBtn.addEventListener("click", () => {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.capture = "environment";
-  input.style.display = "none";
-
-  input.addEventListener("change", (event) => {
-    const fileList = event.target.files;
-    if (fileList.length > 0) {
-      for (let i = 0; i < fileList.length; i++) handleFileInput(fileList[i]);
-    }
-  });
-
-  document.body.appendChild(input);
-  input.click();
-  document.body.removeChild(input);
-});
-
-function resizeImage(file, maxSize = 1000000) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const reader = new FileReader();
-    reader.onload = e => img.src = e.target.result;
-    reader.readAsDataURL(file);
-
-    img.onload = function() {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      let width = img.width;
-      let height = img.height;
-      const maxWidth = 1024;
-      const maxHeight = 1024;
-
-      if (width > maxWidth || height > maxHeight) {
-        if (width > height) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-        else { width = Math.round((width * maxHeight) / height); height = maxHeight; }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(blob => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(blob);
-      }, "image/webp", 0.8);
-    };
-  });
-}
-
-uploadBtn.addEventListener("click", () => {
-  const tracking = trackingSelect.value;
-  if (!tracking) return alert("Please select a tracking number");
-  if (filesToUpload.length === 0) return alert("Please select at least one image");
-
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = "Uploading";
-  const spinner = document.createElement("span");
-  spinner.className = "spinner";
-  uploadBtn.appendChild(spinner);
-
-  const readers = filesToUpload.map(file => resizeImage(file, 1000000));
-
-  Promise.all(readers).then(results => {
-    const imagesParam = results.join("|");
-    fetch(UPLOAD_WEB_APP_URL, {
-      method: "POST",
-      body: new URLSearchParams({
-        tracking: tracking,
-        image: imagesParam
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert("Uploaded successfully!");
-        previewContainer.querySelectorAll(".preview").forEach(div => div.remove());
-        filesToUpload = [];
-      } else {
-        alert("Error: " + (data.error || "Unknown error"));
-      }
-    })
-    .catch(err => alert("Error: " + err))
-    .finally(() => {
-      uploadBtn.disabled = false;
-      uploadBtn.textContent = "Upload";
-    });
-  });
-});
-</script>
-
+                    const imageCell = row.insertCell(2);
+                    if (parcel.imageUrl) {
+                        const img = document.createElement("img");
+                        img.src = parcel.imageUrl;
+                        img.alt = "Parcel Image";
+                        imageCell.appendChild(img);
+                    } else {
+                        imageCell.innerHTML = "<span class='no-image'>No Image Available</span>";
+                    }
+                });
+            })
+            .catch(err => {
+                console.error('Error fetching data:', err);
+                alert("Error loading parcel data.");
+            });
+    </script>
 </body>
 </html>
