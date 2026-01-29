@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Today's Delivered Parcels</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+<h2>📦 Today's Delivered Parcels</h2>
+<div id="count">Loading...</div>
+
+<table>
+<thead>
+<tr>
+  <th>Tracking No</th>
+  <th>From City</th>
+  <th>Delivery Date</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwbKfEY_s7i3Z1dUgkxTGFjfuOMR4A3Y9X5JaS0zj9DLqv1HUVMAWCQvrGD5g0dJhPVyQ/exec";
+
+fetch(WEB_APP_URL)
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("count").innerText =
+      "Total Delivered Today: " + data.length;
+
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    data.forEach(r => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${r.trackingNumber}</td>
+          <td>${r.fromAddress}</td>
+          <td>${r.deliveryDate}</td>
+          <td>${r.status}</td>
+        </tr>`;
+    });
+  })
+  .catch(err => {
+    document.getElementById("count").innerText = "Error loading data";
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
