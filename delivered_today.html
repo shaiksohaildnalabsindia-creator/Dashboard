@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Today's Delivered Parcels</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #f4f4f4; }
-  </style>
+<meta charset="UTF-8">
+<title>Today's Delivered Parcels</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+th { background: #f4f4f4; }
+.count { font-size: 18px; font-weight: bold; margin-top: 15px; }
+</style>
 </head>
 <body>
 
 <h2>📦 Today's Delivered Parcels</h2>
-<div id="count">Loading...</div>
+
+<div class="count" id="count"></div>
 
 <table>
 <thead>
@@ -28,31 +30,50 @@
 </table>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwqB8An2QrvibvhmLfBNXh1fEy43WEFMitWch4n6VyivldPWkKrr3eJTJ_0n6zpRHpCAQ/exec";
+const webAppUrl = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
+let refreshInterval;
 
-fetch(WEB_APP_URL)
-  .then(res => res.json())
-  .then(data => {
-    document.getElementById("count").innerText =
-      "Total Delivered Today: " + data.length;
+function loadData() {
+  // Remove previous script tag if exists
+  const oldScript = document.getElementById("jsonpScript");
+  if (oldScript) oldScript.remove();
 
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+  // Create new JSONP script tag
+  const script = document.createElement("script");
+  script.src = webAppUrl + "?callback=handleData";
+  script.id = "jsonpScript";
+  document.body.appendChild(script);
+}
 
-    data.forEach(r => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${r.trackingNumber}</td>
-          <td>${r.fromAddress}</td>
-          <td>${r.deliveryDate}</td>
-          <td>${r.status}</td>
-        </tr>`;
-    });
-  })
-  .catch(err => {
-    document.getElementById("count").innerText = "Error loading data";
-    console.error(err);
+// Callback function called by the JSONP Web App
+function handleData(data) {
+  const table = document.getElementById("tableBody");
+  table.innerHTML = "";
+  document.getElementById("count").innerText = "Total Delivered Today: " + data.length;
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.trackingNumber}</td>
+      <td>${row.fromAddress}</td>
+      <td>${row.deliveryDate}</td>
+      <td>${row.status}</td>
+    `;
+    table.appendChild(tr);
   });
+}
+
+// Auto-refresh every 60 seconds
+function startAutoRefresh() {
+  if (refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(loadData, 60000); // 1 minute
+}
+
+// Load initially and start auto-refresh
+window.onload = function() {
+  loadData();
+  startAutoRefresh();
+};
 </script>
 
 </body>
