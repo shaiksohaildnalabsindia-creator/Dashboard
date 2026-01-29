@@ -1,104 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delivered Today Parcels</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            margin: 0;
-            background-color: #f7f7f7;
-        }
-
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        th, td {
-            padding: 10px;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        img {
-            width: 100px; /* Resize image as needed */
-            height: auto;
-            border-radius: 8px;
-        }
-
-        .no-image {
-            font-style: italic;
-            color: #888;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Parcel Dashboard</title>
+<style>
+body { font-family: Arial; margin:0; background:#f4f6f8; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:20px; padding:50px; }
+.box { background:#fff; padding:25px; border-radius:10px; text-align:center; font-weight:bold; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:0.2s; font-size:16px; }
+.box:hover { transform:translateY(-5px); box-shadow:0 8px 18px rgba(0,0,0,0.15);}
+h1 { text-align:center; margin-top:30px; }
+</style>
 </head>
 <body>
 
-    <h1>Delivered Today Parcels</h1>
-    <table id="parcelTable">
-        <thead>
-            <tr>
-                <th>Tracking Number</th>
-                <th>From Address</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically inserted here -->
-        </tbody>
-    </table>
+<h1>Parcel Dashboard</h1>
 
-    <script>
-        // Replace with your actual Apps Script URL to fetch parcel data
-        const url = "https://script.google.com/macros/s/AKfycbyapy6A8FGc2vkvmJsVo3HxQniEmrGtg9zEPqmeq0bo2IwsdCwEsgekD6tK2xgsrQr7hQ/exec";
-        
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById("parcelTable").getElementsByTagName('tbody')[0];
+<div class="grid">
 
-                // Loop through the parcels data
-                data.forEach(parcel => {
-                    const row = tableBody.insertRow();
-                    
-                    const trackingCell = row.insertCell(0);
-                    trackingCell.textContent = parcel.trackingNumber || 'N/A';
+  <div class="box"
+       onclick="openApp('https://shaiksohaildnalabsindia-creator.github.io/Scanner/')">
+    📦 Parcel Entry → Scanner
+  </div>
 
-                    const addressCell = row.insertCell(1);
-                    addressCell.textContent = parcel.fromAddress || 'No Address Available';
+  <div class="box"
+       onclick="openApp('https://script.google.com/macros/s/AKfycbXXXXXXXX/uploadImages/exec')">
+    🖼 Upload Sample Images
+  </div>
 
-                    const imageCell = row.insertCell(2);
-                    if (parcel.imageUrl) {
-                        const img = document.createElement("img");
-                        img.src = parcel.imageUrl;
-                        img.alt = "Parcel Image";
-                        imageCell.appendChild(img);
-                    } else {
-                        imageCell.innerHTML = "<span class='no-image'>No Image Available</span>";
-                    }
-                });
-            })
-            .catch(err => {
-                console.error('Error fetching data:', err);
-                alert("Error loading parcel data.");
-            });
-    </script>
+  <div class="box"
+       onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyyOl-Sby2Er-n0qprQQ0Xe-kUbjqMWCcmsCASCAGuE2b6CCIiOC1_m9vmYD_No-YfI/exec')">
+    📅 Delivered Today
+  </div>
+
+  <div class="box"
+       onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')">
+    🖼 Sample Gallery
+  </div>
+
+  <div class="box"
+       onclick="openApp('https://script.google.com/macros/s/AKfycbXXXXXXXX/totalSamples/exec')">
+    📊 Total Samples
+  </div>
+
+</div>
+
+<script>
+  function openApp(url) {
+    window.open(url, '_blank');
+  }
+</script>
+
 </body>
 </html>
