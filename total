@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All Parcels</title>
+<style>
+body { font-family: Arial; padding: 20px; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+th { background: #f4f4f4; }
+.count { font-size: 18px; font-weight: bold; margin-top: 15px; }
+</style>
+</head>
+<body>
+
+<h2>📦 All Parcels</h2>
+
+<div class="count" id="count"></div>
+
+<table>
+<thead>
+<tr>
+  <th>Tracking No</th>
+  <th>Booking Date</th>
+  <th>From City</th>
+  <th>Delivery Date</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script>
+const webAppUrlAll = "https://script.google.com/macros/s/AKfycbxV2_zUbYNt3j_FPtRtauZ1wZaXFqc2fDik3PWK18Asoki_cGYH2HEdKgPhUNaNGLyJGQ/exec"; // Replace with your Web App URL
+let refreshInterval;
+
+function loadData() {
+  const oldScript = document.getElementById("jsonpScript");
+  if (oldScript) oldScript.remove();
+
+  const script = document.createElement("script");
+  script.src = webAppUrlAll + "?callback=handleData";
+  script.id = "jsonpScript";
+  document.body.appendChild(script);
+}
+
+function handleData(data) {
+  const table = document.getElementById("tableBody");
+  table.innerHTML = "";
+  document.getElementById("count").innerText = "Total Parcels: " + data.length;
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.trackingNumber}</td>
+      <td>${row.bookingDate}</td>
+      <td>${row.fromAddress}</td>
+      <td>${row.deliveryDate}</td>
+      <td>${row.status}</td>
+    `;
+    table.appendChild(tr);
+  });
+}
+
+// Auto-refresh every 60 seconds
+function startAutoRefresh() {
+  if (refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(loadData, 60000);
+}
+
+window.onload = function() {
+  loadData();
+  startAutoRefresh();
+};
+</script>
+
+</body>
+</html>
