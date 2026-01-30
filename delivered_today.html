@@ -4,17 +4,134 @@
 <meta charset="UTF-8">
 <title>Today's Delivered Parcels</title>
 <style>
-body { font-family: Arial; padding: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+body {
+  font-family: Arial;
+  padding: 20px;
+  margin: 0;
+  background: #f5f5f5;
+}
+
+/* ---------- TABLE ---------- */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: #fff;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
 th { background: #f4f4f4; }
-.count { font-size: 18px; font-weight: bold; margin-top: 15px; }
+
+.count {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+a {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ---------- MODAL ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal.show { display: flex; }
+
+.modal-content {
+  position: relative;
+  max-width: 95vw;
+  max-height: 95vh;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+/* ---------- GALLERY ---------- */
+.gallery {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.gallery img {
+  max-width: 80vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  cursor: zoom-in;
+  display: block;
+}
+
+/* Spinner inside gallery */
+.img-container {
+  position: relative;
+  display: inline-block;
+}
+
+.img-container .spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+/* ---------- FULLSCREEN ---------- */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fullscreen.show { display: flex; }
+
+.fullscreen img {
+  max-width: 95vw;
+  max-height: 95vh;
+  object-fit: contain;
+  cursor: grab;
+  transition: transform 0.2s ease;
+}
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
 <h2>📦 Today's Delivered Parcels</h2>
-
 <div class="count" id="count"></div>
 
 <table>
@@ -29,50 +146,249 @@ th { background: #f4f4f4; }
 <tbody id="tableBody"></tbody>
 </table>
 
-<script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
-let refreshInterval;
+<!-- ---------- IMAGE MODAL ---------- -->
+<div id="imageModal" class="modal">
+  <div class="modal-content">
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
 
+<!-- ---------- FULLSCREEN ---------- -->
+<div id="fullscreen" class="fullscreen">
+  <img id="fsImage" src="">
+</div>
+
+<script>
+/* ---------- ELEMENTS ---------- */
+const imageModal = document.getElementById("imageModal");
+const gallery = document.getElementById("gallery");
+const fullscreen = document.getElementById("fullscreen");
+const fsImage = document.getElementById("fsImage");
+
+/* ---------- APIs ---------- */
+const PARCEL_API = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
+const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+
+/* ---------- DATA ---------- */
+let currentImages = [];
+let currentIndex = 0;
+
+/* ---------- LOAD PARCEL DATA ---------- */
 function loadData() {
-  // Remove previous script tag if exists
   const oldScript = document.getElementById("jsonpScript");
   if (oldScript) oldScript.remove();
 
-  // Create new JSONP script tag
   const script = document.createElement("script");
-  script.src = webAppUrl + "?callback=handleData";
+  script.src = PARCEL_API + "?callback=handleData";
   script.id = "jsonpScript";
   document.body.appendChild(script);
 }
 
-// Callback function called by the JSONP Web App
 function handleData(data) {
-  const table = document.getElementById("tableBody");
-  table.innerHTML = "";
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
   document.getElementById("count").innerText = "Total Delivered Today: " + data.length;
 
-  data.forEach(row => {
+  data.forEach(r => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${row.trackingNumber}</td>
-      <td>${row.fromAddress}</td>
-      <td>${row.deliveryDate}</td>
-      <td>${row.status}</td>
-    `;
-    table.appendChild(tr);
+    tr.innerHTML = `<td><a onclick="openModal('${r.trackingNumber}')">${r.trackingNumber}</a></td>
+                    <td>${r.fromAddress}</td>
+                    <td>${r.deliveryDate}</td>
+                    <td>${r.status}</td>`;
+    tbody.appendChild(tr);
   });
 }
 
-// Auto-refresh every 60 seconds
-function startAutoRefresh() {
-  if (refreshInterval) clearInterval(refreshInterval);
-  refreshInterval = setInterval(loadData, 60000); // 1 minute
+/* ---------- MODAL ---------- */
+function openModal(tracking) {
+  imageModal.classList.add("show");
+  gallery.innerHTML = "";
+  fetchImages(tracking.toLowerCase());
 }
 
-// Load initially and start auto-refresh
-window.onload = function() {
+function closeModal() {
+  imageModal.classList.remove("show");
+}
+
+/* Click outside modal content closes it */
+imageModal.addEventListener("click", e => {
+  if (e.target === imageModal) closeModal();
+});
+
+/* ---------- IMAGE FETCH ---------- */
+function fetchImages(query) {
+  fetch(IMAGE_API)
+    .then(r => r.json())
+    .then(data => renderImages(data, query))
+    .catch(err => console.error(err));
+}
+
+function renderImages(data, query) {
+  gallery.innerHTML = "";
+  currentImages = data.filter(item => item.caption.toLowerCase().includes(query));
+  currentIndex = 0;
+
+  if (currentImages.length === 0) {
+    gallery.innerHTML = "<p style='color:white'>No images found.</p>";
+    return;
+  }
+
+  currentImages.forEach((item, index) => {
+    const container = document.createElement("div");
+    container.className = "img-container";
+
+    const spinner = document.createElement("div");
+    spinner.className = "spinner";
+    container.appendChild(spinner);
+
+    const img = document.createElement("img");
+    img.style.display = "none";
+    img.src = item.url;
+    img.loading = "lazy";
+    img.decoding = "async";
+
+    img.onload = () => {
+      spinner.style.display = "none";
+      img.style.display = "block";
+    };
+
+    img.onerror = () => {
+      spinner.style.display = "none";
+      img.style.display = "block";
+      img.alt = "Failed to load";
+    };
+
+    img.onclick = e => { e.stopPropagation(); openFullscreen(index); };
+
+    container.appendChild(img);
+    gallery.appendChild(container);
+  });
+}
+
+/* ---------- FULLSCREEN ---------- */
+let scale = 1;
+let lastScale = 1;
+let startX = 0, startY = 0;
+let translateX = 0, translateY = 0;
+let lastX = 0, lastY = 0;
+let isDragging = false;
+
+function openFullscreen(index) {
+  currentIndex = index;
+  fsImage.src = currentImages[index].url;
+  scale = 1;
+  lastScale = 1;
+  translateX = translateY = lastX = lastY = 0;
+  updateTransform();
+  fullscreen.classList.add("show");
+}
+
+/* ---------- CLOSE ---------- */
+fullscreen.addEventListener("click", closeFullscreen);
+function closeFullscreen() {
+  fullscreen.classList.remove("show");
+  fsImage.src = "";
+  scale = 1;
+  translateX = translateY = lastX = lastY = 0;
+  updateTransform();
+}
+
+/* ---------- ESC & ARROWS ---------- */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeFullscreen(); closeModal(); }
+  else if (e.key === "ArrowLeft") prevImage();
+  else if (e.key === "ArrowRight") nextImage();
+});
+
+/* ---------- NAVIGATION ---------- */
+function prevImage() {
+  if (currentImages.length === 0) return;
+  currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+  openFullscreen(currentIndex);
+}
+
+function nextImage() {
+  if (currentImages.length === 0) return;
+  currentIndex = (currentIndex + 1) % currentImages.length;
+  openFullscreen(currentIndex);
+}
+
+/* ---------- ZOOM ---------- */
+fsImage.addEventListener("wheel", e => {
+  e.preventDefault();
+  const delta = -e.deltaY * 0.0015;
+  scale = Math.min(Math.max(1, scale + delta), 5);
+  updateTransform();
+});
+
+/* ---------- TOUCH PINCH & PAN ---------- */
+let initialDist = 0;
+fsImage.addEventListener("touchstart", e => {
+  if (e.touches.length === 1) { // drag
+    startX = e.touches[0].clientX - translateX;
+    startY = e.touches[0].clientY - translateY;
+    isDragging = true;
+  } else if (e.touches.length === 2) { // pinch
+    initialDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+});
+
+fsImage.addEventListener("touchmove", e => {
+  e.preventDefault();
+  if (e.touches.length === 1 && isDragging && scale > 1) {
+    translateX = e.touches[0].clientX - startX;
+    translateY = e.touches[0].clientY - startY;
+    updateTransform();
+  } else if (e.touches.length === 2) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    scale = Math.min(Math.max(1, lastScale * (dist / initialDist)), 5);
+    updateTransform();
+  }
+});
+
+fsImage.addEventListener("touchend", e => {
+  if (e.touches.length < 2) lastScale = scale;
+  if (e.touches.length === 0) isDragging = false;
+});
+
+/* ---------- MOUSE PAN ---------- */
+fsImage.addEventListener("mousedown", e => {
+  if (scale <= 1) return;
+  isDragging = true;
+  startX = e.clientX - translateX;
+  startY = e.clientY - translateY;
+  fsImage.style.cursor = "grabbing";
+});
+
+document.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  translateX = e.clientX - startX;
+  translateY = e.clientY - startY;
+  updateTransform();
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+  fsImage.style.cursor = "grab";
+});
+
+/* ---------- UPDATE TRANSFORM ---------- */
+function updateTransform() {
+  fsImage.style.transform = `scale(${scale}) translate(${translateX/scale}px, ${translateY/scale}px)`;
+}
+
+/* ---------- INIT ---------- */
+window.onload = () => {
+  imageModal.classList.remove("show");
+  fullscreen.classList.remove("show");
   loadData();
-  startAutoRefresh();
+  setInterval(loadData, 60000);
 };
 </script>
 
