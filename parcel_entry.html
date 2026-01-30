@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Parcel Entry</title>
+  <style>
+    body { font-family: Arial; background: #f4f6f8; padding: 50px; }
+    .container { max-width: 400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+    input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+    button { background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    h2 { text-align: center; }
+    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>📦 Parcel Entry</h2>
+
+  <label>Tracking Number:</label>
+  <input type="text" id="trackingNumber" placeholder="Enter tracking number">
+
+  <label>Booking Date:</label>
+  <input type="date" id="bookingDate">
+
+  <label>From Address:</label>
+  <input type="text" id="fromAddress" placeholder="Enter from address">
+
+  <button onclick="submitParcel()">Add Parcel</button>
+
+  <div id="status"></div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
+
+function submitParcel() {
+  const trackingNumber = document.getElementById("trackingNumber").value.trim();
+  const bookingDate = document.getElementById("bookingDate").value;
+  const fromAddress = document.getElementById("fromAddress").value.trim();
+
+  if (!trackingNumber) { alert("Tracking number required"); return; }
+
+  // Using fetch with 'no-cors' to bypass browser CORS enforcement
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ trackingNumber, bookingDate, fromAddress }),
+    mode: 'no-cors'
+  })
+  .then(() => {
+    alert("Parcel submitted! Check your Google Sheet.");
+    document.getElementById("trackingNumber").value = "";
+    document.getElementById("bookingDate").value = "";
+    document.getElementById("fromAddress").value = "";
+  })
+  .catch(err => console.error(err));
+}
+</script>
+
+
+</body>
+</html>
