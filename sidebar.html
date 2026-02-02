@@ -105,7 +105,6 @@
 </style>
 
 <script>
-/* ---------- FUNCTIONS ---------- */
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
 
@@ -114,6 +113,7 @@ function toggleSidebar() {
     document.getElementById("overlay").classList.add("show");
   } else {
     sidebar.classList.toggle("collapsed");
+    document.body.classList.toggle("sidebar-collapsed");
   }
 }
 
@@ -122,3 +122,4 @@ function closeSidebar() {
   document.getElementById("overlay").classList.remove("show");
 }
 </script>
+
