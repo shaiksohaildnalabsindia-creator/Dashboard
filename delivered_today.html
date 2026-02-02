@@ -6,25 +6,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ---------- PAGE LAYOUT ---------- */
+/* ---------- BASE ---------- */
 body {
-  font-family: Arial;
   margin: 0;
+  font-family: Arial, sans-serif;
   background: #f5f5f5;
 }
 
-/* Content shifts because of sidebar */
+/* ---------- MAIN CONTENT ---------- */
 .main-content {
   margin-left: 230px;
   padding: 20px;
   transition: margin-left 0.3s;
 }
 
-/* 🔥 WHEN SIDEBAR COLLAPSES */
+/* WHEN SIDEBAR COLLAPSES */
 body.sidebar-collapsed .main-content {
   margin-left: 70px;
 }
 
+/* MOBILE */
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
@@ -119,13 +120,12 @@ a {
 
 <body>
 
-<!-- ---------- SIDEBAR ---------- -->
+<!-- SIDEBAR -->
 <div id="sidebar-container"></div>
 
-<!-- ---------- MAIN CONTENT ---------- -->
+<!-- PAGE CONTENT -->
 <div class="main-content">
-
-  <h2>📦 Today's Delivered Parcels</h2>
+  <h2>📅 Today's Delivered Parcels</h2>
   <div class="count" id="count"></div>
 
   <table>
@@ -139,17 +139,16 @@ a {
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
-
 </div>
 
-<!-- ---------- IMAGE MODAL ---------- -->
+<!-- IMAGE MODAL -->
 <div id="imageModal" class="modal">
   <div class="modal-content">
     <div class="gallery" id="gallery"></div>
   </div>
 </div>
 
-<!-- ---------- FULLSCREEN ---------- -->
+<!-- FULLSCREEN -->
 <div id="fullscreen" class="fullscreen">
   <img id="fsImage">
 </div>
@@ -160,17 +159,22 @@ fetch("sidebar.html")
   .then(res => res.text())
   .then(html => {
     document.getElementById("sidebar-container").innerHTML = html;
-    const currentPage = location.pathname.split("/").pop();
+
+    // ACTIVE MENU HIGHLIGHT
+    const page = location.pathname.split("/").pop();
     document.querySelectorAll(".sidebar nav a").forEach(link => {
-      if (link.dataset.page === currentPage) {
+      if (link.dataset.page === page) {
         link.classList.add("active");
-     }
-   });   
+      }
+    });
   });
 
 /* ---------- APIs ---------- */
-const PARCEL_API = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
-const IMAGE_API  = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+const PARCEL_API =
+  "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
+
+const IMAGE_API =
+  "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
 
 /* ---------- ELEMENTS ---------- */
 const tbody = document.getElementById("tableBody");
@@ -230,7 +234,8 @@ function fetchImages(query) {
       );
 
       if (!currentImages.length) {
-        gallery.innerHTML = "<p style='color:white'>No images found</p>";
+        gallery.innerHTML =
+          "<p style='color:white'>No images found</p>";
         return;
       }
 
