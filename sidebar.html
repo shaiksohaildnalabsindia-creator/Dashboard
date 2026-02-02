@@ -1,44 +1,155 @@
 <!-- sidebar.html -->
-<div class="sidebar">
-  <h2>📦 Dashboard</h2>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <span class="logo">📦</span>
+    <span class="title">Dashboard</span>
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+  </div>
 
-  <a href="index.html">🏠 Dashboard</a>
-  <a href="parcel_entry.html">📦 Parcel Entry</a>
-  <a href="parcel_entry_form.html">🔍 Received Scanner</a>
-  <a href="upload_sample_images.html">📷 Upload Images</a>
-  <a href="delivered_today.html">📅 Delivered Today</a>
-  <a href="total.html">📊 Total Parcels</a>
+  <nav>
+    <a href="index.html" data-page="index.html">🏠 Dashboard</a>
+    <a href="parcel_entry.html" data-page="parcel_entry.html">📦 Parcel Entry</a>
+    <a href="parcel_entry_form.html" data-page="parcel_entry_form.html">🔍 Received Scanner</a>
+    <a href="upload_sample_images.html" data-page="upload_sample_images.html">📷 Upload Images</a>
+    <a href="delivered_today.html" data-page="delivered_today.html">📅 Delivered Today</a>
+    <a href="total.html" data-page="total.html">📊 Total Parcels</a>
+  </nav>
 </div>
 
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
 <style>
+/* ---------- BASE ---------- */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* ---------- SIDEBAR ---------- */
 .sidebar {
-  width: 220px;
-  height: 100vh;
   position: fixed;
-  left: 0;
   top: 0;
+  left: 0;
+  width: 230px;
+  height: 100vh;
   background: #1e293b;
-  padding: 20px;
-  box-sizing: border-box;
   color: #fff;
+  transition: width 0.3s, transform 0.3s;
+  z-index: 1000;
+  overflow: hidden;
 }
 
-.sidebar h2 {
-  text-align: center;
-  margin-bottom: 20px;
+.sidebar.collapsed {
+  width: 70px;
 }
 
-.sidebar a {
-  display: block;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #0f172a;
+}
+
+.logo {
+  font-size: 22px;
+  margin-right: 10px;
+}
+
+.title {
+  flex: 1;
+  font-weight: bold;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ---------- MENU ---------- */
+.sidebar nav {
   padding: 10px;
-  margin-bottom: 10px;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
   color: #fff;
   text-decoration: none;
   border-radius: 6px;
   background: #334155;
+  font-size: 14px;
 }
 
-.sidebar a:hover {
+.sidebar nav a:hover {
   background: #475569;
 }
+
+/* ACTIVE PAGE */
+.sidebar nav a.active {
+  background: #2563eb;
+}
+
+/* COLLAPSED TEXT HIDE */
+.sidebar.collapsed .title,
+.sidebar.collapsed nav a span {
+  display: none;
+}
+
+/* ---------- OVERLAY (MOBILE) ---------- */
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 900;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 230px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .overlay.show {
+    display: block;
+  }
+}
 </style>
+
+<script>
+/* ---------- ACTIVE PAGE HIGHLIGHT ---------- */
+const currentPage = location.pathname.split("/").pop();
+document.querySelectorAll(".sidebar nav a").forEach(link => {
+  if (link.dataset.page === currentPage) {
+    link.classList.add("active");
+  }
+});
+
+/* ---------- TOGGLE ---------- */
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+
+  if (window.innerWidth <= 768) {
+    sidebar.classList.add("open");
+    document.getElementById("overlay").classList.add("show");
+  } else {
+    sidebar.classList.toggle("collapsed");
+  }
+}
+
+function closeSidebar() {
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
+</script>
