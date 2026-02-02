@@ -155,6 +155,12 @@ fetch("sidebar.html")
   .then(res => res.text())
   .then(html => {
     document.getElementById("sidebar-container").innerHTML = html;
+    const currentPage = location.pathname.split("/").pop();
+    document.querySelectorAll(".sidebar nav a").forEach(link => {
+      if (link.dataset.page === currentPage) {
+        link.classList.add("active");
+     }
+   });   
   });
 
 /* ---------- APIs ---------- */
