@@ -1,0 +1,106 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/sidebar.css b/sidebar.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..f0665a9015d0f86284b3550de6113c3c7498dacd
+--- /dev/null
++++ b/sidebar.css
+@@ -0,0 +1,96 @@
++.sidebar {
++  position: fixed;
++  inset: 0 auto 0 0;
++  width: 230px;
++  background: #1e293b;
++  color: #fff;
++  transition: width 0.3s, transform 0.3s;
++  z-index: 1000;
++}
++
++.sidebar.collapsed {
++  width: 70px;
++}
++
++.sidebar-header {
++  display: flex;
++  align-items: center;
++  padding: 15px;
++  background: #0f172a;
++}
++
++.toggle-btn {
++  font-size: 20px;
++  background: none;
++  border: none;
++  color: #fff;
++  cursor: pointer;
++  margin-right: 10px;
++}
++
++.title {
++  font-weight: bold;
++}
++
++.sidebar nav {
++  padding: 10px;
++}
++
++.sidebar nav a {
++  display: flex;
++  align-items: center;
++  padding: 10px;
++  margin-bottom: 8px;
++  background: #334155;
++  color: #fff;
++  text-decoration: none;
++  border-radius: 6px;
++}
++
++.sidebar nav a.active {
++  background: #2563eb;
++}
++
++.sidebar nav a:hover {
++  background: #475569;
++}
++
++.sidebar.collapsed nav a span,
++.sidebar.collapsed .title {
++  display: none;
++}
++
++.overlay {
++  display: none;
++}
++
++.main-content {
++  margin-left: 230px;
++  transition: margin-left 0.3s;
++}
++
++body.sidebar-collapsed .main-content {
++  margin-left: 70px;
++}
++
++@media (max-width: 768px) {
++  .sidebar {
++    transform: translateX(-100%);
++  }
++  .sidebar.open {
++    transform: translateX(0);
++  }
++  .overlay {
++    display: none;
++    position: fixed;
++    inset: 0;
++    background: rgba(0,0,0,0.5);
++    z-index: 900;
++  }
++  .overlay.show {
++    display: block;
++  }
++  .main-content {
++    margin-left: 0;
++  }
++}
+ 
+EOF
+)
