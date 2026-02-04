@@ -13,22 +13,283 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
       min-height: 100vh;
+    }
+
+    /* ---------- NEW SIDEBAR STYLE ---------- */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #1e293b;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      transition: transform 0.3s ease;
     }
 
-    .container {
+    .sidebar-header:hover .logo-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+      margin-left: 52px;
+      font-weight: 400;
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 600;
+      padding: 0 20px 8px 20px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .menu-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #475569;
+      text-decoration: none;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      margin: 0 8px;
+      border-radius: 8px;
+    }
+
+    .menu-item:hover {
+      background: #f1f5f9;
+      color: #334155;
+      transform: translateX(4px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu-item.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: #3b82f6;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .menu-item-icon {
+      font-size: 18px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-item-text {
+      flex: 1;
+    }
+
+    .menu-item-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .external-link {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ---------- TOPBAR ---------- */
+    .topbar {
+      background: #ffffff;
+      padding: 18px 25px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .menu-btn {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 15px;
+      color: #4b5563;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none; /* Hidden by default on desktop */
+    }
+
+    .menu-btn:hover {
+      background-color: #f3f4f6;
+    }
+
+    .page-info {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* ---------- FORM CONTAINER ---------- */
+    .form-wrapper {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+    }
+
+    .form-container {
       width: 100%;
       max-width: 500px;
       background: #ffffff;
       border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
       overflow: hidden;
       animation: slideIn 0.5s ease;
+      border: 1px solid #e2e8f0;
     }
 
     @keyframes slideIn {
@@ -43,7 +304,7 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       color: white;
       padding: 25px;
       text-align: center;
@@ -58,7 +319,7 @@
       gap: 10px;
     }
 
-    .form-container {
+    .form-content {
       padding: 30px;
     }
 
@@ -69,26 +330,35 @@
     .form-group label {
       display: block;
       margin-bottom: 8px;
-      color: #2d3748;
+      color: #374151;
       font-weight: 500;
       font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group label::before {
+      content: '•';
+      color: #3b82f6;
+      font-size: 18px;
     }
 
     .form-group input {
       width: 100%;
       padding: 14px 16px;
-      border: 2px solid #e2e8f0;
+      border: 1.5px solid #d1d5db;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       transition: all 0.3s ease;
-      background: #f8fafc;
+      background: #f9fafb;
     }
 
     .form-group input:focus {
       outline: none;
-      border-color: #007bff;
+      border-color: #3b82f6;
       background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .form-group input.error {
@@ -96,7 +366,7 @@
     }
 
     .form-group input.success {
-      border-color: #28a745;
+      border-color: #10b981;
     }
 
     .error-message {
@@ -104,6 +374,7 @@
       font-size: 13px;
       margin-top: 5px;
       display: none;
+      padding-left: 8px;
     }
 
     .button-group {
@@ -114,10 +385,10 @@
 
     button {
       flex: 1;
-      padding: 16px;
+      padding: 15px;
       border: none;
       border-radius: 10px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -128,14 +399,13 @@
     }
 
     .submit-btn {
-      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       color: white;
     }
 
     .submit-btn:hover:not(:disabled) {
-      background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
       transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
     }
 
     .submit-btn:disabled {
@@ -144,13 +414,13 @@
     }
 
     .clear-btn {
-      background: #f8f9fa;
-      color: #495057;
-      border: 2px solid #e9ecef;
+      background: #f3f4f6;
+      color: #4b5563;
+      border: 1.5px solid #d1d5db;
     }
 
     .clear-btn:hover {
-      background: #e9ecef;
+      background: #e5e7eb;
       transform: translateY(-2px);
     }
 
@@ -160,6 +430,7 @@
       border-radius: 10px;
       display: none;
       animation: fadeIn 0.5s ease;
+      border: 1px solid;
     }
 
     @keyframes fadeIn {
@@ -168,21 +439,21 @@
     }
 
     .status-success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
     }
 
     .status-error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
     }
 
     .status-loading {
-      background: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeaa7;
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
       text-align: center;
     }
 
@@ -190,50 +461,14 @@
       display: inline-block;
       width: 20px;
       height: 20px;
-      border: 3px solid rgba(0, 123, 255, 0.3);
+      border: 3px solid rgba(59, 130, 246, 0.3);
       border-radius: 50%;
-      border-top-color: #007bff;
+      border-top-color: #3b82f6;
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
-    }
-
-    .back-link {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .back-link a {
-      color: #6c757d;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: color 0.3s;
-    }
-
-    .back-link a:hover {
-      color: #007bff;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        max-width: 100%;
-      }
-      
-      .form-container {
-        padding: 20px;
-      }
-      
-      .button-group {
-        flex-direction: column;
-      }
-      
-      button {
-        width: 100%;
-      }
     }
 
     /* Toast notification */
@@ -242,10 +477,10 @@
       top: 20px;
       right: 20px;
       padding: 15px 20px;
-      border-radius: 10px;
+      border-radius: 12px;
       color: white;
       font-weight: 500;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       z-index: 1000;
       display: flex;
       align-items: center;
@@ -259,78 +494,204 @@
     }
 
     .toast-success {
-      background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
 
     .toast-error {
-      background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
 
     .toast-icon {
       font-size: 20px;
     }
+
+    /* Mobile Styles - FIXED */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0 !important; /* Force no margin on mobile */
+      }
+
+      /* SHOW the hamburger menu on mobile */
+      .menu-btn {
+        display: flex !important; /* Force display on mobile */
+      }
+
+      .form-wrapper {
+        padding: 20px;
+      }
+
+      .form-content {
+        padding: 20px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .user-menu {
+        display: none;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    .form-group input:focus-visible,
+    button:focus-visible,
+    .menu-item:focus-visible,
+    .menu-btn:focus-visible,
+    .sidebar-header:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <h2>📦 Parcel Entry</h2>
-    <p style="opacity: 0.9; font-size: 14px; margin-top: 5px;">Add new parcel to the system</p>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div class="logo-text">Parcel Pro</div>
+    </div>
+    <div class="sidebar-subtitle">Delivery Management System</div>
   </div>
 
-  <div class="form-container">
-    <div class="form-group">
-      <label for="trackingNumber">Tracking Number *</label>
-      <input 
-        type="text" 
-        id="trackingNumber" 
-        placeholder="Enter tracking number (e.g., TRK123456789)"
-        autocomplete="off"
-        autocapitalize="characters"
-      >
-      <div class="error-message" id="trackingError">Please enter a valid tracking number</div>
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <div class="menu-section-title">Operations</div>
+      <div class="menu-items">
+        <a href="parcel_entry.html" class="menu-item active">
+          <span class="menu-item-icon">📦</span>
+          <span class="menu-item-text">Parcel Entry</span>
+        </a>
+        <a href="parcel_entry_form.html" class="menu-item">
+          <span class="menu-item-icon">🔍</span>
+          <span class="menu-item-text">Received / Scanner</span>
+        </a>
+        <a href="upload_sample_images.html" class="menu-item">
+          <span class="menu-item-icon">📷</span>
+          <span class="menu-item-text">Upload Images</span>
+          <span class="menu-item-badge">New</span>
+        </a>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="bookingDate">Booking Date *</label>
-      <input 
-        type="date" 
-        id="bookingDate"
-        max=""
-      >
-      <div class="error-message" id="dateError">Please select a valid date</div>
+    <div class="menu-section">
+      <div class="menu-section-title">Reports</div>
+      <div class="menu-items">
+        <a href="delivered_today.html" class="menu-item">
+          <span class="menu-item-icon">📅</span>
+          <span class="menu-item-text">Delivered Today</span>
+        </a>
+        <a href="total.html" class="menu-item">
+          <span class="menu-item-icon">📊</span>
+          <span class="menu-item-text">Total Samples</span>
+        </a>
+        <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="menu-item">
+          <span class="menu-item-icon">🖼️</span>
+          <span class="menu-item-text">Sample Gallery</span>
+          <span class="external-link">↗</span>
+        </a>
+      </div>
     </div>
+  </div>
 
-    <div class="form-group">
-      <label for="fromAddress">From Address *</label>
-      <input 
-        type="text" 
-        id="fromAddress" 
-        placeholder="Enter sender's address"
-        autocomplete="off"
-      >
-      <div class="error-message" id="addressError">Please enter a valid address</div>
-    </div>
+  <div class="sidebar-footer">
+    <div>© 2024 Parcel Pro</div>
+    <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">v2.1.0</div>
+  </div>
+</aside>
 
-    <div class="button-group">
-      <button class="submit-btn" onclick="submitParcel()" id="submitBtn">
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+      ☰
+    </button>
+    <div class="page-info">
+      <div class="page-title">
         <span>📦</span>
-        <span>Add Parcel</span>
-      </button>
-      <button class="clear-btn" onclick="clearForm()">
-        <span>🗑️</span>
-        <span>Clear Form</span>
-      </button>
+        <span>Parcel Entry</span>
+      </div>
+      <div class="page-subtitle">Add new parcels to the tracking system</div>
     </div>
+    <div class="user-menu">
+      <div class="user-avatar">U</div>
+    </div>
+  </header>
 
-    <div class="status-container" id="status"></div>
+  <!-- Form Content -->
+  <div class="form-wrapper">
+    <div class="form-container">
+      <div class="header">
+        <h2>📦 Parcel Entry</h2>
+        <p style="opacity: 0.9; font-size: 14px; margin-top: 5px;">Add new parcel to the system</p>
+      </div>
 
-    <div class="back-link">
-      <a href="index.html">
-        <span>←</span>
-        <span>Back to Dashboard</span>
-      </a>
+      <div class="form-content">
+        <div class="form-group">
+          <label for="trackingNumber">Tracking Number</label>
+          <input 
+            type="text" 
+            id="trackingNumber" 
+            placeholder="Enter tracking number (e.g., TRK123456789)"
+            autocomplete="off"
+            autocapitalize="characters"
+          >
+          <div class="error-message" id="trackingError">Please enter a valid tracking number</div>
+        </div>
+
+        <div class="form-group">
+          <label for="bookingDate">Booking Date</label>
+          <input 
+            type="date" 
+            id="bookingDate"
+            max=""
+          >
+          <div class="error-message" id="dateError">Please select a valid date</div>
+        </div>
+
+        <div class="form-group">
+          <label for="fromAddress">From Address</label>
+          <input 
+            type="text" 
+            id="fromAddress" 
+            placeholder="Enter sender's address"
+            autocomplete="off"
+          >
+          <div class="error-message" id="addressError">Please enter a valid address</div>
+        </div>
+
+        <div class="button-group">
+          <button class="submit-btn" onclick="submitParcel()" id="submitBtn">
+            <span>📦</span>
+            <span>Add Parcel</span>
+          </button>
+          <button class="clear-btn" onclick="clearForm()">
+            <span>🗑️</span>
+            <span>Clear Form</span>
+          </button>
+        </div>
+
+        <div class="status-container" id="status"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -342,6 +703,7 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
 
 // DOM Elements
+const sidebar = document.getElementById('sidebar');
 const trackingInput = document.getElementById('trackingNumber');
 const dateInput = document.getElementById('bookingDate');
 const addressInput = document.getElementById('fromAddress');
@@ -351,6 +713,40 @@ const toast = document.getElementById('toast');
 
 // Set max date to today
 dateInput.max = new Date().toISOString().split('T')[0];
+
+// Go to Dashboard function
+function goToDashboard() {
+  window.location.href = "index.html";
+}
+
+// Toggle sidebar for mobile
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+  console.log('Sidebar toggled, class list:', sidebar.classList);
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768 && 
+      !sidebar.contains(e.target) && 
+      !e.target.classList.contains('menu-btn')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+// Close sidebar when pressing Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+// Auto-close sidebar on window resize to desktop
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('open');
+  }
+});
 
 // Validation functions
 function validateForm() {
@@ -438,18 +834,23 @@ function clearForm() {
   trackingInput.focus();
 }
 
-// Submit parcel
-async function submitParcel() {
+// Submit parcel - Using the original working logic
+function submitParcel() {
   // Validate form
   if (!validateForm()) {
     showToast('Please fix the errors in the form', 'error');
     return;
   }
   
-  const trackingNumber = trackingInput.value.trim().toUpperCase();
+  const trackingNumber = trackingInput.value.trim();
   const bookingDate = dateInput.value;
   const fromAddress = addressInput.value.trim();
-  
+
+  if (!trackingNumber) { 
+    showToast("Tracking number required", 'error'); 
+    return; 
+  }
+
   // Show loading state
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<span class="loading-spinner"></span><span>Adding Parcel...</span>';
@@ -457,69 +858,66 @@ async function submitParcel() {
   statusDiv.className = 'status-container status-loading';
   statusDiv.innerHTML = '<div class="loading-spinner"></div><div>Submitting parcel data...</div>';
   statusDiv.style.display = 'block';
-  
-  try {
-    // Create form data for URL encoding
-    const formData = new FormData();
-    formData.append('trackingNumber', trackingNumber);
-    formData.append('bookingDate', bookingDate);
-    formData.append('fromAddress', fromAddress);
-    
-    // Try multiple approaches for Google Apps Script
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors', // Google Apps Script requires this
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(formData)
-    });
-    
-    // Since we're using no-cors mode, we can't read the response
-    // But we can assume success if no network error occurred
-    
+
+  // Using the original fetch with 'no-cors' that should work
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ 
+      trackingNumber, 
+      bookingDate, 
+      fromAddress 
+    }),
+    mode: 'no-cors'  // This is required for Google Apps Script
+  })
+  .then(() => {
     // Show success message
-    setTimeout(() => {
-      showToast('✅ Parcel added successfully!');
-      statusDiv.className = 'status-container status-success';
-      statusDiv.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 24px;">✅</span>
-          <div>
-            <strong>Parcel Added Successfully!</strong>
-            <div style="margin-top: 5px; font-size: 14px;">
-              Tracking: ${trackingNumber}<br>
-              Date: ${bookingDate}<br>
-              From: ${fromAddress}
-            </div>
+    showToast("Parcel submitted! Check your Google Sheet.", 'success');
+    statusDiv.className = 'status-container status-success';
+    statusDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 24px;">✅</span>
+        <div>
+          <strong>Parcel Submitted Successfully!</strong>
+          <div style="margin-top: 5px; font-size: 14px;">
+            Tracking: ${trackingNumber}<br>
+            Date: ${bookingDate}<br>
+            From: ${fromAddress}
           </div>
         </div>
-      `;
-      
-      // Clear form after successful submission
-      clearForm();
-    }, 1000);
+      </div>
+    `;
     
-  } catch (error) {
-    console.error('Error:', error);
-    showToast('❌ Failed to add parcel. Please try again.', 'error');
+    // Clear form fields
+    trackingInput.value = "";
+    dateInput.value = "";
+    addressInput.value = "";
+    
+    // Reset validation states
+    [trackingInput, dateInput, addressInput].forEach(input => {
+      input.classList.remove('error', 'success');
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    showToast("Error submitting parcel. Please try again.", 'error');
     statusDiv.className = 'status-container status-error';
     statusDiv.innerHTML = `
       <div style="display: flex; align-items: center; gap: 10px;">
         <span style="font-size: 24px;">❌</span>
         <div>
-          <strong>Submission Failed</strong>
+          <strong>Submission Error</strong>
           <div style="margin-top: 5px; font-size: 14px;">
-            ${error.message || 'Network error. Please check your connection.'}
+            Please check your connection and try again.
           </div>
         </div>
       </div>
     `;
-  } finally {
+  })
+  .finally(() => {
     // Reset button state
     submitBtn.disabled = false;
     submitBtn.innerHTML = '<span>📦</span><span>Add Parcel</span>';
-  }
+  });
 }
 
 // Add keyboard shortcuts
@@ -533,6 +931,11 @@ document.addEventListener('keydown', (e) => {
   // Escape to clear form
   if (e.key === 'Escape') {
     clearForm();
+  }
+  
+  // Enter key on sidebar header to go to dashboard
+  if (e.key === 'Enter' && e.target.classList.contains('sidebar-header')) {
+    goToDashboard();
   }
 });
 
@@ -562,7 +965,9 @@ dateInput.addEventListener('change', validateForm);
 addressInput.addEventListener('input', validateForm);
 
 // Focus on first input when page loads
-trackingInput.focus();
+window.addEventListener('load', () => {
+  trackingInput.focus();
+});
 </script>
 
 </body>
