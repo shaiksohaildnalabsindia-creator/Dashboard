@@ -297,7 +297,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transform: scaleX(-1); /* Mirror the camera feed */
+    /* Removed transform: scaleX(-1) to fix mirror issue */
   }
 
   .scanner-overlay {
@@ -786,7 +786,6 @@ function setupResizeObserver() {
   
   resizeObserver = new ResizeObserver((entries) => {
     for (let entry of entries) {
-      const { width, height } = entry.contentRect;
       const scannerFrame = document.querySelector('.scanner-frame');
       if (scannerFrame) {
         // Adjust scanner frame height based on container size
