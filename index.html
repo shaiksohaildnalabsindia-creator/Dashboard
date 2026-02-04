@@ -1,178 +1,351 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/index.html b/index.html
-index 2674612b065fc7f8561f0bb46e2d712467ae469f..ce95d17ec9203b72acea1718ecc9e384cf8f3f1e 100644
---- a/index.html
-+++ b/index.html
-@@ -1,216 +1,149 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Parcel Dashboard</title>
- 
- <style>
--/* Reset */
+- <!DOCTYPE html>
+- <html lang="en">
+- <head>
+- <meta charset="UTF-8">
+- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+- <title>Parcel Dashboard</title>
+- 
+- <style>
+--/* Reset */
+-+@import url("sidebar.css");
+-+
+- * {
+-   box-sizing: border-box;
+- }
+- 
+--/* Body */
+- body {
+-   margin: 0;
+-   font-family: Arial, sans-serif;
+-   background: #f4f6f8;
+- }
+- 
+--/* App Layout */
+--.app {
+--  display: flex;
+--  min-height: 100vh;
+--}
+--
+--/* Sidebar */
+--.sidebar {
+--  width: 240px;
+--  background: #1e293b;
+--  color: #fff;
+--  padding: 20px 15px;
+--  position: fixed;
+--  top: 0;
+--  left: 0;
+--  height: 100%;
+--  transition: transform 0.3s ease;
+--  z-index: 1000;
+--}
+--
+--.sidebar .logo {
+--  font-size: 20px;
+--  font-weight: bold;
+--  margin-bottom: 30px;
+--}
+--
+--.sidebar nav a {
+--  display: block;
+--  color: #cbd5e1;
+--  text-decoration: none;
+--  padding: 12px 10px;
+--  border-radius: 8px;
+--  margin-bottom: 6px;
+--  font-size: 15px;
+--}
+--
+--.sidebar nav a:hover {
+--  background: #334155;
+--  color: #fff;
+--}
+--
+--/* Main Content */
+--.content {
+--  margin-left: 240px;
+--  flex: 1;
+--}
+--
+--/* Topbar */
+-+/* ---------- TOPBAR ---------- */
+- .topbar {
+-   background: #ffffff;
+-   padding: 12px 15px;
+-   display: flex;
+-   align-items: center;
+-   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+- }
+- 
+- .menu-btn {
+-   font-size: 22px;
+-   background: none;
+-   border: none;
+-   cursor: pointer;
+-   margin-right: 15px;
+-   display: none;
+- }
+- 
+- .page-title {
+-   font-size: 18px;
+-   font-weight: bold;
+- }
+- 
+--/* Page Content */
+- .page-content {
+-   padding: 25px;
+- }
+- 
+--/* Dashboard Grid */
+- .grid {
+-   display: grid;
+-   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+-   gap: 20px;
+- }
+- 
+- .box {
+-   background: #ffffff;
+-   padding: 25px;
+-   border-radius: 12px;
+-   text-align: center;
+-   font-weight: bold;
+-   cursor: pointer;
+-   font-size: 16px;
+-   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+-   transition: transform 0.2s ease, box-shadow 0.2s ease;
+- }
+- 
+- .box:hover {
+-   transform: translateY(-5px);
+-   box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+- }
+- 
+--/* Mobile */
+- @media (max-width: 768px) {
+--  .sidebar {
+--    transform: translateX(-100%);
+--  }
+--
+--  .sidebar.open {
+--    transform: translateX(0);
+--  }
+--
+--  .content {
+--    margin-left: 0;
+--  }
+--
+-   .menu-btn {
+-     display: block;
+-   }
+- }
+- </style>
+- </head>
+- 
+- <body>
+- 
+--<div class="app">
+--
+--  <!-- Sidebar -->
+--  <aside class="sidebar" id="sidebar">
+--    <div class="logo">📦 Parcel</div>
+--    <nav>
+--      <a href="index.html">🏠 Dashboard</a>
+--      <a href="parcel_entry.html">📦 Parcel Entry</a>
+--      <a href="parcel_entry_form.html">🔍 Received / Scanner</a>
+--      <a href="upload_sample_images.html">📷 Upload Images</a>
+--      <a href="delivered_today.html">📅 Delivered Today</a>
+--      <a href="total.html">📊 Total Samples</a>
+--      <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank">
+--        🖼️ Sample Gallery
+--      </a>
+--    </nav>
+--  </aside>
+--
+--  <!-- Main Content -->
+--  <main class="content">
+--    <header class="topbar">
+--      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+--      <span class="page-title">Parcel Dashboard</span>
+--    </header>
+-+<div class="sidebar" id="sidebar">
+-+  <div class="sidebar-header">
+-+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+-+    <span class="title">Dashboard</span>
+-+  </div>
+-+
+-+  <nav>
+-+    <a href="index.html" data-page="index.html"><span>🏠 Dashboard</span></a>
+-+    <a href="parcel_entry.html" data-page="parcel_entry.html"><span>📦 Parcel Entry</span></a>
+-+    <a href="parcel_entry_form.html" data-page="parcel_entry_form.html"><span>🔍 Received Scanner</span></a>
+-+    <a href="upload_sample_images.html" data-page="upload_sample_images.html"><span>📷 Upload Images</span></a>
+-+    <a href="delivered_today.html" data-page="delivered_today.html"><span>📅 Delivered Today</span></a>
+-+    <a href="total.html" data-page="total.html"><span>📊 Total Parcels</span></a>
+-+    <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank" rel="noopener">
+-+      <span>🖼️ Sample Gallery</span>
+-+    </a>
+-+  </nav>
+-+</div>
+- 
+--    <div class="page-content">
+--      <div class="grid">
+-+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+- 
+--        <div class="box" onclick="go('parcel_entry.html')">
+--          📦📝 Parcel Entry Form
+--        </div>
+-+<main class="main-content">
+-+  <header class="topbar">
+-+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+-+    <span class="page-title">Parcel Dashboard</span>
+-+  </header>
+- 
+--        <div class="box" onclick="go('parcel_entry_form.html')">
+--          📦🔍 Received → Scanner
+--        </div>
+-+  <div class="page-content">
+-+    <div class="grid">
+-+      <div class="box" onclick="go('parcel_entry.html')">
+-+        📦📝 Parcel Entry Form
+-+      </div>
+- 
+--        <div class="box" onclick="go('upload_sample_images.html')">
+--          📷 Upload Sample Images
+--        </div>
+-+      <div class="box" onclick="go('parcel_entry_form.html')">
+-+        📦🔍 Received → Scanner
+-+      </div>
+- 
+--        <div class="box" onclick="go('delivered_today.html')">
+--          📅 Delivered Today
+--        </div>
+-+      <div class="box" onclick="go('upload_sample_images.html')">
+-+        📷 Upload Sample Images
+-+      </div>
+- 
+--        <div class="box" onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')">
+--          🖼️ Sample Gallery
+--        </div>
+-+      <div class="box" onclick="go('delivered_today.html')">
+-+        📅 Delivered Today
+-+      </div>
+- 
+--        <div class="box" onclick="go('total.html')">
+--          📊 Total Samples
+--        </div>
+-+      <div class="box" onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')">
+-+        🖼️ Sample Gallery
+-+      </div>
+- 
+-+      <div class="box" onclick="go('total.html')">
+-+        📊 Total Samples
+-       </div>
+-     </div>
+--  </main>
+--
+--</div>
+-+  </div>
+-+</main>
+- 
+-+<script src="sidebar.js" defer></script>
+- <script>
+--function toggleSidebar() {
+--  document.getElementById("sidebar").classList.toggle("open");
+--}
+--
+- function go(page) {
+-   window.location.href = page;
+- }
+- 
+- function openApp(url) {
+-   window.open(url, "_blank");
+- }
+- </script>
+- 
+- </body>
+- </html>
+- 
+-EOF
+-)
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="UTF-8">
++<meta name="viewport" content="width=device-width, initial-scale=1.0">
++<title>Parcel Dashboard</title>
++
++<style>
 +@import url("sidebar.css");
 +
- * {
-   box-sizing: border-box;
- }
- 
--/* Body */
- body {
-   margin: 0;
-   font-family: Arial, sans-serif;
-   background: #f4f6f8;
- }
- 
--/* App Layout */
--.app {
--  display: flex;
--  min-height: 100vh;
--}
--
--/* Sidebar */
--.sidebar {
--  width: 240px;
--  background: #1e293b;
--  color: #fff;
--  padding: 20px 15px;
--  position: fixed;
--  top: 0;
--  left: 0;
--  height: 100%;
--  transition: transform 0.3s ease;
--  z-index: 1000;
--}
--
--.sidebar .logo {
--  font-size: 20px;
--  font-weight: bold;
--  margin-bottom: 30px;
--}
--
--.sidebar nav a {
--  display: block;
--  color: #cbd5e1;
--  text-decoration: none;
--  padding: 12px 10px;
--  border-radius: 8px;
--  margin-bottom: 6px;
--  font-size: 15px;
--}
--
--.sidebar nav a:hover {
--  background: #334155;
--  color: #fff;
--}
--
--/* Main Content */
--.content {
--  margin-left: 240px;
--  flex: 1;
--}
--
--/* Topbar */
++* {
++  box-sizing: border-box;
++}
++
++body {
++  margin: 0;
++  font-family: Arial, sans-serif;
++  background: #f4f6f8;
++}
++
 +/* ---------- TOPBAR ---------- */
- .topbar {
-   background: #ffffff;
-   padding: 12px 15px;
-   display: flex;
-   align-items: center;
-   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
- }
- 
- .menu-btn {
-   font-size: 22px;
-   background: none;
-   border: none;
-   cursor: pointer;
-   margin-right: 15px;
-   display: none;
- }
- 
- .page-title {
-   font-size: 18px;
-   font-weight: bold;
- }
- 
--/* Page Content */
- .page-content {
-   padding: 25px;
- }
- 
--/* Dashboard Grid */
- .grid {
-   display: grid;
-   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-   gap: 20px;
- }
- 
- .box {
-   background: #ffffff;
-   padding: 25px;
-   border-radius: 12px;
-   text-align: center;
-   font-weight: bold;
-   cursor: pointer;
-   font-size: 16px;
-   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-   transition: transform 0.2s ease, box-shadow 0.2s ease;
- }
- 
- .box:hover {
-   transform: translateY(-5px);
-   box-shadow: 0 8px 18px rgba(0,0,0,0.15);
- }
- 
--/* Mobile */
- @media (max-width: 768px) {
--  .sidebar {
--    transform: translateX(-100%);
--  }
--
--  .sidebar.open {
--    transform: translateX(0);
--  }
--
--  .content {
--    margin-left: 0;
--  }
--
-   .menu-btn {
-     display: block;
-   }
- }
- </style>
- </head>
- 
- <body>
- 
--<div class="app">
--
--  <!-- Sidebar -->
--  <aside class="sidebar" id="sidebar">
--    <div class="logo">📦 Parcel</div>
--    <nav>
--      <a href="index.html">🏠 Dashboard</a>
--      <a href="parcel_entry.html">📦 Parcel Entry</a>
--      <a href="parcel_entry_form.html">🔍 Received / Scanner</a>
--      <a href="upload_sample_images.html">📷 Upload Images</a>
--      <a href="delivered_today.html">📅 Delivered Today</a>
--      <a href="total.html">📊 Total Samples</a>
--      <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank">
--        🖼️ Sample Gallery
--      </a>
--    </nav>
--  </aside>
--
--  <!-- Main Content -->
--  <main class="content">
--    <header class="topbar">
--      <button class="menu-btn" onclick="toggleSidebar()">☰</button>
--      <span class="page-title">Parcel Dashboard</span>
--    </header>
++.topbar {
++  background: #ffffff;
++  padding: 12px 15px;
++  display: flex;
++  align-items: center;
++  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
++}
++
++.menu-btn {
++  font-size: 22px;
++  background: none;
++  border: none;
++  cursor: pointer;
++  margin-right: 15px;
++  display: none;
++}
++
++.page-title {
++  font-size: 18px;
++  font-weight: bold;
++}
++
++.page-content {
++  padding: 25px;
++}
++
++.grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
++  gap: 20px;
++}
++
++.box {
++  background: #ffffff;
++  padding: 25px;
++  border-radius: 12px;
++  text-align: center;
++  font-weight: bold;
++  cursor: pointer;
++  font-size: 16px;
++  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
++  transition: transform 0.2s ease, box-shadow 0.2s ease;
++}
++
++.box:hover {
++  transform: translateY(-5px);
++  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
++}
++
++@media (max-width: 768px) {
++  .menu-btn {
++    display: block;
++  }
++}
++</style>
++</head>
++
++<body>
++
 +<div class="sidebar" id="sidebar">
 +  <div class="sidebar-header">
 +    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -191,84 +364,54 @@ index 2674612b065fc7f8561f0bb46e2d712467ae469f..ce95d17ec9203b72acea1718ecc9e384
 +    </a>
 +  </nav>
 +</div>
- 
--    <div class="page-content">
--      <div class="grid">
++
 +<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
- 
--        <div class="box" onclick="go('parcel_entry.html')">
--          📦📝 Parcel Entry Form
--        </div>
++
 +<main class="main-content">
 +  <header class="topbar">
 +    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 +    <span class="page-title">Parcel Dashboard</span>
 +  </header>
- 
--        <div class="box" onclick="go('parcel_entry_form.html')">
--          📦🔍 Received → Scanner
--        </div>
++
 +  <div class="page-content">
 +    <div class="grid">
 +      <div class="box" onclick="go('parcel_entry.html')">
 +        📦📝 Parcel Entry Form
 +      </div>
- 
--        <div class="box" onclick="go('upload_sample_images.html')">
--          📷 Upload Sample Images
--        </div>
++
 +      <div class="box" onclick="go('parcel_entry_form.html')">
 +        📦🔍 Received → Scanner
 +      </div>
- 
--        <div class="box" onclick="go('delivered_today.html')">
--          📅 Delivered Today
--        </div>
++
 +      <div class="box" onclick="go('upload_sample_images.html')">
 +        📷 Upload Sample Images
 +      </div>
- 
--        <div class="box" onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')">
--          🖼️ Sample Gallery
--        </div>
++
 +      <div class="box" onclick="go('delivered_today.html')">
 +        📅 Delivered Today
 +      </div>
- 
--        <div class="box" onclick="go('total.html')">
--          📊 Total Samples
--        </div>
++
 +      <div class="box" onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')">
 +        🖼️ Sample Gallery
 +      </div>
- 
++
 +      <div class="box" onclick="go('total.html')">
 +        📊 Total Samples
-       </div>
-     </div>
--  </main>
--
--</div>
++      </div>
++    </div>
 +  </div>
 +</main>
- 
++
 +<script src="sidebar.js" defer></script>
- <script>
--function toggleSidebar() {
--  document.getElementById("sidebar").classList.toggle("open");
--}
--
- function go(page) {
-   window.location.href = page;
- }
- 
- function openApp(url) {
-   window.open(url, "_blank");
- }
- </script>
- 
- </body>
- </html>
- 
-EOF
-)
++<script>
++function go(page) {
++  window.location.href = page;
++}
++
++function openApp(url) {
++  window.open(url, "_blank");
++}
++</script>
++
++</body>
++</html>
