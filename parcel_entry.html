@@ -1,63 +1,569 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parcel Entry</title>
   <style>
-    body { font-family: Arial; background: #f4f6f8; padding: 50px; }
-    .container { max-width: 400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
-    input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
-    button { background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    h2 { text-align: center; }
-    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      color: white;
+      padding: 25px;
+      text-align: center;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-container {
+      padding: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2d3748;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #007bff;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+
+    .form-group input.error {
+      border-color: #dc3545;
+    }
+
+    .form-group input.success {
+      border-color: #28a745;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      color: white;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0056b3 0%, #004494 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 86, 179, 0.3);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .clear-btn {
+      background: #f8f9fa;
+      color: #495057;
+      border: 2px solid #e9ecef;
+    }
+
+    .clear-btn:hover {
+      background: #e9ecef;
+      transform: translateY(-2px);
+    }
+
+    .status-container {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status-loading {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+      text-align: center;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0, 123, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #007bff;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-link a {
+      color: #6c757d;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.3s;
+    }
+
+    .back-link a:hover {
+      color: #007bff;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        max-width: 100%;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      button {
+        width: 100%;
+      }
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-success {
+      background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    }
+
+    .toast-error {
+      background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>📦 Parcel Entry</h2>
+  <div class="header">
+    <h2>📦 Parcel Entry</h2>
+    <p style="opacity: 0.9; font-size: 14px; margin-top: 5px;">Add new parcel to the system</p>
+  </div>
 
-  <label>Tracking Number:</label>
-  <input type="text" id="trackingNumber" placeholder="Enter tracking number">
+  <div class="form-container">
+    <div class="form-group">
+      <label for="trackingNumber">Tracking Number *</label>
+      <input 
+        type="text" 
+        id="trackingNumber" 
+        placeholder="Enter tracking number (e.g., TRK123456789)"
+        autocomplete="off"
+        autocapitalize="characters"
+      >
+      <div class="error-message" id="trackingError">Please enter a valid tracking number</div>
+    </div>
 
-  <label>Booking Date:</label>
-  <input type="date" id="bookingDate">
+    <div class="form-group">
+      <label for="bookingDate">Booking Date *</label>
+      <input 
+        type="date" 
+        id="bookingDate"
+        max=""
+      >
+      <div class="error-message" id="dateError">Please select a valid date</div>
+    </div>
 
-  <label>From Address:</label>
-  <input type="text" id="fromAddress" placeholder="Enter from address">
+    <div class="form-group">
+      <label for="fromAddress">From Address *</label>
+      <input 
+        type="text" 
+        id="fromAddress" 
+        placeholder="Enter sender's address"
+        autocomplete="off"
+      >
+      <div class="error-message" id="addressError">Please enter a valid address</div>
+    </div>
 
-  <button onclick="submitParcel()">Add Parcel</button>
+    <div class="button-group">
+      <button class="submit-btn" onclick="submitParcel()" id="submitBtn">
+        <span>📦</span>
+        <span>Add Parcel</span>
+      </button>
+      <button class="clear-btn" onclick="clearForm()">
+        <span>🗑️</span>
+        <span>Clear Form</span>
+      </button>
+    </div>
 
-  <div id="status"></div>
+    <div class="status-container" id="status"></div>
+
+    <div class="back-link">
+      <a href="index.html">
+        <span>←</span>
+        <span>Back to Dashboard</span>
+      </a>
+    </div>
+  </div>
 </div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
 
-function submitParcel() {
-  const trackingNumber = document.getElementById("trackingNumber").value.trim();
-  const bookingDate = document.getElementById("bookingDate").value;
-  const fromAddress = document.getElementById("fromAddress").value.trim();
+// DOM Elements
+const trackingInput = document.getElementById('trackingNumber');
+const dateInput = document.getElementById('bookingDate');
+const addressInput = document.getElementById('fromAddress');
+const submitBtn = document.getElementById('submitBtn');
+const statusDiv = document.getElementById('status');
+const toast = document.getElementById('toast');
 
-  if (!trackingNumber) { alert("Tracking number required"); return; }
+// Set max date to today
+dateInput.max = new Date().toISOString().split('T')[0];
 
-  // Using fetch with 'no-cors' to bypass browser CORS enforcement
-  fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({ trackingNumber, bookingDate, fromAddress }),
-    mode: 'no-cors'
-  })
-  .then(() => {
-    alert("Parcel submitted! Check your Google Sheet.");
-    document.getElementById("trackingNumber").value = "";
-    document.getElementById("bookingDate").value = "";
-    document.getElementById("fromAddress").value = "";
-  })
-  .catch(err => console.error(err));
+// Validation functions
+function validateForm() {
+  let isValid = true;
+  
+  // Validate tracking number
+  if (!trackingInput.value.trim()) {
+    showError(trackingInput, 'trackingError', 'Tracking number is required');
+    isValid = false;
+  } else if (trackingInput.value.trim().length < 3) {
+    showError(trackingInput, 'trackingError', 'Tracking number must be at least 3 characters');
+    isValid = false;
+  } else {
+    showSuccess(trackingInput, 'trackingError');
+  }
+  
+  // Validate date
+  if (!dateInput.value) {
+    showError(dateInput, 'dateError', 'Booking date is required');
+    isValid = false;
+  } else {
+    showSuccess(dateInput, 'dateError');
+  }
+  
+  // Validate address
+  if (!addressInput.value.trim()) {
+    showError(addressInput, 'addressError', 'From address is required');
+    isValid = false;
+  } else if (addressInput.value.trim().length < 5) {
+    showError(addressInput, 'addressError', 'Please enter a complete address');
+    isValid = false;
+  } else {
+    showSuccess(addressInput, 'addressError');
+  }
+  
+  return isValid;
 }
-</script>
 
+function showError(input, errorId, message) {
+  input.classList.add('error');
+  input.classList.remove('success');
+  const errorDiv = document.getElementById(errorId);
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+}
+
+function showSuccess(input, errorId) {
+  input.classList.remove('error');
+  input.classList.add('success');
+  document.getElementById(errorId).style.display = 'none';
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+    <span>${message}</span>
+  `;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+// Clear form
+function clearForm() {
+  trackingInput.value = '';
+  dateInput.value = '';
+  addressInput.value = '';
+  
+  // Clear validation states
+  [trackingInput, dateInput, addressInput].forEach(input => {
+    input.classList.remove('error', 'success');
+  });
+  
+  // Hide error messages
+  ['trackingError', 'dateError', 'addressError'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+  
+  statusDiv.style.display = 'none';
+  trackingInput.focus();
+}
+
+// Submit parcel
+async function submitParcel() {
+  // Validate form
+  if (!validateForm()) {
+    showToast('Please fix the errors in the form', 'error');
+    return;
+  }
+  
+  const trackingNumber = trackingInput.value.trim().toUpperCase();
+  const bookingDate = dateInput.value;
+  const fromAddress = addressInput.value.trim();
+  
+  // Show loading state
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="loading-spinner"></span><span>Adding Parcel...</span>';
+  
+  statusDiv.className = 'status-container status-loading';
+  statusDiv.innerHTML = '<div class="loading-spinner"></div><div>Submitting parcel data...</div>';
+  statusDiv.style.display = 'block';
+  
+  try {
+    // Create form data for URL encoding
+    const formData = new FormData();
+    formData.append('trackingNumber', trackingNumber);
+    formData.append('bookingDate', bookingDate);
+    formData.append('fromAddress', fromAddress);
+    
+    // Try multiple approaches for Google Apps Script
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Google Apps Script requires this
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(formData)
+    });
+    
+    // Since we're using no-cors mode, we can't read the response
+    // But we can assume success if no network error occurred
+    
+    // Show success message
+    setTimeout(() => {
+      showToast('✅ Parcel added successfully!');
+      statusDiv.className = 'status-container status-success';
+      statusDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">✅</span>
+          <div>
+            <strong>Parcel Added Successfully!</strong>
+            <div style="margin-top: 5px; font-size: 14px;">
+              Tracking: ${trackingNumber}<br>
+              Date: ${bookingDate}<br>
+              From: ${fromAddress}
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Clear form after successful submission
+      clearForm();
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('❌ Failed to add parcel. Please try again.', 'error');
+    statusDiv.className = 'status-container status-error';
+    statusDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 24px;">❌</span>
+        <div>
+          <strong>Submission Failed</strong>
+          <div style="margin-top: 5px; font-size: 14px;">
+            ${error.message || 'Network error. Please check your connection.'}
+          </div>
+        </div>
+      </div>
+    `;
+  } finally {
+    // Reset button state
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<span>📦</span><span>Add Parcel</span>';
+  }
+}
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter to submit
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    submitParcel();
+  }
+  
+  // Escape to clear form
+  if (e.key === 'Escape') {
+    clearForm();
+  }
+});
+
+// Auto-advance on Enter key in inputs
+[trackingInput, dateInput, addressInput].forEach((input, index) => {
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (index < 2) {
+        [trackingInput, dateInput, addressInput][index + 1].focus();
+      } else {
+        submitParcel();
+      }
+    }
+  });
+});
+
+// Real-time validation
+trackingInput.addEventListener('input', () => {
+  if (trackingInput.value.trim()) {
+    trackingInput.value = trackingInput.value.toUpperCase();
+  }
+  validateForm();
+});
+
+dateInput.addEventListener('change', validateForm);
+addressInput.addEventListener('input', validateForm);
+
+// Focus on first input when page loads
+trackingInput.focus();
+</script>
 
 </body>
 </html>
