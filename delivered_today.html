@@ -1,95 +1,264 @@
-
- <!DOCTYPE html>
- <html lang="en">
- <head>
- <meta charset="UTF-8">
- <title>Today's Delivered Parcels</title>
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- 
- <style>
+- <!DOCTYPE html>
+- <html lang="en">
+- <head>
+- <meta charset="UTF-8">
+- <title>Today's Delivered Parcels</title>
+- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+- 
+- <style>
+-+@import url("sidebar.css");
+-+
+-+* {
+-+  box-sizing: border-box;
+-+}
+-+
+- /* ---------- BASE ---------- */
+- body {
+-   margin: 0;
+-   font-family: Arial, sans-serif;
+-   background: #f5f5f5;
+- }
+- 
+- /* ---------- MAIN CONTENT ---------- */
+- .main-content {
+--  margin-left: 230px;
+-   padding: 20px;
+--  transition: margin-left 0.3s;
+--}
+--
+--/* WHEN SIDEBAR COLLAPSES */
+--body.sidebar-collapsed .main-content {
+--  margin-left: 70px;
+--}
+--
+--/* MOBILE */
+--@media (max-width: 768px) {
+--  .main-content {
+--    margin-left: 0;
+--  }
+- }
+- 
+- /* ---------- TABLE ---------- */
+- table {
+-   width: 100%;
+-   border-collapse: collapse;
+-   margin-top: 15px;
+-   background: #fff;
+- }
+- 
+- th, td {
+-   border: 1px solid #ccc;
+-   padding: 8px;
+-   text-align: center;
+- }
+- 
+- th {
+-   background: #f4f4f4;
+- }
+- 
+- .count {
+-   font-size: 18px;
+-   font-weight: bold;
+-   margin: 10px 0;
+- }
+-@@ -98,99 +90,102 @@ a {
+- 
+- /* ---------- FULLSCREEN ---------- */
+- .fullscreen {
+-   position: fixed;
+-   inset: 0;
+-   background: rgba(0,0,0,0.95);
+-   display: none;
+-   justify-content: center;
+-   align-items: center;
+-   z-index: 3000;
+- }
+- 
+- .fullscreen.show {
+-   display: flex;
+- }
+- 
+- .fullscreen img {
+-   max-width: 95vw;
+-   max-height: 95vh;
+- }
+- </style>
+- </head>
+- 
+- <body>
+- 
+--<!-- SIDEBAR -->
+--<div id="sidebar-container"></div>
+-+<div class="sidebar" id="sidebar">
+-+  <div class="sidebar-header">
+-+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+-+    <span class="title">Dashboard</span>
+-+  </div>
+-+
+-+  <nav>
+-+    <a href="index.html" data-page="index.html"><span>🏠 Dashboard</span></a>
+-+    <a href="parcel_entry.html" data-page="parcel_entry.html"><span>📦 Parcel Entry</span></a>
+-+    <a href="parcel_entry_form.html" data-page="parcel_entry_form.html"><span>🔍 Received Scanner</span></a>
+-+    <a href="upload_sample_images.html" data-page="upload_sample_images.html"><span>📷 Upload Images</span></a>
+-+    <a href="delivered_today.html" data-page="delivered_today.html"><span>📅 Delivered Today</span></a>
+-+    <a href="total.html" data-page="total.html"><span>📊 Total Parcels</span></a>
+-+    <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank" rel="noopener">
+-+      <span>🖼️ Sample Gallery</span>
+-+    </a>
+-+  </nav>
+-+</div>
+-+
+-+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+- 
+--<!-- PAGE CONTENT -->
+- <div class="main-content">
+-   <h2>📅 Today's Delivered Parcels</h2>
+-   <div class="count" id="count"></div>
+- 
+-   <table>
+-     <thead>
+-       <tr>
+-         <th>Tracking No</th>
+-         <th>From City</th>
+-         <th>Delivery Date</th>
+-         <th>Status</th>
+-       </tr>
+-     </thead>
+-     <tbody id="tableBody"></tbody>
+-   </table>
+- </div>
+- 
+- <!-- IMAGE MODAL -->
+- <div id="imageModal" class="modal">
+-   <div class="modal-content">
+-     <div class="gallery" id="gallery"></div>
+-   </div>
+- </div>
+- 
+- <!-- FULLSCREEN -->
+- <div id="fullscreen" class="fullscreen">
+-   <img id="fsImage">
+- </div>
+- 
+-+<script src="sidebar.js" defer></script>
+- <script>
+--/* ---------- LOAD SIDEBAR ---------- */
+--fetch("sidebar.html")
+--  .then(res => res.text())
+--  .then(html => {
+--    document.getElementById("sidebar-container").innerHTML = html;
+--
+--    // ACTIVE MENU HIGHLIGHT
+--    const page = location.pathname.split("/").pop();
+--    document.querySelectorAll(".sidebar nav a").forEach(link => {
+--      if (link.dataset.page === page) {
+--        link.classList.add("active");
+--      }
+--    });
+--  });
+--
+- /* ---------- APIs ---------- */
+- const PARCEL_API =
+-   "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
+- 
+- const IMAGE_API =
+-   "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+- 
+- /* ---------- ELEMENTS ---------- */
+- const tbody = document.getElementById("tableBody");
+- const countDiv = document.getElementById("count");
+- const imageModal = document.getElementById("imageModal");
+- const gallery = document.getElementById("gallery");
+- const fullscreen = document.getElementById("fullscreen");
+- const fsImage = document.getElementById("fsImage");
+- 
+- let currentImages = [];
+- 
+- /* ---------- LOAD DATA ---------- */
+- function loadData() {
+-   const old = document.getElementById("jsonp");
+-   if (old) old.remove();
+- 
+-   const s = document.createElement("script");
+-   s.src = PARCEL_API + "?callback=handleData";
+-   s.id = "jsonp";
+- 
+-EOF
+-)
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="UTF-8">
++<title>Today's Delivered Parcels</title>
++<meta name="viewport" content="width=device-width, initial-scale=1.0">
++
++<style>
 +@import url("sidebar.css");
 +
 +* {
 +  box-sizing: border-box;
 +}
 +
- /* ---------- BASE ---------- */
- body {
-   margin: 0;
-   font-family: Arial, sans-serif;
-   background: #f5f5f5;
- }
- 
- /* ---------- MAIN CONTENT ---------- */
- .main-content {
--  margin-left: 230px;
-   padding: 20px;
--  transition: margin-left 0.3s;
--}
--
--/* WHEN SIDEBAR COLLAPSES */
--body.sidebar-collapsed .main-content {
--  margin-left: 70px;
--}
--
--/* MOBILE */
--@media (max-width: 768px) {
--  .main-content {
--    margin-left: 0;
--  }
- }
- 
- /* ---------- TABLE ---------- */
- table {
-   width: 100%;
-   border-collapse: collapse;
-   margin-top: 15px;
-   background: #fff;
- }
- 
- th, td {
-   border: 1px solid #ccc;
-   padding: 8px;
-   text-align: center;
- }
- 
- th {
-   background: #f4f4f4;
- }
- 
- .count {
-   font-size: 18px;
-   font-weight: bold;
-   margin: 10px 0;
- }
-@@ -98,99 +90,102 @@ a {
- 
- /* ---------- FULLSCREEN ---------- */
- .fullscreen {
-   position: fixed;
-   inset: 0;
-   background: rgba(0,0,0,0.95);
-   display: none;
-   justify-content: center;
-   align-items: center;
-   z-index: 3000;
- }
- 
- .fullscreen.show {
-   display: flex;
- }
- 
- .fullscreen img {
-   max-width: 95vw;
-   max-height: 95vh;
- }
- </style>
- </head>
- 
- <body>
- 
--<!-- SIDEBAR -->
--<div id="sidebar-container"></div>
++/* ---------- BASE ---------- */
++body {
++  margin: 0;
++  font-family: Arial, sans-serif;
++  background: #f5f5f5;
++}
++
++/* ---------- MAIN CONTENT ---------- */
++.main-content {
++  padding: 20px;
++}
++
++/* ---------- TABLE ---------- */
++table {
++  width: 100%;
++  border-collapse: collapse;
++  margin-top: 15px;
++  background: #fff;
++}
++
++th, td {
++  border: 1px solid #ccc;
++  padding: 8px;
++  text-align: center;
++}
++
++th {
++  background: #f4f4f4;
++}
++
++.count {
++  font-size: 18px;
++  font-weight: bold;
++  margin: 10px 0;
++}
++
++/* ---------- FULLSCREEN ---------- */
++.fullscreen {
++  position: fixed;
++  inset: 0;
++  background: rgba(0,0,0,0.95);
++  display: none;
++  justify-content: center;
++  align-items: center;
++  z-index: 3000;
++}
++
++.fullscreen.show {
++  display: flex;
++}
++
++.fullscreen img {
++  max-width: 95vw;
++  max-height: 95vh;
++}
++</style>
++</head>
++
++<body>
++
 +<div class="sidebar" id="sidebar">
 +  <div class="sidebar-header">
 +    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -110,79 +279,60 @@
 +</div>
 +
 +<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
- 
--<!-- PAGE CONTENT -->
- <div class="main-content">
-   <h2>📅 Today's Delivered Parcels</h2>
-   <div class="count" id="count"></div>
- 
-   <table>
-     <thead>
-       <tr>
-         <th>Tracking No</th>
-         <th>From City</th>
-         <th>Delivery Date</th>
-         <th>Status</th>
-       </tr>
-     </thead>
-     <tbody id="tableBody"></tbody>
-   </table>
- </div>
- 
- <!-- IMAGE MODAL -->
- <div id="imageModal" class="modal">
-   <div class="modal-content">
-     <div class="gallery" id="gallery"></div>
-   </div>
- </div>
- 
- <!-- FULLSCREEN -->
- <div id="fullscreen" class="fullscreen">
-   <img id="fsImage">
- </div>
- 
++
++<div class="main-content">
++  <h2>📅 Today's Delivered Parcels</h2>
++  <div class="count" id="count"></div>
++
++  <table>
++    <thead>
++      <tr>
++        <th>Tracking No</th>
++        <th>From City</th>
++        <th>Delivery Date</th>
++        <th>Status</th>
++      </tr>
++    </thead>
++    <tbody id="tableBody"></tbody>
++  </table>
++</div>
++
++<!-- IMAGE MODAL -->
++<div id="imageModal" class="modal">
++  <div class="modal-content">
++    <div class="gallery" id="gallery"></div>
++  </div>
++</div>
++
++<!-- FULLSCREEN -->
++<div id="fullscreen" class="fullscreen">
++  <img id="fsImage">
++</div>
++
 +<script src="sidebar.js" defer></script>
- <script>
--/* ---------- LOAD SIDEBAR ---------- */
--fetch("sidebar.html")
--  .then(res => res.text())
--  .then(html => {
--    document.getElementById("sidebar-container").innerHTML = html;
--
--    // ACTIVE MENU HIGHLIGHT
--    const page = location.pathname.split("/").pop();
--    document.querySelectorAll(".sidebar nav a").forEach(link => {
--      if (link.dataset.page === page) {
--        link.classList.add("active");
--      }
--    });
--  });
--
- /* ---------- APIs ---------- */
- const PARCEL_API =
-   "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
- 
- const IMAGE_API =
-   "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
- 
- /* ---------- ELEMENTS ---------- */
- const tbody = document.getElementById("tableBody");
- const countDiv = document.getElementById("count");
- const imageModal = document.getElementById("imageModal");
- const gallery = document.getElementById("gallery");
- const fullscreen = document.getElementById("fullscreen");
- const fsImage = document.getElementById("fsImage");
- 
- let currentImages = [];
- 
- /* ---------- LOAD DATA ---------- */
- function loadData() {
-   const old = document.getElementById("jsonp");
-   if (old) old.remove();
- 
-   const s = document.createElement("script");
-   s.src = PARCEL_API + "?callback=handleData";
-   s.id = "jsonp";
- 
-EOF
-)
++<script>
++/* ---------- APIs ---------- */
++const PARCEL_API =
++  "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
++
++const IMAGE_API =
++  "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
++
++/* ---------- ELEMENTS ---------- */
++const tbody = document.getElementById("tableBody");
++const countDiv = document.getElementById("count");
++const imageModal = document.getElementById("imageModal");
++const gallery = document.getElementById("gallery");
++const fullscreen = document.getElementById("fullscreen");
++const fsImage = document.getElementById("fsImage");
++
++let currentImages = [];
++
++/* ---------- LOAD DATA ---------- */
++function loadData() {
++  const old = document.getElementById("jsonp");
++  if (old) old.remove();
++
++  const s = document.createElement("script");
++  s.src = PARCEL_API + "?callback=handleData";
++  s.id = "jsonp";
