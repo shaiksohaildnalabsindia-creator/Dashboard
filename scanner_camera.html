@@ -666,344 +666,66 @@
 <script type="module">
 import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
 
-// DOM Elements
-const sidebar = document.getElementById('sidebar');
-const contentArea = document.getElementById('contentArea');
-const pageTitle = document.getElementById('pageTitle');
-const pageSubtitle = document.getElementById('pageSubtitle');
+const reader = new BrowserMultiFormatReader();
+const video = document.getElementById("video");
+const resultEl = document.getElementById("result");
+const statusEl = document.getElementById("status");
+const timestampEl = document.getElementById("timestamp");
+const progressEl = document.getElementById("progress");
+const beep = document.getElementById("beep-sound");
 
-// Check access - Only allow access if coming from parcel_entry_form.html with session data
-function checkAccess() {
+// Get courier & count from URL
+const params = new URLSearchParams(window.location.search);
+const totalCount = Number(params.get("count") || 0);
+const courier = params.get("courier") || "";
+
+document.getElementById("info").textContent =
+  `Courier: ${courier} | Parcels to scan: ${totalCount}`;
+
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
+
+let scanned = new Set();
+progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
+
+reader.decodeFromVideoDevice(null, video, async (result) => {
+  if (!result) return;
+  const code = result.getText().trim();
+  if (scanned.has(code)) return;
+
+  scanned.add(code);
+  resultEl.textContent = code;
+
+  // Play beep + vibrate
+  beep.currentTime = 0;
+  beep.play().catch(() => {});
+  if (navigator.vibrate) navigator.vibrate(200);
+
+  // Save tracking number to Sheet2
   try {
-    // Get session data
-    const sessionData = sessionStorage.getItem('scannerSession');
-    
-    if (!sessionData) {
-      return { valid: false, reason: 'No session data found' };
-    }
-    
-    const session = JSON.parse(sessionData);
-    
-    // Check if session is valid (within last 30 minutes)
-    const currentTime = Date.now();
-    const sessionAge = currentTime - session.timestamp;
-    const maxSessionAge = 30 * 60 * 1000; // 30 minutes
-    
-    if (sessionAge > maxSessionAge) {
-      sessionStorage.removeItem('scannerSession');
-      return { valid: false, reason: 'Session expired' };
-    }
-    
-    // Check required fields
-    if (session.access !== 'granted' || !session.courier || !session.count) {
-      return { valid: false, reason: 'Invalid session data' };
-    }
-    
-    // Check if count is valid number
-    const count = parseInt(session.count);
-    if (isNaN(count) || count <= 0) {
-      return { valid: false, reason: 'Invalid parcel count' };
-    }
-    
-    return { 
-      valid: true, 
-      data: {
-        courier: session.courier,
-        count: count
-      }
-    };
-    
-  } catch (error) {
-    console.error('Access check error:', error);
-    return { valid: false, reason: 'Error checking access' };
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ page:"page2", tracking: code }),
+      mode: "no-cors"
+    });
+
+    const now = new Date();
+    statusEl.textContent = `Saved ✅`;
+    timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
+
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Error saving ❌";
+    timestampEl.textContent = "";
   }
-}
-
-// Show access denied page
-function showAccessDenied(reason = '') {
-  pageSubtitle.textContent = "Access Restricted";
-  
-  let message = "This page can only be accessed through the Parcel Entry Form. ";
-  message += "Please go back and start the scanning process from there.";
-  
-  if (reason === 'Session expired') {
-    message = "Your scanning session has expired. Please return to the Parcel Entry Form to start a new scanning session.";
-  }
-  
-  contentArea.innerHTML = `
-    <div class="access-denied">
-      <div class="denied-container">
-        <div class="denied-icon">🔒</div>
-        <h2 class="denied-title">Access Restricted</h2>
-        <p class="denied-message">
-          ${message}
-        </p>
-        <button onclick="goToParcelEntryForm()" class="back-btn">
-          <span>📦</span>
-          <span>Go to Parcel Entry Form</span>
-        </button>
-      </div>
-    </div>
-  `;
-}
-
-// Show scanner interface
-function showScanner(courier, count) {
-  pageTitle.textContent = "📷 Scanner Session";
-  pageSubtitle.textContent = `Scanning ${count} parcels from ${courier}`;
-  
-  contentArea.innerHTML = `
-    <div class="scanner-wrapper">
-      <div class="scanner-container">
-        <h2>📦 Parcel Camera Scanner</h2>
-        
-        <div class="info-panel" id="info">
-          🚚 Courier: ${courier} | 📦 Parcels to scan: ${count}
-        </div>
-
-        <div class="video-container">
-          <video id="video" autoplay playsinline></video>
-          <div class="scanner-overlay">
-            <div class="scanner-frame"></div>
-          </div>
-        </div>
-
-        <div class="results-panel">
-          <h3 style="margin-bottom: 15px; color: #1e293b;">📋 Scan Results</h3>
-          <div id="resultsContainer">
-            <p style="color: #64748b; font-style: italic;">No scans yet. Point camera at a barcode to start scanning.</p>
-          </div>
-        </div>
-
-        <div class="status-panel" id="statusPanel">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <span>🔍</span>
-            <span>Scanner Status: <span id="statusText">Initializing...</span></span>
-          </div>
-          <div id="timestamp" style="margin-top: 10px; font-size: 14px; color: #92400e;"></div>
-        </div>
-
-        <div class="progress-panel" id="progressPanel">
-          <div class="progress-text" id="progressText">Progress: 0/${count} scanned</div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <div class="scan-complete" id="completePanel" style="display: none;">
-          <div class="complete-message">
-            <span>✅</span>
-            <span>All Parcels Scanned Successfully!</span>
-          </div>
-          <div class="countdown" id="countdown">Redirecting to dashboard in 3 seconds...</div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  // Initialize scanner after HTML is loaded
-  setTimeout(() => initializeScanner(courier, count), 100);
-}
-
-// Initialize the scanner
-async function initializeScanner(courier, totalCount) {
-  const video = document.getElementById('video');
-  const infoEl = document.getElementById('info');
-  const resultsContainer = document.getElementById('resultsContainer');
-  const statusText = document.getElementById('statusText');
-  const timestampEl = document.getElementById('timestamp');
-  const progressText = document.getElementById('progressText');
-  const progressFill = document.getElementById('progressFill');
-  const progressPanel = document.getElementById('progressPanel');
-  const completePanel = document.getElementById('completePanel');
-  const countdownEl = document.getElementById('countdown');
-
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
-
-  const reader = new BrowserMultiFormatReader();
-  let scanned = new Set();
-  
-  // Create beep sound
-  const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  beep.preload = "auto";
 
   // Update progress
-  function updateProgress() {
-    const scannedCount = scanned.size;
-    const progressPercent = totalCount > 0 ? (scannedCount / totalCount) * 100 : 0;
-    
-    progressText.textContent = `Progress: ${scannedCount}/${totalCount} scanned`;
-    progressFill.style.width = `${progressPercent}%`;
-    
-    if (scannedCount >= totalCount && totalCount > 0) {
-      showCompletePanel();
-    }
-  }
+  progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
 
-  // Show complete panel
-  function showCompletePanel() {
-    progressPanel.style.display = 'none';
-    completePanel.style.display = 'block';
-    
-    let countdown = 3;
-    countdownEl.textContent = `Redirecting to dashboard in ${countdown} seconds...`;
-    
-    const countdownInterval = setInterval(() => {
-      countdown--;
-      if (countdown > 0) {
-        countdownEl.textContent = `Redirecting to dashboard in ${countdown} seconds...`;
-      } else {
-        clearInterval(countdownInterval);
-        goToDashboard();
-      }
-    }, 1000);
-  }
-
-  // Add scan result to UI
-  function addScanResult(code) {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString();
-    
-    const resultItem = document.createElement('div');
-    resultItem.className = 'result-item';
-    resultItem.innerHTML = `
-      <div class="tracking-number">${code}</div>
-      <div class="scan-time">Scanned at: ${timeString}</div>
-      <div class="scan-success">✅ Successfully saved to database</div>
-    `;
-    
-    resultsContainer.insertBefore(resultItem, resultsContainer.firstChild);
-    
-    // Clear the "no scans yet" message
-    const noScansMsg = resultsContainer.querySelector('p');
-    if (noScansMsg) {
-      noScansMsg.remove();
-    }
-    
-    // Limit displayed results to 5
-    if (resultsContainer.children.length > 5) {
-      resultsContainer.removeChild(resultsContainer.lastChild);
-    }
-  }
-
-  // Save tracking number
-  async function saveTrackingNumber(code) {
-    try {
-      await fetch(WEB_APP_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ page: "page2", tracking: code }),
-        mode: "no-cors"
-      });
-      return true;
-    } catch (err) {
-      console.error("Save error:", err);
-      return false;
-    }
-  }
-
-  // Start scanning
-  try {
-    statusText.textContent = "Starting camera...";
-    
-    await reader.decodeFromVideoDevice(null, video, async (result, error) => {
-      if (error) {
-        if (error.name === 'NotFoundException') {
-          statusText.textContent = "No barcode detected";
-        } else {
-          statusText.textContent = "Scanner error";
-        }
-        return;
-      }
-      
-      if (!result) return;
-      
-      const code = result.getText().trim();
-      if (!code || scanned.has(code)) return;
-      
-      scanned.add(code);
-      
-      // Play beep sound
-      beep.currentTime = 0;
-      beep.play().catch(() => {});
-      
-      // Vibrate if available
-      if (navigator.vibrate) navigator.vibrate(200);
-      
-      // Update UI
-      statusText.textContent = "✅ Barcode detected!";
-      const now = new Date();
-      timestampEl.textContent = `Last scan: ${now.toLocaleString()}`;
-      
-      // Save to database
-      const saved = await saveTrackingNumber(code);
-      if (saved) {
-        addScanResult(code);
-      }
-      
-      // Update progress
-      updateProgress();
-    });
-    
-    statusText.textContent = "Ready - Point camera at barcode";
-    updateProgress();
-    
-  } catch (error) {
-    console.error("Scanner error:", error);
-    statusText.textContent = "Failed to start camera";
-    infoEl.innerHTML = `
-      ❌ Camera access denied or not available.<br>
-      Please ensure you have granted camera permissions and try again.
-    `;
-  }
-}
-
-// Navigation functions
-function goToDashboard() {
-  // Clear scanner session data
-  sessionStorage.removeItem('scannerSession');
-  window.location.href = "index.html";
-}
-
-function goToParcelEntryForm() {
-  // Clear scanner session data
-  sessionStorage.removeItem('scannerSession');
-  window.location.href = "parcel_entry_form.html";
-}
-
-function toggleSidebar() {
-  sidebar.classList.toggle('open');
-}
-
-// Event listeners
-document.addEventListener('click', (e) => {
-  if (window.innerWidth <= 768 && 
-      !sidebar.contains(e.target) && 
-      !e.target.classList.contains('menu-btn')) {
-    sidebar.classList.remove('open');
-  }
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-    sidebar.classList.remove('open');
-  }
-});
-
-window.addEventListener('resize', () => {
-  if (window.innerWidth > 768) {
-    sidebar.classList.remove('open');
-  }
-});
-
-// Initialize page based on access
-window.addEventListener('load', () => {
-  const accessCheck = checkAccess();
-  
-  if (accessCheck.valid) {
-    showScanner(accessCheck.data.courier, accessCheck.data.count);
-  } else {
-    showAccessDenied(accessCheck.reason);
+  // All scanned → redirect back to index
+  if (scanned.size >= totalCount) {
+    statusEl.textContent = "All parcels scanned! Redirecting...";
+    setTimeout(() => { window.location.href = "index.html"; }, 2000);
   }
 });
 </script>
