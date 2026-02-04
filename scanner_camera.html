@@ -1,50 +1,139 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/scanner_camera.html b/scanner_camera.html
-index b47c12e0a9134b8c5709c5599774de1a45f23820..c12dc3a5b20a9f4cbaf6f375cc9e4c04b1c20b15 100644
---- a/scanner_camera.html
-+++ b/scanner_camera.html
-@@ -1,56 +1,92 @@
- <!DOCTYPE html>
- <html lang="en">
- <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Camera Barcode Scanner</title>
- <style>
+- <!DOCTYPE html>
+- <html lang="en">
+- <head>
+- <meta charset="UTF-8">
+- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+- <title>Camera Barcode Scanner</title>
+- <style>
+-+  @import url("sidebar.css");
+-+
+-+  * {
+-+    box-sizing: border-box;
+-+  }
+-+
+-   body {
+-+    margin: 0;
+-     font-family: Arial, sans-serif;
+--    text-align: center;
+--    padding: 20px;
+-     background: linear-gradient(135deg,#a8edea,#fed6e3);
+-   }
+-+
+-+  .main-content {
+-+    padding: 20px;
+-+    text-align: center;
+-+  }
+-+
+-   h2 { color:#ff6f61; margin-bottom: 15px; }
+-   video { width:90%; max-width:400px; border:1px solid #ccc; border-radius:6px; }
+-   #status, #progress, #timestamp { margin-top:10px; font-weight:bold; color:#333; }
+-   #result { font-weight:bold; color:#000; font-size:18px; }
+- </style>
+- </head>
+- <body>
+- 
+--<h2>Parcel Camera Scanner</h2>
+--<p id="info"></p>
+--<video id="video" autoplay playsinline></video>
+--<p><b>Last Scanned:</b> <span id="result">None</span></p>
+--<p id="status"></p>
+--<p id="timestamp"></p>
+--<p id="progress"></p>
+-+<div class="sidebar" id="sidebar">
+-+  <div class="sidebar-header">
+-+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+-+    <span class="title">Dashboard</span>
+-+  </div>
+-+
+-+  <nav>
+-+    <a href="index.html" data-page="index.html"><span>🏠 Dashboard</span></a>
+-+    <a href="parcel_entry.html" data-page="parcel_entry.html"><span>📦 Parcel Entry</span></a>
+-+    <a href="parcel_entry_form.html" data-page="parcel_entry_form.html"><span>🔍 Received Scanner</span></a>
+-+    <a href="upload_sample_images.html" data-page="upload_sample_images.html"><span>📷 Upload Images</span></a>
+-+    <a href="delivered_today.html" data-page="delivered_today.html"><span>📅 Delivered Today</span></a>
+-+    <a href="total.html" data-page="total.html"><span>📊 Total Parcels</span></a>
+-+    <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank" rel="noopener">
+-+      <span>🖼️ Sample Gallery</span>
+-+    </a>
+-+  </nav>
+-+</div>
+-+
+-+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+-+
+-+<div class="main-content">
+-+  <h2>Parcel Camera Scanner</h2>
+-+  <p id="info"></p>
+-+  <video id="video" autoplay playsinline></video>
+-+  <p><b>Last Scanned:</b> <span id="result">None</span></p>
+-+  <p id="status"></p>
+-+  <p id="timestamp"></p>
+-+  <p id="progress"></p>
+-+</div>
+- 
+- <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+- 
+-+<script src="sidebar.js" defer></script>
+-+
+- <script type="module">
+- import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
+- 
+- const reader = new BrowserMultiFormatReader();
+- const video = document.getElementById("video");
+- const resultEl = document.getElementById("result");
+- const statusEl = document.getElementById("status");
+- const timestampEl = document.getElementById("timestamp");
+- const progressEl = document.getElementById("progress");
+- const beep = document.getElementById("beep-sound");
+- 
+- // Get courier & count from URL
+- const params = new URLSearchParams(window.location.search);
+- const totalCount = Number(params.get("count") || 0);
+- const courier = params.get("courier") || "";
+- 
+- document.getElementById("info").textContent =
+-   `Courier: ${courier} | Parcels to scan: ${totalCount}`;
+- 
+- const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
+- 
+- let scanned = new Set();
+- progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
+- 
+- reader.decodeFromVideoDevice(null, video, async (result) => {
+- 
+-EOF
+-)
++<!DOCTYPE html>
++<html lang="en">
++<head>
++<meta charset="UTF-8">
++<meta name="viewport" content="width=device-width, initial-scale=1.0">
++<title>Camera Barcode Scanner</title>
++<style>
 +  @import url("sidebar.css");
 +
 +  * {
 +    box-sizing: border-box;
 +  }
 +
-   body {
++  body {
 +    margin: 0;
-     font-family: Arial, sans-serif;
--    text-align: center;
--    padding: 20px;
-     background: linear-gradient(135deg,#a8edea,#fed6e3);
-   }
++    font-family: Arial, sans-serif;
++    background: linear-gradient(135deg,#a8edea,#fed6e3);
++  }
 +
 +  .main-content {
 +    padding: 20px;
 +    text-align: center;
 +  }
 +
-   h2 { color:#ff6f61; margin-bottom: 15px; }
-   video { width:90%; max-width:400px; border:1px solid #ccc; border-radius:6px; }
-   #status, #progress, #timestamp { margin-top:10px; font-weight:bold; color:#333; }
-   #result { font-weight:bold; color:#000; font-size:18px; }
- </style>
- </head>
- <body>
- 
--<h2>Parcel Camera Scanner</h2>
--<p id="info"></p>
--<video id="video" autoplay playsinline></video>
--<p><b>Last Scanned:</b> <span id="result">None</span></p>
--<p id="status"></p>
--<p id="timestamp"></p>
--<p id="progress"></p>
++  h2 { color:#ff6f61; margin-bottom: 15px; }
++  video { width:90%; max-width:400px; border:1px solid #ccc; border-radius:6px; }
++  #status, #progress, #timestamp { margin-top:10px; font-weight:bold; color:#333; }
++  #result { font-weight:bold; color:#000; font-size:18px; }
++</style>
++</head>
++<body>
++
 +<div class="sidebar" id="sidebar">
 +  <div class="sidebar-header">
 +    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -75,36 +164,33 @@ index b47c12e0a9134b8c5709c5599774de1a45f23820..c12dc3a5b20a9f4cbaf6f375cc9e4c04
 +  <p id="timestamp"></p>
 +  <p id="progress"></p>
 +</div>
- 
- <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
- 
++
++<audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
++
 +<script src="sidebar.js" defer></script>
 +
- <script type="module">
- import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
- 
- const reader = new BrowserMultiFormatReader();
- const video = document.getElementById("video");
- const resultEl = document.getElementById("result");
- const statusEl = document.getElementById("status");
- const timestampEl = document.getElementById("timestamp");
- const progressEl = document.getElementById("progress");
- const beep = document.getElementById("beep-sound");
- 
- // Get courier & count from URL
- const params = new URLSearchParams(window.location.search);
- const totalCount = Number(params.get("count") || 0);
- const courier = params.get("courier") || "";
- 
- document.getElementById("info").textContent =
-   `Courier: ${courier} | Parcels to scan: ${totalCount}`;
- 
- const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
- 
- let scanned = new Set();
- progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
- 
- reader.decodeFromVideoDevice(null, video, async (result) => {
- 
-EOF
-)
++<script type="module">
++import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
++
++const reader = new BrowserMultiFormatReader();
++const video = document.getElementById("video");
++const resultEl = document.getElementById("result");
++const statusEl = document.getElementById("status");
++const timestampEl = document.getElementById("timestamp");
++const progressEl = document.getElementById("progress");
++const beep = document.getElementById("beep-sound");
++
++// Get courier & count from URL
++const params = new URLSearchParams(window.location.search);
++const totalCount = Number(params.get("count") || 0);
++const courier = params.get("courier") || "";
++
++document.getElementById("info").textContent =
++  `Courier: ${courier} | Parcels to scan: ${totalCount}`;
++
++const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
++
++let scanned = new Set();
++progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
++
++reader.decodeFromVideoDevice(null, video, async (result) => {
