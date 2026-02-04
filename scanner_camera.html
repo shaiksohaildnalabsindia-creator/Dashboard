@@ -279,8 +279,8 @@
     margin-left: 10px;
   }
 
-  /* ---------- CAMERA CONTAINER ---------- */
-  .camera-container {
+  /* ---------- VIDEO CONTAINER ---------- */
+  .video-container {
     position: relative;
     width: 100%;
     max-width: 500px;
@@ -289,81 +289,14 @@
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
     min-height: 300px;
-    background: #1f2937;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    background: #000;
   }
 
   video { 
     width: 100%;
     height: 100%;
-    display: none; /* Hidden by default */
     object-fit: cover;
-  }
-
-  .camera-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    text-align: center;
-    color: white;
-  }
-
-  .camera-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-  }
-
-  .camera-message {
-    font-size: 16px;
-    margin-bottom: 15px;
-    color: #d1d5db;
-  }
-
-  .camera-error {
-    font-size: 14px;
-    color: #fca5a5;
-    margin-top: 10px;
-    background: rgba(220, 38, 38, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-    max-width: 80%;
-  }
-
-  .camera-controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 15px;
-  }
-
-  .camera-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .camera-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
-  }
-
-  .camera-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+    display: block;
   }
 
   .scanner-overlay {
@@ -373,7 +306,7 @@
     right: 0;
     bottom: 0;
     pointer-events: none;
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
   }
@@ -513,6 +446,32 @@
     gap: 10px;
   }
 
+  /* ---------- ERROR MESSAGE ---------- */
+  .error-message {
+    background: #FEE2E2;
+    border: 2px solid #EF4444;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    color: #991B1B;
+    text-align: center;
+  }
+
+  .error-message h3 {
+    margin-bottom: 10px;
+    color: #DC2626;
+  }
+
+  .error-message ul {
+    text-align: left;
+    margin: 10px 0;
+    padding-left: 20px;
+  }
+
+  .error-message li {
+    margin-bottom: 5px;
+  }
+
   /* Mobile Styles */
   @media (max-width: 768px) {
     .sidebar {
@@ -540,7 +499,7 @@
       padding: 20px 15px;
     }
 
-    .camera-container {
+    .video-container {
       max-width: 100%;
       min-height: 250px;
     }
@@ -555,8 +514,7 @@
   /* Focus styles for accessibility */
   .menu-item:focus-visible,
   .menu-btn:focus-visible,
-  .sidebar-header:focus-visible,
-  .camera-btn:focus-visible {
+  .sidebar-header:focus-visible {
     outline: 2px solid #6366F1;
     outline-offset: 2px;
   }
@@ -656,27 +614,16 @@
         </div>
       </div>
 
-      <!-- Camera Container with Placeholder -->
-      <div class="camera-container" id="cameraContainer">
+      <!-- Video Container -->
+      <div class="video-container" id="videoContainer">
         <video id="video" autoplay playsinline></video>
-        <div class="camera-placeholder" id="cameraPlaceholder">
-          <div class="camera-icon">📷</div>
-          <div class="camera-message" id="cameraMessage">Camera access required for scanning</div>
-          <div class="camera-error" id="cameraError" style="display: none;"></div>
-          <div class="camera-controls">
-            <button class="camera-btn" onclick="startCamera()" id="startCameraBtn">
-              <span>▶️</span>
-              <span>Start Camera</span>
-            </button>
-            <button class="camera-btn" onclick="stopCamera()" id="stopCameraBtn" style="display: none; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
-              <span>⏹️</span>
-              <span>Stop Camera</span>
-            </button>
-          </div>
-        </div>
-        <div class="scanner-overlay" id="scannerOverlay">
+        <div class="scanner-overlay">
           <div class="scanner-frame"></div>
         </div>
+      </div>
+
+      <div id="errorMessage" style="display: none;">
+        <!-- Error messages will be inserted here -->
       </div>
 
       <div class="results-panel">
@@ -691,7 +638,7 @@
       <div class="status-panel" id="statusPanel">
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
           <span>🔍</span>
-          <span id="status">Camera not started. Click "Start Camera" above.</span>
+          <span id="status">Initializing scanner...</span>
         </div>
         <div class="timestamp" id="timestamp"></div>
       </div>
@@ -716,9 +663,10 @@
 
 <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
-<script type="module">
-import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
+<!-- Load ZXing library from CDN -->
+<script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
 
+<script>
 // DOM Elements
 const sidebar = document.getElementById('sidebar');
 const video = document.getElementById("video");
@@ -733,13 +681,7 @@ const completePanel = document.getElementById("completePanel");
 const countdownEl = document.getElementById("countdown");
 const courierInfo = document.getElementById("courierInfo");
 const countInfo = document.getElementById("countInfo");
-const cameraContainer = document.getElementById("cameraContainer");
-const cameraPlaceholder = document.getElementById("cameraPlaceholder");
-const cameraMessage = document.getElementById("cameraMessage");
-const cameraError = document.getElementById("cameraError");
-const startCameraBtn = document.getElementById("startCameraBtn");
-const stopCameraBtn = document.getElementById("stopCameraBtn");
-const scannerOverlay = document.getElementById("scannerOverlay");
+const errorMessageDiv = document.getElementById("errorMessage");
 const beep = document.getElementById("beep-sound");
 
 // Get courier & count from URL
@@ -755,7 +697,6 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZp
 
 let scanned = new Set();
 let currentStream = null;
-let reader = null;
 
 // Initialize progress
 updateProgress();
@@ -792,178 +733,119 @@ function showCompletePanel() {
   }, 1000);
 }
 
-// Get barcode format name
-function getBarcodeFormatName(format) {
-  const formatNames = {
-    [BarcodeFormat.AZTEC]: 'AZTEC',
-    [BarcodeFormat.CODABAR]: 'CODABAR',
-    [BarcodeFormat.CODE_39]: 'CODE_39',
-    [BarcodeFormat.CODE_93]: 'CODE_93',
-    [BarcodeFormat.CODE_128]: 'CODE_128',
-    [BarcodeFormat.DATA_MATRIX]: 'DATA_MATRIX',
-    [BarcodeFormat.EAN_8]: 'EAN_8',
-    [BarcodeFormat.EAN_13]: 'EAN_13',
-    [BarcodeFormat.ITF]: 'ITF',
-    [BarcodeFormat.PDF_417]: 'PDF_417',
-    [BarcodeFormat.QR_CODE]: 'QR_CODE',
-    [BarcodeFormat.UPC_A]: 'UPC_A',
-    [BarcodeFormat.UPC_E]: 'UPC_E'
-  };
-  
-  return formatNames[format] || 'Unknown Format';
+// Show error message
+function showError(title, message) {
+  errorMessageDiv.innerHTML = `
+    <div class="error-message">
+      <h3>${title}</h3>
+      <p>${message}</p>
+      <ul>
+        <li>Make sure you have granted camera permissions</li>
+        <li>Try refreshing the page</li>
+        <li>Make sure no other app is using the camera</li>
+        <li>Try using Chrome, Firefox, or Edge browser</li>
+      </ul>
+      <button onclick="startCamera()" style="
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 10px;
+      ">
+        Try Starting Camera Again
+      </button>
+    </div>
+  `;
+  errorMessageDiv.style.display = 'block';
 }
 
-// Get barcode type info
-function getBarcodeTypeInfo(format) {
-  const is2D = [
-    BarcodeFormat.AZTEC,
-    BarcodeFormat.DATA_MATRIX,
-    BarcodeFormat.PDF_417,
-    BarcodeFormat.QR_CODE
-  ].includes(format);
-  
-  const isLinear = [
-    BarcodeFormat.CODABAR,
-    BarcodeFormat.CODE_39,
-    BarcodeFormat.CODE_93,
-    BarcodeFormat.CODE_128,
-    BarcodeFormat.EAN_8,
-    BarcodeFormat.EAN_13,
-    BarcodeFormat.ITF,
-    BarcodeFormat.UPC_A,
-    BarcodeFormat.UPC_E
-  ].includes(format);
-  
-  if (is2D) {
-    return { icon: '⬜', type: '2D Code', description: `2D Code (${getBarcodeFormatName(format)})` };
-  } else if (isLinear) {
-    return { icon: '📏', type: 'Linear Barcode', description: `Linear Barcode (${getBarcodeFormatName(format)})` };
-  } else {
-    return { icon: '❓', type: 'Unknown', description: `Unknown Format (${format})` };
-  }
+// Hide error message
+function hideError() {
+  errorMessageDiv.style.display = 'none';
 }
 
-// Start camera
+// Start camera and scanner
 async function startCamera() {
   try {
-    cameraMessage.textContent = "Requesting camera access...";
-    startCameraBtn.disabled = true;
-    startCameraBtn.innerHTML = '<span>⏳</span><span>Requesting...</span>';
-    cameraError.style.display = 'none';
+    hideError();
+    statusEl.textContent = "Requesting camera access...";
+    
+    // Stop any existing stream
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+    }
     
     // Request camera access
     const stream = await navigator.mediaDevices.getUserMedia({ 
       video: { 
-        facingMode: 'environment', // Prefer rear camera
+        facingMode: { ideal: 'environment' }, // Prefer rear camera
         width: { ideal: 1280 },
         height: { ideal: 720 }
-      },
-      audio: false
+      }
     });
     
     currentStream = stream;
     video.srcObject = stream;
     
-    // Show video and hide placeholder
-    video.style.display = 'block';
-    cameraPlaceholder.style.display = 'none';
-    scannerOverlay.style.display = 'flex';
+    // Wait for video to be ready
+    video.onloadedmetadata = () => {
+      statusEl.textContent = "Camera started. Initializing scanner...";
+      startScanner();
+    };
     
-    // Update buttons
-    startCameraBtn.style.display = 'none';
-    stopCameraBtn.style.display = 'flex';
-    
-    // Initialize barcode reader
-    initializeScanner();
-    
-    statusEl.textContent = "Scanner Status: Camera started. Ready to scan.";
+    video.onerror = (error) => {
+      console.error("Video error:", error);
+      showError("Camera Error", "Failed to start video stream. Please try again.");
+      statusEl.textContent = "Camera error occurred";
+    };
     
   } catch (error) {
     console.error("Camera error:", error);
     
-    let errorMessage = "Failed to access camera. ";
+    let errorTitle = "Camera Access Failed";
+    let errorMsg = "";
+    
     if (error.name === 'NotAllowedError') {
-      errorMessage += "Please allow camera access in your browser permissions.";
+      errorMsg = "Camera permission was denied. Please allow camera access in your browser settings.";
     } else if (error.name === 'NotFoundError') {
-      errorMessage += "No camera found on this device.";
+      errorMsg = "No camera found on this device.";
     } else if (error.name === 'NotReadableError') {
-      errorMessage += "Camera is already in use by another application.";
+      errorMsg = "Camera is already in use by another application.";
+    } else if (error.name === 'OverconstrainedError') {
+      errorMsg = "Camera doesn't support the requested settings.";
     } else {
-      errorMessage += error.message;
+      errorMsg = `Error: ${error.message}`;
     }
     
-    cameraMessage.textContent = "Camera access failed";
-    cameraError.textContent = errorMessage;
-    cameraError.style.display = 'block';
-    
-    startCameraBtn.disabled = false;
-    startCameraBtn.innerHTML = '<span>▶️</span><span>Try Again</span>';
-    
-    statusEl.textContent = "Scanner Status: Camera access failed";
+    showError(errorTitle, errorMsg);
+    statusEl.textContent = "Camera access failed";
   }
 }
 
-// Stop camera
-function stopCamera() {
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-    currentStream = null;
-  }
-  
-  if (reader) {
-    reader.reset();
-    reader = null;
-  }
-  
-  // Hide video and show placeholder
-  video.style.display = 'none';
-  cameraPlaceholder.style.display = 'flex';
-  scannerOverlay.style.display = 'none';
-  
-  // Update buttons
-  startCameraBtn.style.display = 'flex';
-  startCameraBtn.disabled = false;
-  startCameraBtn.innerHTML = '<span>▶️</span><span>Start Camera</span>';
-  stopCameraBtn.style.display = 'none';
-  
-  cameraMessage.textContent = "Camera stopped. Click 'Start Camera' to resume scanning.";
-  statusEl.textContent = "Scanner Status: Camera stopped";
-}
-
-// Initialize scanner
-function initializeScanner() {
+// Start barcode scanner
+function startScanner() {
   try {
-    // Configure reader to scan ALL barcode formats
-    const hints = new Map();
-    const allFormats = [
-      BarcodeFormat.AZTEC,
-      BarcodeFormat.CODABAR,
-      BarcodeFormat.CODE_39,
-      BarcodeFormat.CODE_93,
-      BarcodeFormat.CODE_128,
-      BarcodeFormat.DATA_MATRIX,
-      BarcodeFormat.EAN_8,
-      BarcodeFormat.EAN_13,
-      BarcodeFormat.ITF,
-      BarcodeFormat.PDF_417,
-      BarcodeFormat.QR_CODE,
-      BarcodeFormat.UPC_A,
-      BarcodeFormat.UPC_E
-    ];
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, allFormats);
+    // Get ZXing from global scope (loaded from CDN)
+    const { BrowserMultiFormatReader } = window.ZXing;
     
-    // Create reader with all formats enabled
-    reader = new BrowserMultiFormatReader(hints);
+    if (!BrowserMultiFormatReader) {
+      throw new Error("Barcode scanner library failed to load");
+    }
+    
+    const reader = new BrowserMultiFormatReader();
+    
+    statusEl.textContent = "Scanner ready. Point camera at barcode...";
     
     // Start scanning
-    reader.decodeFromVideoDevice(null, video, async (result, error) => {
-      if (error) {
-        if (error.name === 'NotFoundException') {
-          // No barcode detected - this is normal
-          return;
+    reader.decodeFromVideoDevice(null, video, (result, err) => {
+      if (err) {
+        // Ignore not found errors - they're normal when no barcode is detected
+        if (err.name !== 'NotFoundException') {
+          console.error("Scanner error:", err);
         }
-        console.error("Scanner error:", error);
-        statusEl.textContent = "Scanner Status: Scanner error";
         return;
       }
       
@@ -974,15 +856,18 @@ function initializeScanner() {
       
       scanned.add(code);
       
-      // Get barcode format info
-      const format = result.getBarcodeFormat();
-      const formatInfo = getBarcodeTypeInfo(format);
+      // Get barcode format
+      const format = result.getBarcodeFormat ? result.getBarcodeFormat() : 'UNKNOWN';
+      const formatName = format.toString().replace('_', ' ');
+      
+      // Determine if it's 1D or 2D
+      const is2D = ['QR_CODE', 'DATA_MATRIX', 'AZTEC', 'PDF_417'].includes(format);
       
       // Display result
       resultEl.textContent = code;
       barcodeTypeEl.innerHTML = `
-        <span class="barcode-icon">${formatInfo.icon}</span>
-        <span>Barcode Type: ${formatInfo.description}</span>
+        <span class="barcode-icon">${is2D ? '⬜' : '📏'}</span>
+        <span>${is2D ? '2D Code' : 'Linear Barcode'} (${formatName})</span>
       `;
       
       // Play beep + vibrate
@@ -990,39 +875,56 @@ function initializeScanner() {
       beep.play().catch(() => {});
       if (navigator.vibrate) navigator.vibrate(200);
 
-      // Save tracking number to Sheet2
-      try {
-        await fetch(WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            page: "page2", 
-            tracking: code,
-            barcodeType: formatInfo.type,
-            barcodeFormat: getBarcodeFormatName(format)
-          }),
-          mode: "no-cors"
-        });
-
-        const now = new Date();
-        statusEl.textContent = `Scanner Status: Saved ✅ (${formatInfo.type})`;
-        timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
-
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = `Scanner Status: Error saving ❌`;
-        timestampEl.textContent = "";
-      }
-
+      // Save tracking number
+      saveTrackingNumber(code, is2D ? '2D Code' : 'Linear Barcode', formatName);
+      
       // Update progress
       updateProgress();
     });
     
-    statusEl.textContent = "Scanner Status: Ready - Scan any barcode or QR code";
+    console.log("Scanner started successfully");
     
   } catch (error) {
     console.error("Scanner initialization error:", error);
-    statusEl.textContent = "Scanner Status: Failed to initialize scanner";
+    showError("Scanner Error", "Failed to initialize barcode scanner. Please refresh the page.");
+    statusEl.textContent = "Scanner initialization failed";
+  }
+}
+
+// Save tracking number to Google Sheets
+async function saveTrackingNumber(code, barcodeType, barcodeFormat) {
+  try {
+    const now = new Date();
+    
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        page: "page2", 
+        tracking: code,
+        barcodeType: barcodeType,
+        barcodeFormat: barcodeFormat,
+        timestamp: now.toISOString()
+      }),
+      mode: "no-cors"
+    });
+
+    statusEl.textContent = `Saved ✅ (${barcodeType})`;
+    timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
+
+  } catch (err) {
+    console.error("Save error:", err);
+    statusEl.textContent = `Error saving ❌`;
+    timestampEl.textContent = "";
+  }
+}
+
+// Stop camera
+function stopCamera() {
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+    video.srcObject = null;
   }
 }
 
@@ -1057,15 +959,34 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Check for camera support
+// Check for camera support and start automatically
 window.addEventListener('load', () => {
+  // Check if browser supports camera
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    cameraMessage.textContent = "Camera not supported on this device/browser";
-    startCameraBtn.disabled = true;
-    startCameraBtn.innerHTML = '<span>❌</span><span>Not Supported</span>';
-    cameraError.textContent = "Your browser or device does not support camera access. Try using Chrome, Firefox, or Edge on a device with a camera.";
-    cameraError.style.display = 'block';
+    showError("Browser Not Supported", 
+      "Your browser doesn't support camera access. " +
+      "Please use Chrome, Firefox, or Edge on a device with a camera.");
+    statusEl.textContent = "Camera not supported in this browser";
+    return;
   }
+  
+  // Check if ZXing library loaded
+  if (!window.ZXing) {
+    showError("Scanner Library Error", 
+      "Failed to load barcode scanner library. Please check your internet connection and refresh the page.");
+    statusEl.textContent = "Scanner library failed to load";
+    return;
+  }
+  
+  // Start camera automatically
+  setTimeout(() => {
+    startCamera();
+  }, 1000);
+});
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+  stopCamera();
 });
 </script>
 
