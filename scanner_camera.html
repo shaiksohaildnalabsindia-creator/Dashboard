@@ -135,36 +135,6 @@
     transform: translateX(4px);
   }
 
-  .menu-item.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  }
-
-  .menu-item.active::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px;
-    height: 60%;
-    background: #3b82f6;
-    border-radius: 0 2px 2px 0;
-  }
-
-  .menu-item-icon {
-    font-size: 18px;
-    width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .menu-item-text {
-    flex: 1;
-  }
-
   .menu-item-badge {
     background: #ef4444;
     color: white;
@@ -252,197 +222,126 @@
     margin-top: 2px;
   }
 
-  .user-menu {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 16px;
-  }
-
   /* ---------- SCANNER CONTENT ---------- */
-  .scanner-wrapper {
+  .scanner-content {
     flex: 1;
     padding: 30px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    /* CHANGED COLOR: Professional Purple Gradient */
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
     min-height: calc(100vh - 70px);
   }
 
   .scanner-container {
     background: rgba(255, 255, 255, 0.95);
-    padding: 40px;
+    padding: 30px;
     border-radius: 20px;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     width: 100%;
-    max-width: 800px;
+    max-width: 600px;
     text-align: center;
   }
 
-  .scanner-container h2 {
-    color: #ff6f61;
-    margin-bottom: 25px;
-    font-size: 28px;
-    font-weight: 700;
+  h2 { 
+    color: #7C3AED; /* CHANGED COLOR: Purple */
+    margin-bottom: 20px;
+    font-size: 24px;
   }
 
   .info-panel {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); /* CHANGED COLOR: Purple */
     color: white;
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    font-size: 18px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 16px;
     font-weight: 600;
     display: inline-block;
   }
 
-  .video-container {
-    position: relative;
+  video { 
     width: 100%;
     max-width: 500px;
-    margin: 0 auto 25px;
+    border: 2px solid #8B5CF6; /* CHANGED COLOR: Purple border */
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-  }
-
-  video {
-    width: 100%;
-    display: block;
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+    margin: 20px 0;
     background: #000;
-  }
-
-  .scanner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .scanner-frame {
-    width: 80%;
-    height: 200px;
-    border: 3px solid #3b82f6;
-    border-radius: 8px;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { border-color: #3b82f6; }
-    50% { border-color: #60a5fa; }
   }
 
   .results-panel {
     background: #f8fafc;
     border-radius: 12px;
-    padding: 25px;
-    margin-top: 25px;
+    padding: 20px;
+    margin: 20px 0;
     border: 2px solid #e2e8f0;
   }
 
-  .result-item {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .result-item:last-child {
-    margin-bottom: 0;
-    padding-bottom: 0;
-    border-bottom: none;
-  }
-
-  .tracking-number {
+  .result-display {
     font-size: 20px;
     font-weight: 700;
     color: #1e293b;
     font-family: monospace;
     background: #f1f5f9;
-    padding: 8px 15px;
+    padding: 10px 15px;
     border-radius: 8px;
     display: inline-block;
-    margin-bottom: 5px;
-  }
-
-  .scan-time {
-    font-size: 13px;
-    color: #64748b;
-  }
-
-  .scan-success {
-    color: #10b981;
-    font-weight: 600;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
+    margin: 10px 0;
   }
 
   .status-panel {
-    margin-top: 20px;
-    padding: 20px;
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-    border-radius: 12px;
-    border: 2px solid #fbbf24;
+    margin: 15px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    border-radius: 10px;
+    border: 2px solid #F59E0B;
   }
 
   .progress-panel {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    padding: 20px;
-    border-radius: 12px;
-    margin-top: 20px;
-    border: 2px solid #60a5fa;
+    margin: 15px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+    border-radius: 10px;
+    border: 2px solid #3B82F6;
   }
 
   .progress-text {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    color: #1e40af;
+    color: #1E40AF;
     margin-bottom: 10px;
   }
 
   .progress-bar {
-    height: 12px;
-    background: #e2e8f0;
-    border-radius: 6px;
+    height: 10px;
+    background: #E2E8F0;
+    border-radius: 5px;
     overflow: hidden;
     margin-top: 10px;
   }
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-    border-radius: 6px;
+    background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+    border-radius: 5px;
     transition: width 0.5s ease;
   }
 
-  .scan-complete {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    padding: 25px;
+  .timestamp {
+    font-size: 14px;
+    color: #6B7280;
+    margin-top: 10px;
+  }
+
+  .complete-panel {
+    background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+    padding: 20px;
     border-radius: 12px;
-    margin-top: 25px;
-    border: 2px solid #10b981;
+    margin-top: 20px;
+    border: 2px solid #10B981;
     animation: fadeIn 0.5s ease;
   }
 
@@ -452,82 +351,13 @@
   }
 
   .complete-message {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
-    color: #065f46;
-    margin-bottom: 10px;
+    color: #065F46;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-  }
-
-  .countdown {
-    font-size: 16px;
-    color: #047857;
-    font-weight: 600;
-  }
-
-  /* ---------- ACCESS DENIED STYLES ---------- */
-  .access-denied {
-    flex: 1;
-    padding: 40px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-    min-height: calc(100vh - 70px);
-  }
-
-  .denied-container {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    width: 100%;
-    max-width: 500px;
-    text-align: center;
-  }
-
-  .denied-icon {
-    font-size: 64px;
-    margin-bottom: 20px;
-  }
-
-  .denied-title {
-    color: #dc2626;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 15px;
-  }
-
-  .denied-message {
-    color: #4b5563;
-    font-size: 16px;
-    margin-bottom: 25px;
-    line-height: 1.6;
-  }
-
-  .back-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .back-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
   }
 
   /* Mobile Styles */
@@ -549,38 +379,31 @@
       display: flex !important;
     }
 
-    .scanner-wrapper,
-    .access-denied {
+    .scanner-content {
       padding: 15px;
     }
 
-    .scanner-container,
-    .denied-container {
-      padding: 25px 15px;
+    .scanner-container {
+      padding: 20px 15px;
     }
 
-    .video-container {
+    video {
       max-width: 100%;
-    }
-
-    .user-menu {
-      display: none;
     }
   }
 
   /* Focus styles for accessibility */
   .menu-item:focus-visible,
   .menu-btn:focus-visible,
-  .sidebar-header:focus-visible,
-  .back-btn:focus-visible {
-    outline: 2px solid #3b82f6;
+  .sidebar-header:focus-visible {
+    outline: 2px solid #8B5CF6; /* CHANGED COLOR: Purple */
     outline-offset: 2px;
   }
 </style>
 </head>
 <body>
 
-<!-- Sidebar - NO CAMERA SCANNER LINK -->
+<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
     <div class="logo">
@@ -605,6 +428,7 @@
         <a href="upload_sample_images.html" class="menu-item">
           <span class="menu-item-icon">📷</span>
           <span class="menu-item-text">Upload Images</span>
+          <span class="menu-item-badge">New</span>
         </a>
       </div>
     </div>
@@ -648,45 +472,123 @@
     <div class="page-info">
       <div class="page-title">
         <span>📷</span>
-        <span id="pageTitle">Camera Barcode Scanner</span>
+        <span>Camera Barcode Scanner</span>
       </div>
-      <div class="page-subtitle" id="pageSubtitle">Scan parcel barcodes using your camera</div>
-    </div>
-    <div class="user-menu">
-      <div class="user-avatar">U</div>
+      <div class="page-subtitle">Scan parcel barcodes using your camera</div>
     </div>
   </header>
 
-  <!-- Content Area -->
-  <div id="contentArea">
-    <!-- Content will be loaded here based on access -->
+  <!-- Scanner Content -->
+  <div class="scanner-content">
+    <div class="scanner-container">
+      <h2>📦 Parcel Camera Scanner</h2>
+      
+      <div class="info-panel" id="info">
+        Loading scanner information...
+      </div>
+
+      <video id="video" autoplay playsinline></video>
+
+      <div class="results-panel">
+        <h3 style="margin-bottom: 10px; color: #1e293b;">Last Scanned:</h3>
+        <div class="result-display" id="result">None</div>
+      </div>
+
+      <div class="status-panel" id="statusPanel">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <span>🔍</span>
+          <span id="status">Scanner Status: Initializing...</span>
+        </div>
+        <div class="timestamp" id="timestamp"></div>
+      </div>
+
+      <div class="progress-panel" id="progressPanel">
+        <div class="progress-text" id="progressText">Progress: 0/0 scanned</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="complete-panel" id="completePanel" style="display: none;">
+        <div class="complete-message">
+          <span>✅</span>
+          <span>All Parcels Scanned Successfully!</span>
+        </div>
+        <div class="timestamp" id="countdown">Redirecting to dashboard in 3 seconds...</div>
+      </div>
+    </div>
   </div>
 </div>
+
+<audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script type="module">
 import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
 
-const reader = new BrowserMultiFormatReader();
+// DOM Elements
+const sidebar = document.getElementById('sidebar');
 const video = document.getElementById("video");
 const resultEl = document.getElementById("result");
 const statusEl = document.getElementById("status");
 const timestampEl = document.getElementById("timestamp");
-const progressEl = document.getElementById("progress");
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+const progressPanel = document.getElementById("progressPanel");
+const completePanel = document.getElementById("completePanel");
+const countdownEl = document.getElementById("countdown");
 const beep = document.getElementById("beep-sound");
+const infoEl = document.getElementById("info");
 
 // Get courier & count from URL
 const params = new URLSearchParams(window.location.search);
 const totalCount = Number(params.get("count") || 0);
 const courier = params.get("courier") || "";
 
-document.getElementById("info").textContent =
-  `Courier: ${courier} | Parcels to scan: ${totalCount}`;
+// Update info panel
+infoEl.textContent = `🚚 Courier: ${courier} | 📦 Parcels to scan: ${totalCount}`;
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
 
 let scanned = new Set();
-progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
 
+// Initialize progress
+updateProgress();
+
+const reader = new BrowserMultiFormatReader();
+
+// Update progress function
+function updateProgress() {
+  const scannedCount = scanned.size;
+  const progressPercent = totalCount > 0 ? (scannedCount / totalCount) * 100 : 0;
+  
+  progressText.textContent = `Progress: ${scannedCount}/${totalCount} scanned`;
+  progressFill.style.width = `${progressPercent}%`;
+  
+  if (scannedCount >= totalCount && totalCount > 0) {
+    showCompletePanel();
+  }
+}
+
+// Show complete panel
+function showCompletePanel() {
+  progressPanel.style.display = 'none';
+  completePanel.style.display = 'block';
+  
+  let countdown = 3;
+  countdownEl.textContent = `Redirecting to dashboard in ${countdown} seconds...`;
+  
+  const countdownInterval = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+      countdownEl.textContent = `Redirecting to dashboard in ${countdown} seconds...`;
+    } else {
+      clearInterval(countdownInterval);
+      goToDashboard();
+    }
+  }, 1000);
+}
+
+// Start scanning
 reader.decodeFromVideoDevice(null, video, async (result) => {
   if (!result) return;
   const code = result.getText().trim();
@@ -710,22 +612,49 @@ reader.decodeFromVideoDevice(null, video, async (result) => {
     });
 
     const now = new Date();
-    statusEl.textContent = `Saved ✅`;
+    statusEl.textContent = `Scanner Status: Saved ✅`;
     timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
 
   } catch (err) {
     console.error(err);
-    statusEl.textContent = "Error saving ❌";
+    statusEl.textContent = "Scanner Status: Error saving ❌";
     timestampEl.textContent = "";
   }
 
   // Update progress
-  progressEl.textContent = `${scanned.size} / ${totalCount} scanned`;
+  updateProgress();
+});
 
-  // All scanned → redirect back to index
-  if (scanned.size >= totalCount) {
-    statusEl.textContent = "All parcels scanned! Redirecting...";
-    setTimeout(() => { window.location.href = "index.html"; }, 2000);
+// Set initial status
+statusEl.textContent = `Scanner Status: Ready - Point camera at barcode`;
+
+// Sidebar functions
+function goToDashboard() {
+  window.location.href = "index.html";
+}
+
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+}
+
+// Event listeners for mobile sidebar
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768 && 
+      !sidebar.contains(e.target) && 
+      !e.target.classList.contains('menu-btn')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('open');
   }
 });
 </script>
