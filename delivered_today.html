@@ -5,10 +5,11 @@
 <title>Today's Delivered Parcels</title>
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   padding: 20px;
   margin: 0;
   background: #f5f5f5;
+  color: #333;
 }
 
 /* ---------- TABLE ---------- */
@@ -17,26 +18,41 @@ table {
   border-collapse: collapse;
   margin-top: 15px;
   background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
+  border: 1px solid #ddd;
+  padding: 12px;
   text-align: center;
 }
 
-th { background: #f4f4f4; }
+th { 
+  background: #f4f4f4;
+  font-weight: bold;
+  color: #444;
+}
 
 .count {
   font-size: 18px;
   font-weight: bold;
   margin-top: 15px;
+  padding: 10px;
+  background: #fff;
+  display: inline-block;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 a {
   color: #007bff;
   cursor: pointer;
   text-decoration: underline;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #0056b3;
 }
 
 /* ---------- MODAL ---------- */
@@ -50,7 +66,10 @@ a {
   z-index: 999;
 }
 
-.modal.show { display: flex; }
+.modal.show { 
+  display: flex; 
+  animation: fadeIn 0.3s ease;
+}
 
 .modal-content {
   position: relative;
@@ -62,6 +81,12 @@ a {
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
+  padding: 20px;
+}
+
+/* Prevent closing when clicking on content */
+.modal-content {
+  pointer-events: auto;
 }
 
 /* ---------- GALLERY ---------- */
@@ -70,7 +95,8 @@ a {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
+  width: 100%;
 }
 
 .gallery img {
@@ -80,12 +106,19 @@ a {
   border-radius: 8px;
   cursor: zoom-in;
   display: block;
+  transition: transform 0.2s;
 }
 
-/* Spinner inside gallery */
+.gallery img:hover {
+  transform: scale(1.01);
+}
+
+/* Image container with spinner */
 .img-container {
   position: relative;
   display: inline-block;
+  min-width: 200px;
+  min-height: 150px;
 }
 
 .img-container .spinner {
@@ -95,11 +128,28 @@ a {
   width: 40px;
   height: 40px;
   border: 4px solid #ccc;
-  border-top: 4px solid #fff;
+  border-top: 4px solid #007bff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   transform: translate(-50%, -50%);
   z-index: 5;
+}
+
+/* Loading state for modal */
+.loading {
+  color: white;
+  font-size: 18px;
+  padding: 30px;
+  text-align: center;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background: rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 20px;
 }
 
 /* ---------- FULLSCREEN ---------- */
@@ -115,24 +165,86 @@ a {
   touch-action: none;
 }
 
-.fullscreen.show { display: flex; }
+.fullscreen.show { 
+  display: flex; 
+  animation: fadeIn 0.3s ease;
+}
 
 .fullscreen img {
   max-width: 95vw;
   max-height: 95vh;
   object-fit: contain;
   cursor: grab;
-  transition: transform 0.2s ease;
+  transition: transform 0.1s ease-out;
+  transform-origin: center center;
 }
 
-/* Spinner */
-@keyframes spin { to { transform: rotate(360deg); } }
+/* Navigation arrows in fullscreen */
+.nav-arrow {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2001;
+  transition: background 0.2s;
+  pointer-events: auto;
+}
+
+.nav-arrow:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.nav-arrow.prev {
+  left: 20px;
+}
+
+.nav-arrow.next {
+  right: 20px;
+}
+
+/* Close button */
+.close-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 2001;
+  transition: background 0.2s;
+  pointer-events: auto;
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin { 
+  to { transform: translate(-50%, -50%) rotate(360deg); } 
+}
 </style>
 </head>
 <body>
 
 <h2>📦 Today's Delivered Parcels</h2>
-<div class="count" id="count"></div>
+<div class="count" id="count">Loading...</div>
 
 <table>
 <thead>
@@ -148,6 +260,7 @@ a {
 
 <!-- ---------- IMAGE MODAL ---------- -->
 <div id="imageModal" class="modal">
+  <div class="click-anywhere">Click anywhere to close</div>
   <div class="modal-content">
     <div class="gallery" id="gallery"></div>
   </div>
@@ -155,7 +268,10 @@ a {
 
 <!-- ---------- FULLSCREEN ---------- -->
 <div id="fullscreen" class="fullscreen">
-  <img id="fsImage" src="">
+  <div class="click-anywhere">Click anywhere to close</div>
+  <button class="nav-arrow prev" onclick="prevImage()">‹</button>
+  <button class="nav-arrow next" onclick="nextImage()">›</button>
+  <img id="fsImage" src="" alt="Fullscreen view">
 </div>
 
 <script>
@@ -164,6 +280,8 @@ const imageModal = document.getElementById("imageModal");
 const gallery = document.getElementById("gallery");
 const fullscreen = document.getElementById("fullscreen");
 const fsImage = document.getElementById("fsImage");
+const tableBody = document.getElementById("tableBody");
+const countElement = document.getElementById("count");
 
 /* ---------- APIs ---------- */
 const PARCEL_API = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
@@ -172,70 +290,166 @@ const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4Y
 /* ---------- DATA ---------- */
 let currentImages = [];
 let currentIndex = 0;
+let dataRefreshInterval = null;
+
+/* ---------- CLICK ANYWHERE TO CLOSE ---------- */
+// Click anywhere on modal background to close
+imageModal.addEventListener('click', (e) => {
+  // Only close if clicking on the background (not on content)
+  if (e.target === imageModal) {
+    closeModal();
+  }
+});
+
+// Click anywhere on fullscreen background to close
+fullscreen.addEventListener('click', (e) => {
+  // Only close if clicking on the background (not on image or buttons)
+  if (e.target === fullscreen || 
+      (e.target === fsImage && !isDragging && scale === 1)) {
+    closeFullscreen();
+  }
+});
 
 /* ---------- LOAD PARCEL DATA ---------- */
 function loadData() {
+  console.log("Loading parcel data...");
+  
+  // Remove old script if exists
   const oldScript = document.getElementById("jsonpScript");
   if (oldScript) oldScript.remove();
 
+  // Create JSONP script
   const script = document.createElement("script");
-  script.src = PARCEL_API + "?callback=handleData";
+  script.src = PARCEL_API + "?callback=handleData&t=" + Date.now(); // Cache busting
   script.id = "jsonpScript";
+  script.onerror = () => {
+    console.error("Failed to load parcel data");
+    countElement.innerText = "Error loading data. Retrying...";
+    tableBody.innerHTML = `<tr><td colspan="4" style="color: #dc3545; padding: 20px;">
+      Failed to load data. Please check your connection.
+    </td></tr>`;
+  };
+  
   document.body.appendChild(script);
 }
 
 function handleData(data) {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
-  document.getElementById("count").innerText = "Total Delivered Today: " + data.length;
+  console.log("Data received:", data);
+  
+  if (!Array.isArray(data)) {
+    console.error("Invalid data format received");
+    countElement.innerText = "Error: Invalid data format";
+    tableBody.innerHTML = `<tr><td colspan="4" style="color: #dc3545; padding: 20px;">
+      Invalid data received from server.
+    </td></tr>`;
+    return;
+  }
+  
+  tableBody.innerHTML = "";
+  countElement.innerText = `Total Delivered Today: ${data.length}`;
+
+  if (data.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="4" style="padding: 20px; color: #666;">
+      No deliveries found for today.
+    </td></tr>`;
+    return;
+  }
 
   data.forEach(r => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td><a onclick="openModal('${r.trackingNumber}')">${r.trackingNumber}</a></td>
-                    <td>${r.fromAddress}</td>
-                    <td>${r.deliveryDate}</td>
-                    <td>${r.status}</td>`;
-    tbody.appendChild(tr);
+    tr.innerHTML = `
+      <td>
+        <a onclick="openModal('${r.trackingNumber}')" title="View images">
+          ${r.trackingNumber}
+        </a>
+      </td>
+      <td>${r.fromAddress || 'N/A'}</td>
+      <td>${r.deliveryDate || 'N/A'}</td>
+      <td>
+        <span style="color: ${r.status === 'Delivered' ? '#28a745' : '#ffc107'}; font-weight: bold;">
+          ${r.status || 'Unknown'}
+        </span>
+      </td>`;
+    tableBody.appendChild(tr);
   });
 }
 
 /* ---------- MODAL ---------- */
 function openModal(tracking) {
+  console.log("Opening modal for tracking:", tracking);
   imageModal.classList.add("show");
-  gallery.innerHTML = "";
+  gallery.innerHTML = `<div class="loading">Loading images for ${tracking}...</div>`;
   fetchImages(tracking.toLowerCase());
 }
 
 function closeModal() {
   imageModal.classList.remove("show");
+  gallery.innerHTML = "";
+  currentImages = [];
 }
-
-/* Click outside modal content closes it */
-imageModal.addEventListener("click", e => {
-  if (e.target === imageModal) closeModal();
-});
 
 /* ---------- IMAGE FETCH ---------- */
 function fetchImages(query) {
-  fetch(IMAGE_API)
-    .then(r => r.json())
-    .then(data => renderImages(data, query))
-    .catch(err => console.error(err));
+  console.log("Fetching images for query:", query);
+  
+  fetch(IMAGE_API + `?t=${Date.now()}`) // Cache busting
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Images data received:", data);
+      renderImages(data, query);
+    })
+    .catch(error => {
+      console.error('Error fetching images:', error);
+      gallery.innerHTML = `
+        <div class="error-message">
+          <p>Failed to load images. Please try again.</p>
+          <p><small>Error: ${error.message}</small></p>
+          <button onclick="fetchImages('${query}')" 
+                  style="margin-top: 10px; padding: 5px 15px; cursor: pointer;">
+            Retry
+          </button>
+        </div>`;
+    });
 }
 
 function renderImages(data, query) {
   gallery.innerHTML = "";
-  currentImages = data.filter(item => item.caption.toLowerCase().includes(query));
+  
+  if (!Array.isArray(data)) {
+    gallery.innerHTML = `<div class="error-message">
+      Invalid image data format received.
+    </div>`;
+    return;
+  }
+  
+  currentImages = data.filter(item => 
+    item.caption && item.caption.toLowerCase().includes(query.toLowerCase())
+  );
   currentIndex = 0;
 
   if (currentImages.length === 0) {
-    gallery.innerHTML = "<p style='color:white'>No images found.</p>";
+    gallery.innerHTML = `<div class="error-message">
+      No images found for tracking number: ${query.toUpperCase()}
+    </div>`;
     return;
   }
 
+  // Show image count
+  const infoDiv = document.createElement("div");
+  infoDiv.style.cssText = "color: white; text-align: center; width: 100%; margin-bottom: 10px;";
+  infoDiv.innerHTML = `<strong>${currentImages.length} image(s) found</strong>`;
+  gallery.appendChild(infoDiv);
+
+  // Create image containers
   currentImages.forEach((item, index) => {
     const container = document.createElement("div");
     container.className = "img-container";
+    container.style.cssText = "margin: 10px;";
 
     const spinner = document.createElement("div");
     spinner.className = "spinner";
@@ -244,21 +458,43 @@ function renderImages(data, query) {
     const img = document.createElement("img");
     img.style.display = "none";
     img.src = item.url;
+    img.alt = item.caption || `Image ${index + 1}`;
     img.loading = "lazy";
     img.decoding = "async";
+    img.style.cssText = "max-width: 300px; max-height: 200px; cursor: zoom-in;";
 
     img.onload = () => {
+      console.log(`Image ${index + 1} loaded successfully`);
       spinner.style.display = "none";
       img.style.display = "block";
+      
+      // Add caption if available
+      if (item.caption) {
+        const caption = document.createElement("div");
+        caption.style.cssText = "color: white; text-align: center; font-size: 12px; margin-top: 5px;";
+        caption.textContent = item.caption.length > 30 ? 
+          item.caption.substring(0, 30) + "..." : item.caption;
+        container.appendChild(caption);
+      }
     };
 
     img.onerror = () => {
+      console.error(`Failed to load image ${index + 1}`);
       spinner.style.display = "none";
       img.style.display = "block";
-      img.alt = "Failed to load";
+      img.alt = "Failed to load image";
+      img.style.border = "2px dashed #ff6b6b";
+      
+      const errorText = document.createElement("div");
+      errorText.style.cssText = "color: #ff6b6b; text-align: center; font-size: 12px; margin-top: 5px;";
+      errorText.textContent = "Failed to load";
+      container.appendChild(errorText);
     };
 
-    img.onclick = e => { e.stopPropagation(); openFullscreen(index); };
+    img.onclick = (e) => { 
+      e.stopPropagation(); 
+      openFullscreen(index); 
+    };
 
     container.appendChild(img);
     gallery.appendChild(container);
@@ -272,32 +508,58 @@ let startX = 0, startY = 0;
 let translateX = 0, translateY = 0;
 let lastX = 0, lastY = 0;
 let isDragging = false;
+let initialDist = 0;
 
 function openFullscreen(index) {
+  console.log("Opening fullscreen for image index:", index);
   currentIndex = index;
+  
+  if (currentImages.length === 0 || !currentImages[index]) {
+    console.error("No image found at index:", index);
+    return;
+  }
+  
   fsImage.src = currentImages[index].url;
+  fsImage.alt = currentImages[index].caption || `Image ${index + 1}`;
+  
+  // Reset transform
   scale = 1;
   lastScale = 1;
-  translateX = translateY = lastX = lastY = 0;
+  translateX = 0;
+  translateY = 0;
+  lastX = 0;
+  lastY = 0;
   updateTransform();
+  
   fullscreen.classList.add("show");
+  fsImage.style.cursor = "grab";
 }
 
-/* ---------- CLOSE ---------- */
-fullscreen.addEventListener("click", closeFullscreen);
 function closeFullscreen() {
   fullscreen.classList.remove("show");
   fsImage.src = "";
+  
+  // Reset transform
   scale = 1;
-  translateX = translateY = lastX = lastY = 0;
+  translateX = 0;
+  translateY = 0;
   updateTransform();
 }
 
-/* ---------- ESC & ARROWS ---------- */
+/* ---------- KEYBOARD CONTROLS ---------- */
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape") { closeFullscreen(); closeModal(); }
-  else if (e.key === "ArrowLeft") prevImage();
-  else if (e.key === "ArrowRight") nextImage();
+  if (e.key === "Escape") {
+    if (fullscreen.classList.contains("show")) {
+      closeFullscreen();
+    } else if (imageModal.classList.contains("show")) {
+      closeModal();
+    }
+  } else if (fullscreen.classList.contains("show")) {
+    if (e.key === "ArrowLeft") prevImage();
+    else if (e.key === "ArrowRight") nextImage();
+    else if (e.key === "Home") openFullscreen(0);
+    else if (e.key === "End") openFullscreen(currentImages.length - 1);
+  }
 });
 
 /* ---------- NAVIGATION ---------- */
@@ -316,81 +578,183 @@ function nextImage() {
 /* ---------- ZOOM ---------- */
 fsImage.addEventListener("wheel", e => {
   e.preventDefault();
-  const delta = -e.deltaY * 0.0015;
-  scale = Math.min(Math.max(1, scale + delta), 5);
+  
+  const zoomIntensity = 0.001;
+  const delta = -e.deltaY * zoomIntensity;
+  const newScale = Math.min(Math.max(1, scale + delta), 5);
+  
+  // Zoom toward cursor
+  const rect = fsImage.getBoundingClientRect();
+  const offsetX = e.clientX - rect.left - rect.width / 2;
+  const offsetY = e.clientY - rect.top - rect.height / 2;
+  
+  translateX -= offsetX * (newScale - scale);
+  translateY -= offsetY * (newScale - scale);
+  
+  scale = newScale;
   updateTransform();
 });
 
 /* ---------- TOUCH PINCH & PAN ---------- */
-let initialDist = 0;
 fsImage.addEventListener("touchstart", e => {
-  if (e.touches.length === 1) { // drag
+  e.preventDefault();
+  
+  if (e.touches.length === 1) {
+    // Start dragging
+    isDragging = true;
     startX = e.touches[0].clientX - translateX;
     startY = e.touches[0].clientY - translateY;
-    isDragging = true;
-  } else if (e.touches.length === 2) { // pinch
+  } else if (e.touches.length === 2) {
+    // Start pinch
+    isDragging = false;
     initialDist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
+    lastScale = scale;
   }
 });
 
 fsImage.addEventListener("touchmove", e => {
   e.preventDefault();
+  
   if (e.touches.length === 1 && isDragging && scale > 1) {
+    // Pan
     translateX = e.touches[0].clientX - startX;
     translateY = e.touches[0].clientY - startY;
     updateTransform();
   } else if (e.touches.length === 2) {
+    // Pinch zoom
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
-    scale = Math.min(Math.max(1, lastScale * (dist / initialDist)), 5);
-    updateTransform();
+    
+    if (initialDist > 0) {
+      scale = Math.min(Math.max(1, lastScale * (dist / initialDist)), 5);
+      updateTransform();
+    }
   }
 });
 
 fsImage.addEventListener("touchend", e => {
-  if (e.touches.length < 2) lastScale = scale;
-  if (e.touches.length === 0) isDragging = false;
+  if (e.touches.length < 2) {
+    lastScale = scale;
+  }
+  if (e.touches.length === 0) {
+    isDragging = false;
+  }
 });
 
 /* ---------- MOUSE PAN ---------- */
 fsImage.addEventListener("mousedown", e => {
   if (scale <= 1) return;
+  
   isDragging = true;
   startX = e.clientX - translateX;
   startY = e.clientY - translateY;
   fsImage.style.cursor = "grabbing";
+  e.preventDefault();
 });
 
 document.addEventListener("mousemove", e => {
   if (!isDragging) return;
+  
   translateX = e.clientX - startX;
   translateY = e.clientY - startY;
   updateTransform();
 });
 
 document.addEventListener("mouseup", () => {
-  isDragging = false;
-  fsImage.style.cursor = "grab";
+  if (isDragging) {
+    isDragging = false;
+    fsImage.style.cursor = "grab";
+  }
 });
 
 /* ---------- UPDATE TRANSFORM ---------- */
 function updateTransform() {
-  fsImage.style.transform = `scale(${scale}) translate(${translateX/scale}px, ${translateY/scale}px)`;
+  // Limit translation based on scale to prevent dragging image out of view
+  const maxTranslate = Math.max(0, (scale - 1) * 100);
+  translateX = Math.max(-maxTranslate, Math.min(maxTranslate, translateX));
+  translateY = Math.max(-maxTranslate, Math.min(maxTranslate, translateY));
+  
+  fsImage.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
 }
 
-/* ---------- INIT ---------- */
+/* ---------- EVENT LISTENERS ---------- */
+// Double click on fullscreen image to reset zoom
+fsImage.addEventListener("dblclick", e => {
+  e.preventDefault();
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  updateTransform();
+});
+
+// Prevent clicks on image content from closing the modal/fullscreen
+gallery.addEventListener('click', (e) => {
+  e.stopPropagation();
+});
+
+// Prevent clicks on navigation arrows from closing fullscreen
+document.querySelectorAll('.nav-arrow').forEach(arrow => {
+  arrow.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+});
+
+/* ---------- INITIALIZATION ---------- */
 window.onload = () => {
+  console.log("Page loaded, initializing...");
+  
+  // Load data immediately
+  loadData();
+  
+  // Set up auto-refresh every minute
+  dataRefreshInterval = setInterval(loadData, 60000);
+  
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    if (dataRefreshInterval) {
+      clearInterval(dataRefreshInterval);
+      console.log("Cleaned up refresh interval");
+    }
+  });
+  
+  // Add error handling for unhandled errors
+  window.addEventListener('error', (e) => {
+    console.error('Unhandled error:', e.error);
+  });
+  
+  // Initialize modal and fullscreen as hidden
   imageModal.classList.remove("show");
   fullscreen.classList.remove("show");
-  loadData();
-  setInterval(loadData, 60000);
 };
-</script>
 
+/* ---------- UTILITY FUNCTIONS ---------- */
+function formatDate(date) {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
+// Export functions for debugging
+window.app = {
+  loadData,
+  openModal,
+  closeModal,
+  openFullscreen,
+  closeFullscreen,
+  prevImage,
+  nextImage,
+  getCurrentImages: () => currentImages,
+  getCurrentIndex: () => currentIndex
+};
+
+console.log("App initialized successfully");
+</script>
 </body>
 </html>
