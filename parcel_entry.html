@@ -1,22 +1,162 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/parcel_entry.html b/parcel_entry.html
-index 936671329e46019cc30267c7bb77652baf848e22..9c756043474e83bfa141f93e5077d04965d89ae8 100644
---- a/parcel_entry.html
-+++ b/parcel_entry.html
-@@ -1,63 +1,132 @@
- <!DOCTYPE html>
- <html>
- <head>
-   <meta charset="UTF-8">
-   <title>Parcel Entry</title>
-   <style>
--    body { font-family: Arial; background: #f4f6f8; padding: 50px; }
--    .container { max-width: 400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
--    input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
--    button { background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
--    button:hover { background-color: #0056b3; }
--    h2 { text-align: center; }
--    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+- <!DOCTYPE html>
+- <html>
+- <head>
+-   <meta charset="UTF-8">
+-   <title>Parcel Entry</title>
+-   <style>
+--    body { font-family: Arial; background: #f4f6f8; padding: 50px; }
+--    .container { max-width: 400px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+--    input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+--    button { background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer; }
+--    button:hover { background-color: #0056b3; }
+--    h2 { text-align: center; }
+--    #status { margin-top: 15px; font-weight: bold; text-align: center; }
+-+    @import url("sidebar.css");
+-+
+-+    * {
+-+      box-sizing: border-box;
+-+    }
+-+
+-+    body {
+-+      margin: 0;
+-+      font-family: Arial;
+-+      background: #f4f6f8;
+-+    }
+-+
+-+    .main-content {
+-+      padding: 50px;
+-+    }
+-+
+-+    .container {
+-+      max-width: 400px;
+-+      margin: 0 auto;
+-+      background: #fff;
+-+      padding: 20px;
+-+      border-radius: 10px;
+-+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+-+    }
+-+
+-+    input, button {
+-+      width: 100%;
+-+      padding: 10px;
+-+      margin: 8px 0;
+-+      box-sizing: border-box;
+-+    }
+-+
+-+    button {
+-+      background-color: #007bff;
+-+      color: #fff;
+-+      border: none;
+-+      border-radius: 5px;
+-+      cursor: pointer;
+-+    }
+-+
+-+    button:hover {
+-+      background-color: #0056b3;
+-+    }
+-+
+-+    h2 {
+-+      text-align: center;
+-+    }
+-+
+-+    #status {
+-+      margin-top: 15px;
+-+      font-weight: bold;
+-+      text-align: center;
+-+    }
+-   </style>
+- </head>
+- <body>
+- 
+--<div class="container">
+--  <h2>📦 Parcel Entry</h2>
+-+<div class="sidebar" id="sidebar">
+-+  <div class="sidebar-header">
+-+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+-+    <span class="title">Dashboard</span>
+-+  </div>
+-+
+-+  <nav>
+-+    <a href="index.html" data-page="index.html"><span>🏠 Dashboard</span></a>
+-+    <a href="parcel_entry.html" data-page="parcel_entry.html"><span>📦 Parcel Entry</span></a>
+-+    <a href="parcel_entry_form.html" data-page="parcel_entry_form.html"><span>🔍 Received Scanner</span></a>
+-+    <a href="upload_sample_images.html" data-page="upload_sample_images.html"><span>📷 Upload Images</span></a>
+-+    <a href="delivered_today.html" data-page="delivered_today.html"><span>📅 Delivered Today</span></a>
+-+    <a href="total.html" data-page="total.html"><span>📊 Total Parcels</span></a>
+-+    <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" target="_blank" rel="noopener">
+-+      <span>🖼️ Sample Gallery</span>
+-+    </a>
+-+  </nav>
+-+</div>
+- 
+--  <label>Tracking Number:</label>
+--  <input type="text" id="trackingNumber" placeholder="Enter tracking number">
+-+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+- 
+--  <label>Booking Date:</label>
+--  <input type="date" id="bookingDate">
+-+<div class="main-content">
+-+  <div class="container">
+-+    <h2>📦 Parcel Entry</h2>
+- 
+--  <label>From Address:</label>
+--  <input type="text" id="fromAddress" placeholder="Enter from address">
+-+    <label>Tracking Number:</label>
+-+    <input type="text" id="trackingNumber" placeholder="Enter tracking number">
+- 
+--  <button onclick="submitParcel()">Add Parcel</button>
+-+    <label>Booking Date:</label>
+-+    <input type="date" id="bookingDate">
+- 
+--  <div id="status"></div>
+-+    <label>From Address:</label>
+-+    <input type="text" id="fromAddress" placeholder="Enter from address">
+-+
+-+    <button onclick="submitParcel()">Add Parcel</button>
+-+
+-+    <div id="status"></div>
+-+  </div>
+- </div>
+- 
+-+<script src="sidebar.js" defer></script>
+- <script>
+- const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
+- 
+- function submitParcel() {
+-   const trackingNumber = document.getElementById("trackingNumber").value.trim();
+-   const bookingDate = document.getElementById("bookingDate").value;
+-   const fromAddress = document.getElementById("fromAddress").value.trim();
+- 
+-   if (!trackingNumber) { alert("Tracking number required"); return; }
+- 
+-   // Using fetch with 'no-cors' to bypass browser CORS enforcement
+-   fetch(API_URL, {
+-     method: "POST",
+-     body: JSON.stringify({ trackingNumber, bookingDate, fromAddress }),
+-     mode: 'no-cors'
+-   })
+-   .then(() => {
+-     alert("Parcel submitted! Check your Google Sheet.");
+-     document.getElementById("trackingNumber").value = "";
+-     document.getElementById("bookingDate").value = "";
+-     document.getElementById("fromAddress").value = "";
+-   })
+-   .catch(err => console.error(err));
+- }
+- </script>
+- 
+--
+- </body>
+- </html>
+- 
+-EOF
+-)
++<!DOCTYPE html>
++<html>
++<head>
++  <meta charset="UTF-8">
++  <title>Parcel Entry</title>
++  <style>
 +    @import url("sidebar.css");
 +
 +    * {
@@ -70,12 +210,10 @@ index 936671329e46019cc30267c7bb77652baf848e22..9c756043474e83bfa141f93e5077d049
 +      font-weight: bold;
 +      text-align: center;
 +    }
-   </style>
- </head>
- <body>
- 
--<div class="container">
--  <h2>📦 Parcel Entry</h2>
++  </style>
++</head>
++<body>
++
 +<div class="sidebar" id="sidebar">
 +  <div class="sidebar-header">
 +    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
@@ -94,27 +232,19 @@ index 936671329e46019cc30267c7bb77652baf848e22..9c756043474e83bfa141f93e5077d049
 +    </a>
 +  </nav>
 +</div>
- 
--  <label>Tracking Number:</label>
--  <input type="text" id="trackingNumber" placeholder="Enter tracking number">
++
 +<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
- 
--  <label>Booking Date:</label>
--  <input type="date" id="bookingDate">
++
 +<div class="main-content">
 +  <div class="container">
 +    <h2>📦 Parcel Entry</h2>
- 
--  <label>From Address:</label>
--  <input type="text" id="fromAddress" placeholder="Enter from address">
++
 +    <label>Tracking Number:</label>
 +    <input type="text" id="trackingNumber" placeholder="Enter tracking number">
- 
--  <button onclick="submitParcel()">Add Parcel</button>
++
 +    <label>Booking Date:</label>
 +    <input type="date" id="bookingDate">
- 
--  <div id="status"></div>
++
 +    <label>From Address:</label>
 +    <input type="text" id="fromAddress" placeholder="Enter from address">
 +
@@ -122,38 +252,34 @@ index 936671329e46019cc30267c7bb77652baf848e22..9c756043474e83bfa141f93e5077d049
 +
 +    <div id="status"></div>
 +  </div>
- </div>
- 
++</div>
++
 +<script src="sidebar.js" defer></script>
- <script>
- const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
- 
- function submitParcel() {
-   const trackingNumber = document.getElementById("trackingNumber").value.trim();
-   const bookingDate = document.getElementById("bookingDate").value;
-   const fromAddress = document.getElementById("fromAddress").value.trim();
- 
-   if (!trackingNumber) { alert("Tracking number required"); return; }
- 
-   // Using fetch with 'no-cors' to bypass browser CORS enforcement
-   fetch(API_URL, {
-     method: "POST",
-     body: JSON.stringify({ trackingNumber, bookingDate, fromAddress }),
-     mode: 'no-cors'
-   })
-   .then(() => {
-     alert("Parcel submitted! Check your Google Sheet.");
-     document.getElementById("trackingNumber").value = "";
-     document.getElementById("bookingDate").value = "";
-     document.getElementById("fromAddress").value = "";
-   })
-   .catch(err => console.error(err));
- }
- </script>
- 
--
- </body>
- </html>
- 
-EOF
-)
++<script>
++const API_URL = "https://script.google.com/macros/s/AKfycbxrtcZeaWfHYcTfEhidGXr3mxzmrUTaN-zliEJUGlbb8kBl48gby01-mEHxEuV2WlFzrA/exec";
++
++function submitParcel() {
++  const trackingNumber = document.getElementById("trackingNumber").value.trim();
++  const bookingDate = document.getElementById("bookingDate").value;
++  const fromAddress = document.getElementById("fromAddress").value.trim();
++
++  if (!trackingNumber) { alert("Tracking number required"); return; }
++
++  // Using fetch with 'no-cors' to bypass browser CORS enforcement
++  fetch(API_URL, {
++    method: "POST",
++    body: JSON.stringify({ trackingNumber, bookingDate, fromAddress }),
++    mode: 'no-cors'
++  })
++  .then(() => {
++    alert("Parcel submitted! Check your Google Sheet.");
++    document.getElementById("trackingNumber").value = "";
++    document.getElementById("bookingDate").value = "";
++    document.getElementById("fromAddress").value = "";
++  })
++  .catch(err => console.error(err));
++}
++</script>
++
++</body>
++</html>
