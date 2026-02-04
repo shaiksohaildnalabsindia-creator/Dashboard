@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Camera Barcode Scanner</title>
+<title>Universal Barcode Scanner</title>
 <style>
   * {
     box-sizing: border-box;
@@ -230,8 +230,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* CHANGED COLOR: Professional Purple Gradient */
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
     min-height: calc(100vh - 70px);
   }
 
@@ -246,30 +245,94 @@
   }
 
   h2 { 
-    color: #7C3AED; /* CHANGED COLOR: Purple */
+    color: #6366F1;
     margin-bottom: 20px;
     font-size: 24px;
   }
 
+  .scanner-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+
   .info-panel {
-    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); /* CHANGED COLOR: Purple */
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
     color: white;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
+    padding: 15px 20px;
+    border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
-    display: inline-block;
+  }
+
+  .format-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #FEF3C7;
+    color: #92400E;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 10px;
+  }
+
+  .video-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 25px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
   }
 
   video { 
     width: 100%;
-    max-width: 500px;
-    border: 2px solid #8B5CF6; /* CHANGED COLOR: Purple border */
-    border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
-    margin: 20px 0;
+    display: block;
     background: #000;
+  }
+
+  .scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scanner-frame {
+    width: 80%;
+    height: 200px;
+    border: 3px solid #10B981;
+    border-radius: 8px;
+    animation: pulse 2s infinite;
+    position: relative;
+  }
+
+  .scanner-frame::before {
+    content: '⇨ Position barcode/QR code here';
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  @keyframes pulse {
+    0%, 100% { border-color: #10B981; }
+    50% { border-color: #34D399; }
   }
 
   .results-panel {
@@ -277,7 +340,7 @@
     border-radius: 12px;
     padding: 20px;
     margin: 20px 0;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #E5E7EB;
   }
 
   .result-display {
@@ -286,10 +349,29 @@
     color: #1e293b;
     font-family: monospace;
     background: #f1f5f9;
-    padding: 10px 15px;
+    padding: 15px;
     border-radius: 8px;
-    display: inline-block;
-    margin: 10px 0;
+    display: block;
+    margin: 15px 0;
+    word-break: break-all;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .barcode-type {
+    font-size: 14px;
+    color: #6B7280;
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .barcode-icon {
+    font-size: 16px;
   }
 
   .status-panel {
@@ -387,8 +469,14 @@
       padding: 20px 15px;
     }
 
-    video {
+    .video-container {
       max-width: 100%;
+    }
+
+    .scanner-frame::before {
+      font-size: 11px;
+      padding: 4px 8px;
+      top: -25px;
     }
   }
 
@@ -396,7 +484,7 @@
   .menu-item:focus-visible,
   .menu-btn:focus-visible,
   .sidebar-header:focus-visible {
-    outline: 2px solid #8B5CF6; /* CHANGED COLOR: Purple */
+    outline: 2px solid #6366F1;
     outline-offset: 2px;
   }
 </style>
@@ -472,32 +560,49 @@
     <div class="page-info">
       <div class="page-title">
         <span>📷</span>
-        <span>Camera Barcode Scanner</span>
+        <span>Universal Barcode Scanner</span>
       </div>
-      <div class="page-subtitle">Scan parcel barcodes using your camera</div>
+      <div class="page-subtitle">Scan both Linear & 2D barcodes</div>
     </div>
   </header>
 
   <!-- Scanner Content -->
   <div class="scanner-content">
     <div class="scanner-container">
-      <h2>📦 Parcel Camera Scanner</h2>
+      <h2>📦 Universal Barcode Scanner</h2>
       
-      <div class="info-panel" id="info">
-        Loading scanner information...
+      <div class="scanner-info">
+        <div class="info-panel">
+          🚚 Courier: <span id="courierInfo">Loading...</span> | 
+          📦 Parcels to scan: <span id="countInfo">0</span>
+        </div>
+        
+        <div style="color: #6B7280; font-size: 14px;">
+          <span class="format-badge">📏 Linear Barcodes</span>
+          <span class="format-badge">⬜ 2D/QR Codes</span>
+        </div>
       </div>
 
-      <video id="video" autoplay playsinline></video>
+      <div class="video-container">
+        <video id="video" autoplay playsinline></video>
+        <div class="scanner-overlay">
+          <div class="scanner-frame"></div>
+        </div>
+      </div>
 
       <div class="results-panel">
         <h3 style="margin-bottom: 10px; color: #1e293b;">Last Scanned:</h3>
-        <div class="result-display" id="result">None</div>
+        <div class="result-display" id="result">Waiting for scan...</div>
+        <div class="barcode-type" id="barcodeType">
+          <span class="barcode-icon">📏</span>
+          <span>Barcode Type: Not detected</span>
+        </div>
       </div>
 
       <div class="status-panel" id="statusPanel">
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
           <span>🔍</span>
-          <span id="status">Scanner Status: Initializing...</span>
+          <span id="status">Scanner Status: Initializing camera...</span>
         </div>
         <div class="timestamp" id="timestamp"></div>
       </div>
@@ -523,12 +628,13 @@
 <audio id="beep-sound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
 <script type="module">
-import { BrowserMultiFormatReader } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
+import { BrowserMultiFormatReader, DecodeHintType, BarcodeFormat } from "https://cdn.jsdelivr.net/npm/@zxing/browser@latest/+esm";
 
 // DOM Elements
 const sidebar = document.getElementById('sidebar');
 const video = document.getElementById("video");
 const resultEl = document.getElementById("result");
+const barcodeTypeEl = document.getElementById("barcodeType");
 const statusEl = document.getElementById("status");
 const timestampEl = document.getElementById("timestamp");
 const progressText = document.getElementById("progressText");
@@ -536,25 +642,53 @@ const progressFill = document.getElementById("progressFill");
 const progressPanel = document.getElementById("progressPanel");
 const completePanel = document.getElementById("completePanel");
 const countdownEl = document.getElementById("countdown");
+const courierInfo = document.getElementById("courierInfo");
+const countInfo = document.getElementById("countInfo");
 const beep = document.getElementById("beep-sound");
-const infoEl = document.getElementById("info");
 
 // Get courier & count from URL
 const params = new URLSearchParams(window.location.search);
 const totalCount = Number(params.get("count") || 0);
-const courier = params.get("courier") || "";
+const courier = params.get("courier") || "Unknown";
 
-// Update info panel
-infoEl.textContent = `🚚 Courier: ${courier} | 📦 Parcels to scan: ${totalCount}`;
+// Update info panels
+courierInfo.textContent = courier;
+countInfo.textContent = totalCount;
 
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
 
 let scanned = new Set();
+let lastResult = '';
 
 // Initialize progress
 updateProgress();
 
-const reader = new BrowserMultiFormatReader();
+// Configure reader to scan ALL barcode formats (both 1D and 2D)
+const hints = new Map();
+// Enable all barcode formats
+const allFormats = [
+  BarcodeFormat.AZTEC,
+  BarcodeFormat.CODABAR,
+  BarcodeFormat.CODE_39,
+  BarcodeFormat.CODE_93,
+  BarcodeFormat.CODE_128,
+  BarcodeFormat.DATA_MATRIX,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.EAN_13,
+  BarcodeFormat.ITF,
+  BarcodeFormat.MAXICODE,
+  BarcodeFormat.PDF_417,
+  BarcodeFormat.QR_CODE,
+  BarcodeFormat.RSS_14,
+  BarcodeFormat.RSS_EXPANDED,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
+  BarcodeFormat.UPC_EAN_EXTENSION
+];
+hints.set(DecodeHintType.POSSIBLE_FORMATS, allFormats);
+
+// Create reader with all formats enabled
+const reader = new BrowserMultiFormatReader(hints);
 
 // Update progress function
 function updateProgress() {
@@ -588,45 +722,132 @@ function showCompletePanel() {
   }, 1000);
 }
 
-// Start scanning
-reader.decodeFromVideoDevice(null, video, async (result) => {
-  if (!result) return;
-  const code = result.getText().trim();
-  if (scanned.has(code)) return;
+// Get barcode format name
+function getBarcodeFormatName(format) {
+  const formatNames = {
+    [BarcodeFormat.AZTEC]: 'AZTEC',
+    [BarcodeFormat.CODABAR]: 'CODABAR',
+    [BarcodeFormat.CODE_39]: 'CODE_39',
+    [BarcodeFormat.CODE_93]: 'CODE_93',
+    [BarcodeFormat.CODE_128]: 'CODE_128',
+    [BarcodeFormat.DATA_MATRIX]: 'DATA_MATRIX',
+    [BarcodeFormat.EAN_8]: 'EAN_8',
+    [BarcodeFormat.EAN_13]: 'EAN_13',
+    [BarcodeFormat.ITF]: 'ITF',
+    [BarcodeFormat.PDF_417]: 'PDF_417',
+    [BarcodeFormat.QR_CODE]: 'QR_CODE',
+    [BarcodeFormat.UPC_A]: 'UPC_A',
+    [BarcodeFormat.UPC_E]: 'UPC_E'
+  };
+  
+  return formatNames[format] || 'Unknown Format';
+}
 
-  scanned.add(code);
-  resultEl.textContent = code;
-
-  // Play beep + vibrate
-  beep.currentTime = 0;
-  beep.play().catch(() => {});
-  if (navigator.vibrate) navigator.vibrate(200);
-
-  // Save tracking number to Sheet2
-  try {
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ page:"page2", tracking: code }),
-      mode: "no-cors"
-    });
-
-    const now = new Date();
-    statusEl.textContent = `Scanner Status: Saved ✅`;
-    timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
-
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = "Scanner Status: Error saving ❌";
-    timestampEl.textContent = "";
+// Get barcode type icon and description
+function getBarcodeTypeInfo(format) {
+  const is2D = [
+    BarcodeFormat.AZTEC,
+    BarcodeFormat.DATA_MATRIX,
+    BarcodeFormat.PDF_417,
+    BarcodeFormat.QR_CODE
+  ].includes(format);
+  
+  const isLinear = [
+    BarcodeFormat.CODABAR,
+    BarcodeFormat.CODE_39,
+    BarcodeFormat.CODE_93,
+    BarcodeFormat.CODE_128,
+    BarcodeFormat.EAN_8,
+    BarcodeFormat.EAN_13,
+    BarcodeFormat.ITF,
+    BarcodeFormat.UPC_A,
+    BarcodeFormat.UPC_E
+  ].includes(format);
+  
+  if (is2D) {
+    return { icon: '⬜', type: '2D Code', description: `2D Code (${getBarcodeFormatName(format)})` };
+  } else if (isLinear) {
+    return { icon: '📏', type: 'Linear Barcode', description: `Linear Barcode (${getBarcodeFormatName(format)})` };
+  } else {
+    return { icon: '❓', type: 'Unknown', description: `Unknown Format (${format})` };
   }
+}
 
-  // Update progress
-  updateProgress();
-});
+// Start scanning
+async function startScanner() {
+  try {
+    statusEl.textContent = "Scanner Status: Starting camera...";
+    
+    await reader.decodeFromVideoDevice(null, video, async (result, error) => {
+      if (error) {
+        if (error.name === 'NotFoundException') {
+          statusEl.textContent = "Scanner Status: No barcode detected";
+        } else {
+          statusEl.textContent = "Scanner Status: Scanner error";
+        }
+        return;
+      }
+      
+      if (!result) return;
+      
+      const code = result.getText().trim();
+      if (!code || scanned.has(code)) return;
+      
+      scanned.add(code);
+      
+      // Get barcode format info
+      const format = result.getBarcodeFormat();
+      const formatInfo = getBarcodeTypeInfo(format);
+      
+      // Display result
+      resultEl.textContent = code;
+      barcodeTypeEl.innerHTML = `
+        <span class="barcode-icon">${formatInfo.icon}</span>
+        <span>Barcode Type: ${formatInfo.description}</span>
+      `;
+      
+      // Play beep + vibrate
+      beep.currentTime = 0;
+      beep.play().catch(() => {});
+      if (navigator.vibrate) navigator.vibrate(200);
 
-// Set initial status
-statusEl.textContent = `Scanner Status: Ready - Point camera at barcode`;
+      // Save tracking number to Sheet2
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            page: "page2", 
+            tracking: code,
+            barcodeType: formatInfo.type,
+            barcodeFormat: getBarcodeFormatName(format)
+          }),
+          mode: "no-cors"
+        });
+
+        const now = new Date();
+        statusEl.textContent = `Scanner Status: Saved ✅ (${formatInfo.type})`;
+        timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
+
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = `Scanner Status: Error saving ❌`;
+        timestampEl.textContent = "";
+      }
+
+      // Update progress
+      updateProgress();
+    });
+    
+    statusEl.textContent = "Scanner Status: Ready - Scan any barcode or QR code";
+    
+  } catch (error) {
+    console.error("Scanner error:", error);
+    statusEl.textContent = "Scanner Status: Failed to start camera";
+    resultEl.textContent = "Camera access denied or not available";
+    resultEl.style.color = "#DC2626";
+  }
+}
 
 // Sidebar functions
 function goToDashboard() {
@@ -656,6 +877,11 @@ window.addEventListener('resize', () => {
   if (window.innerWidth > 768) {
     sidebar.classList.remove('open');
   }
+});
+
+// Start scanner when page loads
+window.addEventListener('load', () => {
+  startScanner();
 });
 </script>
 
