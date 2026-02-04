@@ -279,7 +279,8 @@
     margin-left: 10px;
   }
 
-  .video-container {
+  /* ---------- CAMERA CONTAINER ---------- */
+  .camera-container {
     position: relative;
     width: 100%;
     max-width: 500px;
@@ -287,12 +288,82 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    min-height: 300px;
+    background: #1f2937;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   video { 
     width: 100%;
-    display: block;
-    background: #000;
+    height: 100%;
+    display: none; /* Hidden by default */
+    object-fit: cover;
+  }
+
+  .camera-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    text-align: center;
+    color: white;
+  }
+
+  .camera-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+  }
+
+  .camera-message {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: #d1d5db;
+  }
+
+  .camera-error {
+    font-size: 14px;
+    color: #fca5a5;
+    margin-top: 10px;
+    background: rgba(220, 38, 38, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 80%;
+  }
+
+  .camera-controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+  }
+
+  .camera-btn {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .camera-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+  }
+
+  .camera-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .scanner-overlay {
@@ -302,7 +373,7 @@
     right: 0;
     bottom: 0;
     pointer-events: none;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
   }
@@ -469,8 +540,9 @@
       padding: 20px 15px;
     }
 
-    .video-container {
+    .camera-container {
       max-width: 100%;
+      min-height: 250px;
     }
 
     .scanner-frame::before {
@@ -483,7 +555,8 @@
   /* Focus styles for accessibility */
   .menu-item:focus-visible,
   .menu-btn:focus-visible,
-  .sidebar-header:focus-visible {
+  .sidebar-header:focus-visible,
+  .camera-btn:focus-visible {
     outline: 2px solid #6366F1;
     outline-offset: 2px;
   }
@@ -583,9 +656,25 @@
         </div>
       </div>
 
-      <div class="video-container">
+      <!-- Camera Container with Placeholder -->
+      <div class="camera-container" id="cameraContainer">
         <video id="video" autoplay playsinline></video>
-        <div class="scanner-overlay">
+        <div class="camera-placeholder" id="cameraPlaceholder">
+          <div class="camera-icon">📷</div>
+          <div class="camera-message" id="cameraMessage">Camera access required for scanning</div>
+          <div class="camera-error" id="cameraError" style="display: none;"></div>
+          <div class="camera-controls">
+            <button class="camera-btn" onclick="startCamera()" id="startCameraBtn">
+              <span>▶️</span>
+              <span>Start Camera</span>
+            </button>
+            <button class="camera-btn" onclick="stopCamera()" id="stopCameraBtn" style="display: none; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+              <span>⏹️</span>
+              <span>Stop Camera</span>
+            </button>
+          </div>
+        </div>
+        <div class="scanner-overlay" id="scannerOverlay">
           <div class="scanner-frame"></div>
         </div>
       </div>
@@ -602,7 +691,7 @@
       <div class="status-panel" id="statusPanel">
         <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
           <span>🔍</span>
-          <span id="status">Scanner Status: Initializing camera...</span>
+          <span id="status">Camera not started. Click "Start Camera" above.</span>
         </div>
         <div class="timestamp" id="timestamp"></div>
       </div>
@@ -644,6 +733,13 @@ const completePanel = document.getElementById("completePanel");
 const countdownEl = document.getElementById("countdown");
 const courierInfo = document.getElementById("courierInfo");
 const countInfo = document.getElementById("countInfo");
+const cameraContainer = document.getElementById("cameraContainer");
+const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+const cameraMessage = document.getElementById("cameraMessage");
+const cameraError = document.getElementById("cameraError");
+const startCameraBtn = document.getElementById("startCameraBtn");
+const stopCameraBtn = document.getElementById("stopCameraBtn");
+const scannerOverlay = document.getElementById("scannerOverlay");
 const beep = document.getElementById("beep-sound");
 
 // Get courier & count from URL
@@ -658,37 +754,11 @@ countInfo.textContent = totalCount;
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQOLFHYdm79QCXpeZpQkrc4lNZ678v-1AoNngPt5iC2Dwja1hlMr6907a0RgdNGvBtfg/exec";
 
 let scanned = new Set();
-let lastResult = '';
+let currentStream = null;
+let reader = null;
 
 // Initialize progress
 updateProgress();
-
-// Configure reader to scan ALL barcode formats (both 1D and 2D)
-const hints = new Map();
-// Enable all barcode formats
-const allFormats = [
-  BarcodeFormat.AZTEC,
-  BarcodeFormat.CODABAR,
-  BarcodeFormat.CODE_39,
-  BarcodeFormat.CODE_93,
-  BarcodeFormat.CODE_128,
-  BarcodeFormat.DATA_MATRIX,
-  BarcodeFormat.EAN_8,
-  BarcodeFormat.EAN_13,
-  BarcodeFormat.ITF,
-  BarcodeFormat.MAXICODE,
-  BarcodeFormat.PDF_417,
-  BarcodeFormat.QR_CODE,
-  BarcodeFormat.RSS_14,
-  BarcodeFormat.RSS_EXPANDED,
-  BarcodeFormat.UPC_A,
-  BarcodeFormat.UPC_E,
-  BarcodeFormat.UPC_EAN_EXTENSION
-];
-hints.set(DecodeHintType.POSSIBLE_FORMATS, allFormats);
-
-// Create reader with all formats enabled
-const reader = new BrowserMultiFormatReader(hints);
 
 // Update progress function
 function updateProgress() {
@@ -743,7 +813,7 @@ function getBarcodeFormatName(format) {
   return formatNames[format] || 'Unknown Format';
 }
 
-// Get barcode type icon and description
+// Get barcode type info
 function getBarcodeTypeInfo(format) {
   const is2D = [
     BarcodeFormat.AZTEC,
@@ -773,18 +843,127 @@ function getBarcodeTypeInfo(format) {
   }
 }
 
-// Start scanning
-async function startScanner() {
+// Start camera
+async function startCamera() {
   try {
-    statusEl.textContent = "Scanner Status: Starting camera...";
+    cameraMessage.textContent = "Requesting camera access...";
+    startCameraBtn.disabled = true;
+    startCameraBtn.innerHTML = '<span>⏳</span><span>Requesting...</span>';
+    cameraError.style.display = 'none';
     
-    await reader.decodeFromVideoDevice(null, video, async (result, error) => {
+    // Request camera access
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { 
+        facingMode: 'environment', // Prefer rear camera
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+    
+    currentStream = stream;
+    video.srcObject = stream;
+    
+    // Show video and hide placeholder
+    video.style.display = 'block';
+    cameraPlaceholder.style.display = 'none';
+    scannerOverlay.style.display = 'flex';
+    
+    // Update buttons
+    startCameraBtn.style.display = 'none';
+    stopCameraBtn.style.display = 'flex';
+    
+    // Initialize barcode reader
+    initializeScanner();
+    
+    statusEl.textContent = "Scanner Status: Camera started. Ready to scan.";
+    
+  } catch (error) {
+    console.error("Camera error:", error);
+    
+    let errorMessage = "Failed to access camera. ";
+    if (error.name === 'NotAllowedError') {
+      errorMessage += "Please allow camera access in your browser permissions.";
+    } else if (error.name === 'NotFoundError') {
+      errorMessage += "No camera found on this device.";
+    } else if (error.name === 'NotReadableError') {
+      errorMessage += "Camera is already in use by another application.";
+    } else {
+      errorMessage += error.message;
+    }
+    
+    cameraMessage.textContent = "Camera access failed";
+    cameraError.textContent = errorMessage;
+    cameraError.style.display = 'block';
+    
+    startCameraBtn.disabled = false;
+    startCameraBtn.innerHTML = '<span>▶️</span><span>Try Again</span>';
+    
+    statusEl.textContent = "Scanner Status: Camera access failed";
+  }
+}
+
+// Stop camera
+function stopCamera() {
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
+  }
+  
+  if (reader) {
+    reader.reset();
+    reader = null;
+  }
+  
+  // Hide video and show placeholder
+  video.style.display = 'none';
+  cameraPlaceholder.style.display = 'flex';
+  scannerOverlay.style.display = 'none';
+  
+  // Update buttons
+  startCameraBtn.style.display = 'flex';
+  startCameraBtn.disabled = false;
+  startCameraBtn.innerHTML = '<span>▶️</span><span>Start Camera</span>';
+  stopCameraBtn.style.display = 'none';
+  
+  cameraMessage.textContent = "Camera stopped. Click 'Start Camera' to resume scanning.";
+  statusEl.textContent = "Scanner Status: Camera stopped";
+}
+
+// Initialize scanner
+function initializeScanner() {
+  try {
+    // Configure reader to scan ALL barcode formats
+    const hints = new Map();
+    const allFormats = [
+      BarcodeFormat.AZTEC,
+      BarcodeFormat.CODABAR,
+      BarcodeFormat.CODE_39,
+      BarcodeFormat.CODE_93,
+      BarcodeFormat.CODE_128,
+      BarcodeFormat.DATA_MATRIX,
+      BarcodeFormat.EAN_8,
+      BarcodeFormat.EAN_13,
+      BarcodeFormat.ITF,
+      BarcodeFormat.PDF_417,
+      BarcodeFormat.QR_CODE,
+      BarcodeFormat.UPC_A,
+      BarcodeFormat.UPC_E
+    ];
+    hints.set(DecodeHintType.POSSIBLE_FORMATS, allFormats);
+    
+    // Create reader with all formats enabled
+    reader = new BrowserMultiFormatReader(hints);
+    
+    // Start scanning
+    reader.decodeFromVideoDevice(null, video, async (result, error) => {
       if (error) {
         if (error.name === 'NotFoundException') {
-          statusEl.textContent = "Scanner Status: No barcode detected";
-        } else {
-          statusEl.textContent = "Scanner Status: Scanner error";
+          // No barcode detected - this is normal
+          return;
         }
+        console.error("Scanner error:", error);
+        statusEl.textContent = "Scanner Status: Scanner error";
         return;
       }
       
@@ -842,15 +1021,14 @@ async function startScanner() {
     statusEl.textContent = "Scanner Status: Ready - Scan any barcode or QR code";
     
   } catch (error) {
-    console.error("Scanner error:", error);
-    statusEl.textContent = "Scanner Status: Failed to start camera";
-    resultEl.textContent = "Camera access denied or not available";
-    resultEl.style.color = "#DC2626";
+    console.error("Scanner initialization error:", error);
+    statusEl.textContent = "Scanner Status: Failed to initialize scanner";
   }
 }
 
 // Sidebar functions
 function goToDashboard() {
+  stopCamera();
   window.location.href = "index.html";
 }
 
@@ -879,9 +1057,15 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Start scanner when page loads
+// Check for camera support
 window.addEventListener('load', () => {
-  startScanner();
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    cameraMessage.textContent = "Camera not supported on this device/browser";
+    startCameraBtn.disabled = true;
+    startCameraBtn.innerHTML = '<span>❌</span><span>Not Supported</span>';
+    cameraError.textContent = "Your browser or device does not support camera access. Try using Chrome, Firefox, or Edge on a device with a camera.";
+    cameraError.style.display = 'block';
+  }
 });
 </script>
 
