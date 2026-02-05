@@ -2,90 +2,497 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Google Drive Image Gallery</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <title>Sample Gallery</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+    /* ---------- SIDEBAR STYLES (Consistent with other pages) ---------- */
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    /* Sticky Header */
-    .header {
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #1e293b;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header:hover .logo-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+      margin-left: 52px;
+      font-weight: 400;
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 600;
+      padding: 0 20px 8px 20px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .menu-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #475569;
+      text-decoration: none;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      margin: 0 8px;
+      border-radius: 8px;
+    }
+
+    .menu-item:hover {
+      background: #f1f5f9;
+      color: #334155;
+      transform: translateX(4px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu-item.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: #3b82f6;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .menu-item-icon {
+      font-size: 18px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-item-text {
+      flex: 1;
+    }
+
+    .menu-item-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .external-link {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ---------- TOPBAR ---------- */
+    .topbar {
+      background: #ffffff;
+      padding: 18px 25px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .menu-btn {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 15px;
+      color: #4b5563;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    .menu-btn:hover {
+      background-color: #f3f4f6;
+    }
+
+    .page-info {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* ---------- CONTENT WRAPPER ---------- */
+    .content-wrapper {
+      flex: 1;
+      padding: 30px;
+      background: #f8fafc;
+      overflow-y: auto;
+    }
+
+    .content-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
       background: #ffffff;
-      padding: 15px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      animation: slideIn 0.5s ease;
+      border: 1px solid #e2e8f0;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      padding: 25px 30px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #ddd;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-content {
+      flex: 1;
     }
 
     .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
       margin: 0;
-      font-size: 20px;
     }
 
-    /* Search Box */
-    .search-container {
-      position: relative;
-    }
-
-    .search-container input {
-      padding: 8px 30px 8px 12px;
+    .header p {
+      opacity: 0.9;
       font-size: 14px;
-      width: 240px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      outline: none;
+      margin: 5px 0 0 0;
     }
 
-    .search-container input:focus {
-      border-color: #007bff;
+    .stats-card {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 20px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 150px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-count {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .stats-label {
+      font-size: 12px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ---------- SEARCH BAR ---------- */
+    .search-container {
+      padding: 25px 30px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .search-wrapper {
+      position: relative;
+      max-width: 500px;
+    }
+
+    .search-wrapper input {
+      width: 100%;
+      padding: 14px 50px 14px 45px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      font-family: inherit;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .search-wrapper input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      font-size: 18px;
     }
 
     .clear-btn {
       position: absolute;
-      right: 8px;
+      right: 15px;
       top: 50%;
       transform: translateY(-50%);
+      background: #ef4444;
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      font-size: 14px;
       cursor: pointer;
-      font-size: 16px;
-      color: #888;
       display: none;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
     }
 
     .clear-btn:hover {
-      color: #000;
+      background: #dc2626;
+      transform: translateY(-50%) scale(1.1);
     }
 
-    /* Gallery */
-    .content {
-      padding: 20px;
+    /* ---------- GALLERY CONTENT ---------- */
+    .gallery-content {
+      padding: 25px 30px;
     }
 
+    /* ---------- DATE GROUPS ---------- */
+    .date-group {
+      margin-bottom: 40px;
+    }
+
+    .date-header {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 20px 0;
+      color: #111827;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #3b82f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .date-count {
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ---------- GALLERY GRID ---------- */
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
     }
 
     .item {
-      background: #fff;
-      border-radius: 8px;
-      padding: 10px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #e5e7eb;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-color: #d1d5db;
     }
 
     .item img {
       width: 100%;
-      border-radius: 6px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
       cursor: pointer;
-      transition: transform 0.25s;
+      transition: transform 0.3s ease;
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      display: block;
+    }
+
+    .item img.loading {
+      opacity: 0.5;
+      filter: blur(2px);
+    }
+
+    .item img.error {
+      filter: grayscale(100%);
+      opacity: 0.3;
     }
 
     .item img:hover {
@@ -93,162 +500,1061 @@
     }
 
     .caption {
-      margin-top: 8px;
+      margin-top: 12px;
       font-size: 14px;
-      text-align: center;
+      font-weight: 500;
+      color: #374151;
+      line-height: 1.4;
       word-break: break-word;
+      text-align: center;
     }
 
-    /* Lightbox */
+    .file-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .file-size {
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .file-date {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    /* ---------- LIGHTBOX ---------- */
     .lightbox {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
-      z-index: 999;
+      background: rgba(0,0,0,0.95);
+      z-index: 2000;
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      padding: 40px;
     }
 
     .lightbox.active {
       display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
     .lightbox img {
       max-width: 90%;
-      max-height: 80%;
-      border-radius: 8px;
+      max-height: 70%;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     .lightbox-caption {
-      color: #fff;
-      margin-top: 15px;
+      color: #ffffff;
+      margin-top: 20px;
       font-size: 18px;
+      font-weight: 500;
       text-align: center;
+      padding: 0 30px;
+      max-width: 800px;
+      line-height: 1.4;
     }
 
-    .close {
+    .close-btn-lightbox {
       position: absolute;
-      top: 20px;
+      top: 25px;
       right: 30px;
-      font-size: 40px;
-      color: #fff;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
       cursor: pointer;
+      z-index: 2001;
+      transition: all 0.2s;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn-lightbox:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
+    }
+
+    /* Navigation arrows in lightbox */
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2001;
+      transition: all 0.2s;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-arrow:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .nav-arrow.prev {
+      left: 30px;
+    }
+
+    .nav-arrow.next {
+      right: 30px;
+    }
+
+    /* Lightbox info panel */
+    .lightbox-info {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      z-index: 2001;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* ---------- LOADING STATES ---------- */
+    .loading-container {
+      padding: 60px 20px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---------- EMPTY STATE ---------- */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* ---------- ERROR STATE ---------- */
+    .error-message {
+      padding: 30px;
+      text-align: center;
+      color: #dc3545;
+      background: #fef2f2;
+      border-radius: 12px;
+      border: 1px solid #fecaca;
+      margin: 20px;
+    }
+
+    /* ---------- TOAST NOTIFICATION ---------- */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .toast-error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-info {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
+
+    /* ---------- REFRESH BUTTON ---------- */
+    .refresh-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ---------- MOBILE STYLES ---------- */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0 !important;
+      }
+
+      .menu-btn {
+        display: flex !important;
+      }
+
+      .content-wrapper {
+        padding: 15px;
+      }
+
+      .header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-card {
+        align-self: flex-start;
+      }
+
+      .search-container {
+        padding: 20px;
+      }
+
+      .search-wrapper input {
+        padding: 12px 45px 12px 40px;
+      }
+
+      .gallery-content {
+        padding: 20px;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .item img {
+        height: 160px;
+      }
+
+      .lightbox {
+        padding: 20px;
+      }
+
+      .nav-arrow {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+      }
+
+      .nav-arrow.prev {
+        left: 15px;
+      }
+
+      .nav-arrow.next {
+        right: 15px;
+      }
+
+      .close-btn-lightbox {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        top: 20px;
+        right: 20px;
+      }
+
+      .lightbox-info {
+        bottom: 20px;
+        padding: 10px 20px;
+        font-size: 13px;
+      }
+
+      .refresh-btn {
+        width: 100%;
+        margin-top: 10px;
+        justify-content: center;
+      }
+
+      .user-menu {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-card {
+        min-width: 120px;
+        padding: 12px 15px;
+      }
+
+      .stats-count {
+        font-size: 24px;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .item {
+        padding: 12px;
+      }
+
+      .item img {
+        height: 140px;
+      }
+
+      .caption {
+        font-size: 13px;
+      }
+
+      .file-info {
+        font-size: 11px;
+      }
+
+      .lightbox-caption {
+        font-size: 16px;
+        padding: 0 15px;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    input:focus-visible,
+    button:focus-visible,
+    .menu-item:focus-visible,
+    .menu-btn:focus-visible,
+    .sidebar-header:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
     }
   </style>
 </head>
-
 <body>
 
-  <!-- Sticky Header -->
-  <div class="header">
-    <h1>Samples Gallery</h1>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div class="logo-text">Parcel Pro</div>
+    </div>
+    <div class="sidebar-subtitle">Delivery Management System</div>
+  </div>
 
-    <div class="search-container">
-      <input
-        type="text"
-        id="search"
-        placeholder="Search file name..."
-        oninput="filterImages()"
-      >
-      <span class="clear-btn" id="clearBtn" onclick="clearSearch()">×</span>
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <div class="menu-section-title">Operations</div>
+      <div class="menu-items">
+        <a href="parcel_entry.html" class="menu-item">
+          <span class="menu-item-icon">📦</span>
+          <span class="menu-item-text">Parcel Entry</span>
+        </a>
+        <a href="parcel_entry_form.html" class="menu-item">
+          <span class="menu-item-icon">🔍</span>
+          <span class="menu-item-text">Parcel Scanner</span>
+        </a>
+        <a href="upload_sample_images.html" class="menu-item">
+          <span class="menu-item-icon">📷</span>
+          <span class="menu-item-text">Upload Images</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Reports</div>
+      <div class="menu-items">
+        <a href="delivered_today.html" class="menu-item">
+          <span class="menu-item-icon">📅</span>
+          <span class="menu-item-text">Delivered Today</span>
+        </a>
+        <a href="total.html" class="menu-item">
+          <span class="menu-item-icon">📊</span>
+          <span class="menu-item-text">All Parcels</span>
+        </a>
+        <a href="sample_gallery.html" class="menu-item active">
+          <span class="menu-item-icon">🖼️</span>
+          <span class="menu-item-text">Sample Gallery</span>
+        </a>
+      </div>
     </div>
   </div>
 
-  <!-- Gallery -->
-  <div class="content">
-    <div class="gallery" id="gallery"></div>
+  <div class="sidebar-footer">
+    <div>© 2024 Parcel Pro</div>
+    <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">v2.1.0</div>
   </div>
+</aside>
 
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox">
-    <span class="close" onclick="closeLightbox()">×</span>
-    <img id="lightbox-img">
-    <div class="lightbox-caption" id="lightbox-caption"></div>
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+      ☰
+    </button>
+    <div class="page-info">
+      <div class="page-title">
+        <span>🖼️</span>
+        <span>Sample Gallery</span>
+      </div>
+      <div class="page-subtitle">Browse all sample images organized by date</div>
+    </div>
+    <div class="user-menu">
+      <button class="refresh-btn" onclick="loadImages()">
+        <span>🔄</span>
+        <span>Refresh</span>
+      </button>
+      <div class="user-avatar">U</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content-wrapper">
+    <div class="content-container">
+      <div class="header">
+        <div class="header-content">
+          <h1>🖼️ Sample Gallery</h1>
+          <p>Browse and search through all sample images</p>
+        </div>
+        <div class="stats-card">
+          <span class="stats-count" id="totalCount">0</span>
+          <span class="stats-label">Total Images</span>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="search"
+            placeholder="Search images by name, date, or filename..."
+            oninput="filterImages()"
+            autocomplete="off"
+          >
+          <button class="clear-btn" id="clearBtn" onclick="clearSearch()">×</button>
+        </div>
+      </div>
+
+      <!-- Gallery Content -->
+      <div class="gallery-content">
+        <div id="content">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div>Loading images...</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <script>
-    let allItems = [];
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <button class="close-btn-lightbox" onclick="closeLightbox()">×</button>
+  <button class="nav-arrow prev" onclick="prevImage()">‹</button>
+  <button class="nav-arrow next" onclick="nextImage()">›</button>
+  <div class="lightbox-info" id="lightboxInfo">
+    <span id="imageIndex">1/1</span>
+    <span>•</span>
+    <span id="imageSize">Loading...</span>
+  </div>
+  <img id="lightbox-img" onerror="lightboxImageError()">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div>
 
-    const gallery = document.getElementById("gallery");
-    const searchInput = document.getElementById("search");
-    const clearBtn = document.getElementById("clearBtn");
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
-    const lightboxCaption = document.getElementById("lightbox-caption");
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
 
-    const API_URL =
-      "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+<script>
+/* ---------- CONSTANTS ---------- */
+const API_URL = "https://script.google.com/macros/s/AKfycbxC0SywOr5T6ra5kFbwO9hC8jfb4ImECZbMSXAlTSadie7Yv4IMTNi5T_TCf6X5GY-LFA/exec";
 
-    // Load images from Apps Script Web App
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(items => {
-        allItems = items;
-        renderGallery(items);
-      })
-      .catch(err => {
-        console.error(err);
-        gallery.innerHTML = "<p>Failed to load images.</p>";
-      });
+/* ---------- GLOBAL VARIABLES ---------- */
+let allItems = [];
+let filteredItems = [];
+let loadedCount = 0;
+let totalItems = 0;
+let currentLightboxIndex = 0;
+let currentLightboxItems = [];
 
-    function renderGallery(items) {
-      gallery.innerHTML = "";
-      items.forEach(item => {
-        const container = document.createElement("div");
-        container.className = "item";
+/* ---------- DOM ELEMENTS ---------- */
+const sidebar = document.getElementById('sidebar');
+const content = document.getElementById("content");
+const searchInput = document.getElementById("search");
+const clearBtn = document.getElementById("clearBtn");
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxCaption = document.getElementById("lightbox-caption");
+const lightboxInfo = document.getElementById("lightboxInfo");
+const imageIndex = document.getElementById("imageIndex");
+const imageSize = document.getElementById("imageSize");
+const totalCount = document.getElementById("totalCount");
+const toast = document.getElementById('toast');
 
-        const img = document.createElement("img");
-        img.src = item.url;
-        img.alt = item.caption;
-        img.onclick = () => openLightbox(item.url, item.caption);
+/* ---------- SIDEBAR FUNCTIONS ---------- */
+function goToDashboard() {
+  window.location.href = "index.html";
+}
 
-        const caption = document.createElement("div");
-        caption.className = "caption";
-        caption.textContent = item.caption;
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+}
 
-        container.appendChild(img);
-        container.appendChild(caption);
-        gallery.appendChild(container);
-      });
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768 && 
+      !sidebar.contains(e.target) && 
+      !e.target.classList.contains('menu-btn')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('open');
+  }
+});
+
+/* ---------- TOAST FUNCTION ---------- */
+function showToast(message, type = 'info') {
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+    <span>${message}</span>
+  `;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+/* ---------- UTILITY FUNCTIONS ---------- */
+function formatDate(dateString) {
+  if (!dateString) return "Unknown Date";
+  
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
     }
+    
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+  } catch (e) {
+    return "Date Error";
+  }
+}
 
-    function filterImages() {
-      const query = searchInput.value.toLowerCase();
-      clearBtn.style.display = query ? "block" : "none";
+function formatFileSize(bytes) {
+  if (!bytes) return "Unknown";
+  const kb = Math.round(bytes / 1024);
+  if (kb < 1024) return `${kb} KB`;
+  const mb = (kb / 1024).toFixed(1);
+  return `${mb} MB`;
+}
 
-      const filtered = allItems.filter(item =>
-        item.caption.toLowerCase().includes(query)
-      );
-      renderGallery(filtered);
+/* ---------- IMAGE LOADING HANDLERS ---------- */
+function imageLoaded(imgElement) {
+  loadedCount++;
+  imgElement.classList.remove('loading');
+  
+  // Update stats
+  const statsElement = document.querySelector('.stats');
+  if (statsElement) {
+    const loadedSpan = statsElement.querySelector('span:nth-child(2)');
+    if (loadedSpan) {
+      loadedSpan.textContent = loadedCount;
     }
+  }
+}
 
-    function clearSearch() {
-      searchInput.value = "";
-      clearBtn.style.display = "none";
-      renderGallery(allItems);
+function imageError(imgElement, fileId) {
+  console.log('Image failed to load:', fileId);
+  
+  // Try alternative URLs
+  const item = allItems.find(item => item.id === fileId);
+  if (item && item.urls) {
+    tryAlternativeUrls(imgElement, item);
+  } else {
+    // Try standard fallback URLs
+    const urls = [
+      `https://drive.google.com/thumbnail?id=${fileId}&sz=w300`,
+      `https://lh3.googleusercontent.com/d/${fileId}=w300`,
+      `https://drive.google.com/uc?id=${fileId}&export=download`
+    ];
+    
+    let currentIndex = 0;
+    
+    function tryNext() {
+      if (currentIndex < urls.length) {
+        imgElement.src = urls[currentIndex];
+        currentIndex++;
+      } else {
+        imgElement.classList.add('error');
+      }
+    }
+    
+    imgElement.onerror = tryNext;
+    tryNext();
+  }
+}
+
+function tryAlternativeUrls(imgElement, item) {
+  const urls = [
+    item.urls?.direct,
+    item.urls?.webContent,
+    item.urls?.authkey,
+    `https://drive.google.com/thumbnail?id=${item.id}&sz=w500`,
+    `https://lh3.googleusercontent.com/d/${item.id}=w500`
+  ].filter(url => url);
+  
+  let currentIndex = 0;
+  
+  function tryNextUrl() {
+    if (currentIndex < urls.length) {
+      imgElement.src = urls[currentIndex];
+      currentIndex++;
+    } else {
+      imgElement.classList.add('error');
+      console.log('All image URLs failed for:', item.caption);
+    }
+  }
+  
+  imgElement.onerror = tryNextUrl;
+  tryNextUrl();
+}
+
+/* ---------- GALLERY RENDERING ---------- */
+function groupItemsByDate(items) {
+  const grouped = {};
+  
+  items.forEach(item => {
+    const formattedDate = formatDate(item.date);
+    
+    if (!grouped[formattedDate]) {
+      grouped[formattedDate] = [];
+    }
+    
+    grouped[formattedDate].push(item);
+  });
+  
+  return grouped;
+}
+
+function sortDatesDescending(dateGroups) {
+  return Object.keys(dateGroups).sort((a, b) => {
+    const parseDate = (dateStr) => {
+      const [month, day, year] = dateStr.split('/').map(Number);
+      return new Date(year, month - 1, day);
+    };
+    
+    try {
+      return parseDate(b) - parseDate(a);
+    } catch (e) {
+      return 0;
+    }
+  });
+}
+
+function renderGallery(items) {
+  filteredItems = items;
+  
+  if (!items || items.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div>No images found</div>
+        <div style="font-size: 14px; margin-top: 10px; opacity: 0.7;">
+          Try adjusting your search or check back later
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const groupedItems = groupItemsByDate(items);
+  const sortedDates = sortDatesDescending(groupedItems);
+  
+  // Show stats
+  let html = `
+    <div class="stats">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          Showing <span>${items.length}</span> of <span>${totalItems}</span> images
+        </div>
+        <div style="font-size: 13px;">
+          Loaded: <span>${loadedCount}</span> | Failed: <span>${totalItems - loadedCount}</span>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  sortedDates.forEach(date => {
+    const itemsForDate = groupedItems[date];
+    
+    html += `
+      <div class="date-group">
+        <div class="date-header">
+          <span>${date}</span>
+          <span class="date-count">${itemsForDate.length} image${itemsForDate.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="gallery">
+    `;
+    
+    itemsForDate.forEach(item => {
+      // Escape quotes in caption
+      const safeCaption = item.caption.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const fileSize = formatFileSize(item.size);
+      const fileDate = formatDate(item.date);
+      
+      html += `
+        <div class="item">
+          <img 
+            src="${item.url}" 
+            alt="${item.caption}" 
+            data-id="${item.id}"
+            data-urls='${JSON.stringify(item.urls || {})}'
+            onclick="openLightbox('${item.url}', '${safeCaption}', '${item.id}', '${fileSize}')"
+            onload="imageLoaded(this)"
+            onerror="imageError(this, '${item.id}')"
+            class="loading"
+          >
+          <div class="caption">${item.caption}</div>
+          <div class="file-info">
+            <span class="file-size">${fileSize}</span>
+            <span class="file-date">${fileDate}</span>
+          </div>
+        </div>
+      `;
+    });
+    
+    html += `
+        </div>
+      </div>
+    `;
+  });
+  
+  content.innerHTML = html;
+  loadedCount = 0; // Reset for counting loaded images
+}
+
+/* ---------- SEARCH AND FILTER ---------- */
+function filterImages() {
+  const query = searchInput.value.toLowerCase().trim();
+  clearBtn.style.display = query ? "block" : "none";
+
+  if (!query) {
+    renderGallery(allItems);
+    return;
+  }
+
+  const filtered = allItems.filter(item => {
+    const inCaption = item.caption.toLowerCase().includes(query);
+    const formattedDate = formatDate(item.date).toLowerCase();
+    const inDate = formattedDate.includes(query);
+    const inFilename = (item.filename || '').toLowerCase().includes(query);
+    
+    return inCaption || inDate || inFilename;
+  });
+  
+  renderGallery(filtered);
+  
+  if (filtered.length === 0 && query) {
+    showToast(`No results found for "${query}"`, 'info');
+  }
+}
+
+function clearSearch() {
+  searchInput.value = "";
+  clearBtn.style.display = "none";
+  renderGallery(allItems);
+  searchInput.focus();
+}
+
+/* ---------- LIGHTBOX FUNCTIONS ---------- */
+function openLightbox(src, caption, fileId, fileSize) {
+  // Get current filtered items for navigation
+  currentLightboxItems = filteredItems;
+  currentLightboxIndex = currentLightboxItems.findIndex(item => item.id === fileId);
+  
+  if (currentLightboxIndex === -1) {
+    currentLightboxIndex = 0;
+  }
+  
+  updateLightbox();
+  lightbox.classList.add("active");
+  
+  // Update image index display
+  updateImageIndex();
+  
+  // Store file size
+  lightboxImg.dataset.fileSize = fileSize;
+  
+  // Prevent body scroll when lightbox is open
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove("active");
+  document.body.style.overflow = '';
+}
+
+function prevImage() {
+  if (currentLightboxItems.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex - 1 + currentLightboxItems.length) % currentLightboxItems.length;
+  updateLightbox();
+  updateImageIndex();
+}
+
+function nextImage() {
+  if (currentLightboxItems.length === 0) return;
+  currentLightboxIndex = (currentLightboxIndex + 1) % currentLightboxItems.length;
+  updateLightbox();
+  updateImageIndex();
+}
+
+function updateLightbox() {
+  if (currentLightboxItems.length === 0) return;
+  
+  const item = currentLightboxItems[currentLightboxIndex];
+  lightboxImg.src = item.url;
+  lightboxCaption.textContent = item.caption;
+  
+  // Update file size in info panel
+  const fileSize = formatFileSize(item.size);
+  imageSize.textContent = fileSize;
+  
+  // Store current item ID for error handling
+  lightboxImg.dataset.fileId = item.id;
+  lightboxImg.dataset.item = JSON.stringify(item);
+}
+
+function updateImageIndex() {
+  imageIndex.textContent = `${currentLightboxIndex + 1}/${currentLightboxItems.length}`;
+}
+
+function lightboxImageError() {
+  console.log('Lightbox image failed to load');
+  
+  // Try to get item data
+  const itemData = lightboxImg.dataset.item;
+  if (itemData) {
+    const item = JSON.parse(itemData);
+    if (item.urls) {
+      tryAlternativeUrls(lightboxImg, item);
+    } else {
+      const fileId = item.id;
+      lightboxImg.src = `https://drive.google.com/uc?id=${fileId}&export=download`;
+    }
+  }
+}
+
+/* ---------- DATA LOADING ---------- */
+function loadImages() {
+  content.innerHTML = `
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <div>Loading images...</div>
+    </div>
+  `;
+  
+  showToast('Loading images...', 'info');
+  
+  fetch(API_URL)
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(items => {
+      allItems = items;
+      totalItems = items.length;
+      loadedCount = 0;
+      
+      // Update total count display
+      totalCount.textContent = totalItems;
+      
+      renderGallery(items);
+      showToast(`Loaded ${totalItems} images`, 'success');
+      
+      // Check if any images loaded after 3 seconds
+      setTimeout(() => {
+        if (loadedCount === 0 && items.length > 0) {
+          console.log('No images loaded, trying alternative method...');
+          allItems.forEach(item => {
+            item.url = item.urls?.direct || item.urls?.webContent || item.url;
+          });
+          renderGallery(allItems);
+          showToast('Using alternative image sources', 'info');
+        }
+      }, 3000);
+    })
+    .catch(err => {
+      console.error('Error loading images:', err);
+      content.innerHTML = `
+        <div class="error-message">
+          <p>Failed to load images. Please check:</p>
+          <ul style="text-align: left; display: inline-block; margin: 15px 0;">
+            <li>Internet connection</li>
+            <li>Google Drive folder permissions</li>
+            <li>API deployment status</li>
+          </ul>
+          <button class="refresh-btn" onclick="loadImages()" style="margin-top: 10px;">
+            <span>🔄</span>
+            <span>Retry</span>
+          </button>
+        </div>
+      `;
+      showToast('Failed to load images', 'error');
+    });
+}
+
+/* ---------- EVENT HANDLERS ---------- */
+// Keyboard navigation for lightbox
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    closeLightbox();
+  } else if (lightbox.classList.contains("active")) {
+    if (e.key === "ArrowLeft") prevImage();
+    else if (e.key === "ArrowRight") nextImage();
+  }
+});
+
+// Close lightbox when clicking on background
+lightbox.addEventListener("click", e => {
+  if (e.target === lightbox) closeLightbox();
+});
+
+// Auto-focus search on load
+window.addEventListener('load', () => {
+  searchInput.focus();
+});
+
+/* ---------- INITIALIZATION ---------- */
+window.addEventListener('load', () => {
+  loadImages();
+  
+  // Setup keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Ctrl/Cmd + F to focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
       searchInput.focus();
     }
-
-    function openLightbox(src, caption) {
-      lightboxImg.src = src;
-      lightboxCaption.textContent = caption;
-      lightbox.classList.add("active");
+    
+    // Escape to clear search
+    if (e.key === 'Escape' && document.activeElement === searchInput && searchInput.value) {
+      clearSearch();
     }
+  });
+});
 
-    function closeLightbox() {
-      lightbox.classList.remove("active");
-    }
-
-    document.addEventListener("keydown", e => {
-      if (e.key === "Escape") closeLightbox();
-    });
-
-    lightbox.addEventListener("click", e => {
-      if (e.target === lightbox) closeLightbox();
-    });
-  </script>
+/* ---------- EXPORT FOR DEBUGGING ---------- */
+window.galleryApp = {
+  loadImages,
+  filterImages,
+  clearSearch,
+  openLightbox,
+  closeLightbox,
+  prevImage,
+  nextImage,
+  getAllItems: () => allItems,
+  getFilteredItems: () => filteredItems
+};
+</script>
 
 </body>
 </html>
