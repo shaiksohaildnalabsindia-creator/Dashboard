@@ -503,6 +503,23 @@
       opacity: 0.5;
     }
 
+    /* Cache indicator */
+    .cache-indicator {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+      background: #f3f4f6;
+      color: #6b7280;
+      vertical-align: middle;
+    }
+
+    .cache-indicator.fresh {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
     /* ---------- MODAL ---------- */
     .modal {
       position: fixed;
@@ -552,7 +569,7 @@
       border-radius: 8px;
       cursor: zoom-in;
       display: block;
-      transition: transform 0.2s;
+      transition: transform 0.2s, opacity 0.3s ease;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
@@ -560,29 +577,32 @@
       transform: scale(1.01);
     }
 
-    /* Image container with spinner */
+    /* Image container with loading placeholder */
     .img-container {
       position: relative;
       display: inline-block;
       min-width: 200px;
       min-height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
-    .img-container .spinner {
+    /* Loading placeholder animation */
+    @keyframes loading {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .loading-placeholder {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid #3b82f6;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      transform: translate(-50%, -50%);
-      z-index: 5;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
     }
 
-    /* Loading state for modal */
     .modal-loading {
       color: white;
       font-size: 18px;
@@ -766,6 +786,10 @@
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
 
+    .toast-info {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    }
+
     .toast-icon {
       font-size: 20px;
     }
@@ -911,7 +935,6 @@
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
         </a>
-        </a>
       </div>
     </div>
   </div>
@@ -933,11 +956,12 @@
       <div class="page-title">
         <span>📦</span>
         <span>Today's Delivered Parcels</span>
+        <span id="cacheIndicator" class="cache-indicator" style="display: none;">Cached</span>
       </div>
       <div class="page-subtitle">View all parcels delivered today with images</div>
     </div>
     <div class="user-menu">
-      <button class="refresh-btn" onclick="loadData()">
+      <button class="refresh-btn" onclick="forceRefresh()">
         <span>🔄</span>
         <span>Refresh</span>
       </button>
@@ -1010,7 +1034,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ---------- CONSTANTS ---------- */
+/* ---------- CACHE SETTINGS ---------- */
+const CACHE_KEY = 'parcel_pro_delivered_today';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 const PARCEL_API = "https://script.google.com/macros/s/AKfycby9f86QjvNESTF8Rm0oYfaZEMOvpCjyQ_TZL1id8lkLZu0Ck1qYPIhrSwVbxYuxdSUe7g/exec";
 const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
 
@@ -1025,6 +1051,7 @@ const countElement = document.getElementById("count");
 const toast = document.getElementById('toast');
 const imageCounter = document.getElementById('imageCounter');
 const imageCaption = document.getElementById('imageCaption');
+const cacheIndicator = document.getElementById('cacheIndicator');
 
 /* ---------- GLOBAL VARIABLES ---------- */
 let currentImages = [];
@@ -1032,6 +1059,69 @@ let currentIndex = 0;
 let dataRefreshInterval = null;
 let isLoading = false;
 let parcelData = [];
+let memoryCache = null;
+let isFromCache = false;
+
+/* ---------- CACHE FUNCTIONS ---------- */
+function saveToCache(data) {
+  const cacheData = {
+    data: data,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+  memoryCache = cacheData;
+}
+
+function getFromCache() {
+  // Check memory cache first (fastest)
+  if (memoryCache && memoryCache.timestamp) {
+    const isExpired = (Date.now() - memoryCache.timestamp) > CACHE_DURATION;
+    if (!isExpired) {
+      return memoryCache.data;
+    }
+    memoryCache = null;
+  }
+  
+  // Fall back to localStorage
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (!cached) return null;
+  
+  try {
+    const parsed = JSON.parse(cached);
+    const isExpired = (Date.now() - parsed.timestamp) > CACHE_DURATION;
+    
+    if (isExpired) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
+    // Update memory cache
+    memoryCache = parsed;
+    return parsed.data;
+  } catch (e) {
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+function clearCache() {
+  memoryCache = null;
+  localStorage.removeItem(CACHE_KEY);
+  showToast('Cache cleared', 'info');
+}
+
+function updateCacheIndicator(isCached) {
+  isFromCache = isCached;
+  if (isCached) {
+    cacheIndicator.style.display = 'inline-block';
+    cacheIndicator.textContent = 'Cached';
+    cacheIndicator.className = 'cache-indicator fresh';
+  } else {
+    cacheIndicator.style.display = 'inline-block';
+    cacheIndicator.textContent = 'Live';
+    cacheIndicator.className = 'cache-indicator';
+  }
+}
 
 /* ---------- SIDEBAR FUNCTIONS ---------- */
 function goToDashboard() {
@@ -1067,7 +1157,7 @@ function showToast(message, type = 'success') {
   toast.textContent = message;
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+    <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
     <span>${message}</span>
   `;
   toast.classList.add('show');
@@ -1078,10 +1168,30 @@ function showToast(message, type = 'success') {
 }
 
 /* ---------- DATA LOADING ---------- */
-function loadData() {
-  if (isLoading) return;
+function loadData(forceRefresh = false) {
+  if (isLoading && !forceRefresh) return;
+  
+  // Check cache first (unless forcing refresh)
+  if (!forceRefresh) {
+    const cachedData = getFromCache();
+    if (cachedData) {
+      console.log('Loading from cache');
+      parcelData = cachedData;
+      displayData(parcelData);
+      updateCacheIndicator(true);
+      showToast(`Loaded ${parcelData.length} deliveries from cache`, 'info');
+      
+      // Refresh data in background if cache is older than 1 minute
+      const cacheAge = Date.now() - (memoryCache?.timestamp || 0);
+      if (cacheAge > 60000) {
+        setTimeout(() => loadData(true), 1000);
+      }
+      return;
+    }
+  }
   
   isLoading = true;
+  updateCacheIndicator(false);
   
   // Show loading state
   tableBody.innerHTML = `
@@ -1089,7 +1199,7 @@ function loadData() {
       <td colspan="4">
         <div class="loading-container">
           <div class="loading-spinner"></div>
-          <div>Loading today's deliveries...</div>
+          <div>${forceRefresh ? 'Refreshing deliveries...' : 'Loading today\'s deliveries...'}</div>
         </div>
       </td>
     </tr>
@@ -1113,13 +1223,23 @@ function loadData() {
 function handleDataError() {
   isLoading = false;
   
+  // Try to load from cache if API fails
+  const cachedData = getFromCache();
+  if (cachedData) {
+    parcelData = cachedData;
+    displayData(parcelData);
+    updateCacheIndicator(true);
+    showToast(`Showing cached data (offline mode)`, 'info');
+    return;
+  }
+  
   tableBody.innerHTML = `
     <tr>
       <td colspan="4">
         <div class="empty-state">
           <div class="empty-icon">⚠️</div>
           <div>Failed to load data. Please try again.</div>
-          <button onclick="loadData()" class="refresh-btn" style="margin-top: 15px;">
+          <button onclick="forceRefresh()" class="refresh-btn" style="margin-top: 15px;">
             <span>🔄</span>
             <span>Retry</span>
           </button>
@@ -1135,13 +1255,27 @@ function handleData(data) {
   isLoading = false;
   parcelData = Array.isArray(data) ? data : [];
   
+  // Save to cache
+  saveToCache(parcelData);
+  
+  // Display the data
+  displayData(parcelData);
+  
+  if (isFromCache) {
+    showToast(`Refreshed ${parcelData.length} deliveries`, 'success');
+  } else {
+    showToast(`Loaded ${parcelData.length} deliveries`, 'success');
+  }
+}
+
+function displayData(data) {
   // Update count
-  countElement.textContent = parcelData.length;
+  countElement.textContent = data.length;
   
   // Clear table
   tableBody.innerHTML = '';
   
-  if (parcelData.length === 0) {
+  if (data.length === 0) {
     tableBody.innerHTML = `
       <tr>
         <td colspan="4">
@@ -1159,7 +1293,7 @@ function handleData(data) {
   }
   
   // Populate table
-  parcelData.forEach(parcel => {
+  data.forEach(parcel => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>
@@ -1178,8 +1312,6 @@ function handleData(data) {
     `;
     tableBody.appendChild(tr);
   });
-  
-  showToast(`Loaded ${parcelData.length} deliveries`, 'success');
 }
 
 function getStatusClass(status) {
@@ -1204,10 +1336,52 @@ function formatDate(dateString) {
   }
 }
 
+/* ---------- IMAGE CACHING ---------- */
+function getImageCacheKey(tracking) {
+  return `parcel_pro_images_${tracking}`;
+}
+
+function saveImagesToCache(tracking, images) {
+  const cacheData = {
+    data: images,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(getImageCacheKey(tracking), JSON.stringify(cacheData));
+}
+
+function getImagesFromCache(tracking) {
+  const cached = localStorage.getItem(getImageCacheKey(tracking));
+  if (!cached) return null;
+  
+  try {
+    const parsed = JSON.parse(cached);
+    const isExpired = (Date.now() - parsed.timestamp) > CACHE_DURATION;
+    
+    if (isExpired) {
+      localStorage.removeItem(getImageCacheKey(tracking));
+      return null;
+    }
+    
+    return parsed.data;
+  } catch (e) {
+    localStorage.removeItem(getImageCacheKey(tracking));
+    return null;
+  }
+}
+
 /* ---------- IMAGE MODAL ---------- */
 function openModal(tracking) {
   console.log("Opening modal for tracking:", tracking);
   imageModal.classList.add("show");
+  
+  // Check image cache first
+  const cachedImages = getImagesFromCache(tracking);
+  
+  if (cachedImages) {
+    renderImages(cachedImages, tracking, true);
+    return;
+  }
+  
   gallery.innerHTML = `<div class="modal-loading">Loading images for ${tracking}...</div>`;
   fetchImages(tracking.toLowerCase());
 }
@@ -1218,16 +1392,42 @@ function closeModal() {
   currentImages = [];
 }
 
-/* ---------- IMAGE FETCH ---------- */
+/* ---------- IMAGE PRELOADING FUNCTIONS ---------- */
+function preloadImages(images) {
+  const promises = images.map((item, index) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = item.url;
+      img.onload = () => resolve({ index, item, status: 'loaded' });
+      img.onerror = () => resolve({ index, item, status: 'error' });
+    });
+  });
+  
+  return Promise.all(promises);
+}
+
 async function fetchImages(query) {
   try {
     const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const data = await response.json();
-    renderImages(data, query);
+    
+    // Cache the images
+    saveImagesToCache(query, data);
+    
+    renderImages(data, query, false);
   } catch (error) {
     console.error('Error fetching images:', error);
+    
+    // Try to load from cache
+    const cachedImages = getImagesFromCache(query);
+    if (cachedImages) {
+      renderImages(cachedImages, query, true);
+      showToast('Showing cached images', 'info');
+      return;
+    }
+    
     gallery.innerHTML = `
       <div class="error-message">
         <p>Failed to load images. Please try again.</p>
@@ -1239,7 +1439,7 @@ async function fetchImages(query) {
   }
 }
 
-function renderImages(data, query) {
+function renderImages(data, query, fromCache = false) {
   gallery.innerHTML = "";
   
   if (!Array.isArray(data)) {
@@ -1259,29 +1459,91 @@ function renderImages(data, query) {
     return;
   }
   
-  // Create image containers
-  currentImages.forEach((item, index) => {
-    const container = document.createElement("div");
-    container.className = "img-container";
+  if (fromCache) {
+    // Show cached images immediately
+    gallery.innerHTML = `<div class="modal-loading">Loading ${currentImages.length} cached image(s)...</div>`;
     
-    const spinner = document.createElement("div");
-    spinner.className = "spinner";
-    container.appendChild(spinner);
+    // Render cached images without preloading
+    setTimeout(() => {
+      gallery.innerHTML = "";
+      currentImages.forEach((item, index) => {
+        createImageElement(item, index, 'loaded');
+      });
+      showToast(`Loaded ${currentImages.length} images from cache`, 'info');
+    }, 300);
+  } else {
+    // Show initial loading message for fresh images
+    gallery.innerHTML = `<div class="modal-loading">Preloading ${currentImages.length} image(s)...</div>`;
     
-    const img = document.createElement("img");
-    img.style.display = "none";
-    img.src = item.url;
-    img.alt = item.caption || `Image ${index + 1}`;
-    img.loading = "lazy";
+    // Preload images first
+    preloadImages(currentImages).then((results) => {
+      // After preloading, render all images at once
+      gallery.innerHTML = "";
+      
+      results.forEach((result, index) => {
+        createImageElement(result.item, index, result.status);
+      });
+      
+      // Show success message
+      const loadedCount = results.filter(r => r.status === 'loaded').length;
+      if (loadedCount < currentImages.length) {
+        showToast(`${loadedCount} of ${currentImages.length} images loaded successfully`, 'info');
+      }
+    });
+  }
+}
+
+function createImageElement(item, index, status = 'loaded') {
+  const container = document.createElement("div");
+  container.className = "img-container";
+  container.style.cssText = "position: relative; min-width: 200px; min-height: 150px;";
+  
+  // Create loading placeholder
+  const placeholder = document.createElement("div");
+  placeholder.className = "loading-placeholder";
+  container.appendChild(placeholder);
+  
+  const img = document.createElement("img");
+  img.style.cssText = `
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 300px;
+    object-fit: contain;
+    cursor: pointer;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `;
+  
+  img.src = item.url;
+  img.alt = item.caption || `Image ${index + 1}`;
+  img.loading = "lazy";
+  
+  // Handle image load/error
+  if (status === 'loaded') {
+    // Image already preloaded, show immediately
+    img.style.opacity = "1";
+    placeholder.style.display = "none";
     
+    // Add caption
+    if (item.caption) {
+      const caption = document.createElement("div");
+      caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px; word-break: break-word; max-width: 400px;";
+      caption.textContent = item.caption.length > 40 ? 
+        item.caption.substring(0, 40) + "..." : item.caption;
+      container.appendChild(caption);
+    }
+  } else {
+    // Image failed to preload, try loading again
     img.onload = () => {
-      spinner.style.display = "none";
-      img.style.display = "block";
+      img.style.opacity = "1";
+      placeholder.style.display = "none";
       
       // Add caption
       if (item.caption) {
         const caption = document.createElement("div");
-        caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px;";
+        caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px; word-break: break-word; max-width: 400px;";
         caption.textContent = item.caption.length > 40 ? 
           item.caption.substring(0, 40) + "..." : item.caption;
         container.appendChild(caption);
@@ -1289,20 +1551,34 @@ function renderImages(data, query) {
     };
     
     img.onerror = () => {
-      spinner.style.display = "none";
-      img.style.display = "block";
-      img.alt = "Failed to load image";
-      img.style.border = "2px dashed #f87171";
+      placeholder.style.display = "none";
+      const errorDiv = document.createElement("div");
+      errorDiv.style.cssText = `
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fee;
+        border: 2px dashed #f87171;
+        border-radius: 8px;
+        color: #dc2626;
+        font-size: 12px;
+        padding: 10px;
+        text-align: center;
+      `;
+      errorDiv.textContent = "Failed to load image";
+      container.appendChild(errorDiv);
     };
-    
-    img.onclick = (e) => { 
-      e.stopPropagation(); 
-      openFullscreen(index); 
-    };
-    
-    container.appendChild(img);
-    gallery.appendChild(container);
-  });
+  }
+  
+  img.onclick = (e) => { 
+    e.stopPropagation(); 
+    openFullscreen(index); 
+  };
+  
+  container.appendChild(img);
+  gallery.appendChild(container);
 }
 
 /* ---------- FULLSCREEN VIEW ---------- */
@@ -1433,13 +1709,29 @@ fsImage.addEventListener("dblclick", e => {
   updateTransform();
 });
 
+/* ---------- MANUAL REFRESH ---------- */
+function forceRefresh() {
+  loadData(true);
+}
+
+/* ---------- PAGE VISIBILITY API ---------- */
+// Refresh data when page becomes visible again (if cache is older than 2 minutes)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    // Page is visible again
+    if (memoryCache) {
+      const cacheAge = Date.now() - memoryCache.timestamp;
+      if (cacheAge > 120000) { // 2 minutes
+        loadData(true);
+      }
+    }
+  }
+});
+
 /* ---------- INITIALIZATION ---------- */
 window.addEventListener('load', () => {
-  // Load data immediately
+  // Load data (will use cache if available)
   loadData();
-  
-  // Set up auto-refresh every 2 minutes
-  dataRefreshInterval = setInterval(loadData, 120000);
   
   // Clean up on page unload
   window.addEventListener('beforeunload', () => {
@@ -1447,15 +1739,25 @@ window.addEventListener('load', () => {
   });
 });
 
-/* ---------- EXPORT FOR DEBUGGING ---------- */
+/* ---------- DEBUG FUNCTIONS ---------- */
 window.app = {
-  loadData,
+  loadData: (force) => loadData(force),
+  clearCache,
   openModal,
   closeModal,
   openFullscreen,
   closeFullscreen,
   prevImage,
-  nextImage
+  nextImage,
+  getCacheInfo: () => {
+    const cached = getFromCache();
+    return {
+      hasCache: !!cached,
+      itemCount: cached ? cached.length : 0,
+      memoryCache: memoryCache,
+      isFromCache
+    };
+  }
 };
 </script>
 </body>
