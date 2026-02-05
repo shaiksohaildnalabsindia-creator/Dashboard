@@ -378,7 +378,7 @@ body {
       </a>
       <a href="parcel_entry_form.html">
         <span>🔍</span>
-        <span>Received / Scanner</span>
+        <span>Parcel Scanner</span>
       </a>
       <a href="upload_sample_images.html">
         <span>📷</span>
@@ -392,13 +392,10 @@ body {
         <span>📊</span>
         <span>Total Samples</span>
       </a>
-      <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" 
-         target="_blank" 
-         rel="noopener noreferrer">
-        <span>🖼️</span>
-        <span>Sample Gallery</span>
-        <span style="margin-left: auto; font-size: 12px; opacity: 0.7;">↗</span>
-      </a>
+        <a href="gallery.html" class="menu-item">
+          <span class="menu-item-icon">📊</span>
+          <span class="menu-item-text">Sample Gallery</span>
+        </a>
     </div>
   </nav>
 
@@ -407,13 +404,13 @@ body {
     <div class="grid">
       <div class="box" onclick="go('parcel_entry.html')" tabindex="0" role="button">
         <div class="box-icon">📦📝</div>
-        <div class="box-text">Parcel Entry Form</div>
+        <div class="box-text">Parcel Entry </div>
         <div class="box-description">Create new parcel entries with detailed information</div>
       </div>
 
       <div class="box" onclick="go('parcel_entry_form.html')" tabindex="0" role="button">
         <div class="box-icon">📦🔍</div>
-        <div class="box-text">Received → Scanner</div>
+        <div class="box-text">Parcel Scanner</div>
         <div class="box-description">Scan and manage received parcels</div>
       </div>
 
@@ -429,9 +426,7 @@ body {
         <div class="box-description">View today's delivered parcels</div>
       </div>
 
-      <div class="box" onclick="openApp('https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec')" 
-           tabindex="0" 
-           role="button">
+      <div class="box" onclick="go('gallery.html')" tabindex="0" role="button">
         <div class="box-icon">🖼️</div>
         <div class="box-text">Sample Gallery</div>
         <div class="box-description">Browse all parcel images gallery</div>
