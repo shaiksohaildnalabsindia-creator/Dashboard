@@ -713,7 +713,7 @@
       border-radius: 8px;
       cursor: zoom-in;
       display: block;
-      transition: transform 0.2s;
+      transition: transform 0.2s, opacity 0.3s ease;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
@@ -721,29 +721,32 @@
       transform: scale(1.01);
     }
 
-    /* Image container with spinner */
+    /* Image container with loading placeholder */
     .img-container {
       position: relative;
       display: inline-block;
       min-width: 200px;
       min-height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
     }
 
-    .img-container .spinner {
+    /* Loading placeholder animation */
+    @keyframes loading {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .loading-placeholder {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.3);
-      border-top: 4px solid #3b82f6;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      transform: translate(-50%, -50%);
-      z-index: 5;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
     }
 
-    /* Loading state for modal */
     .modal-loading {
       color: white;
       font-size: 18px;
@@ -1458,6 +1461,20 @@ async function fetchImages(query) {
   }
 }
 
+/* ---------- IMAGE PRELOADING FUNCTIONS ---------- */
+function preloadImages(images) {
+  const promises = images.map((item, index) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = item.url;
+      img.onload = () => resolve({ index, item, status: 'loaded' });
+      img.onerror = () => resolve({ index, item, status: 'error' });
+    });
+  });
+  
+  return Promise.all(promises);
+}
+
 function renderImages(data, query) {
   gallery.innerHTML = "";
   
@@ -1478,29 +1495,77 @@ function renderImages(data, query) {
     return;
   }
   
-  // Create image containers
-  currentImages.forEach((item, index) => {
-    const container = document.createElement("div");
-    container.className = "img-container";
+  // Show initial loading message
+  gallery.innerHTML = `<div class="modal-loading">Preloading ${currentImages.length} image(s)...</div>`;
+  
+  // Preload images first
+  preloadImages(currentImages).then((results) => {
+    // After preloading, render all images at once
+    gallery.innerHTML = "";
     
-    const spinner = document.createElement("div");
-    spinner.className = "spinner";
-    container.appendChild(spinner);
+    results.forEach((result, index) => {
+      createImageElement(result.item, index, result.status);
+    });
     
-    const img = document.createElement("img");
-    img.style.display = "none";
-    img.src = item.url;
-    img.alt = item.caption || `Image ${index + 1}`;
-    img.loading = "lazy";
+    // Show success message
+    const loadedCount = results.filter(r => r.status === 'loaded').length;
+    if (loadedCount < currentImages.length) {
+      showToast(`${loadedCount} of ${currentImages.length} images loaded successfully`, 'info');
+    }
+  });
+}
+
+function createImageElement(item, index, status = 'loaded') {
+  const container = document.createElement("div");
+  container.className = "img-container";
+  container.style.cssText = "position: relative; min-width: 200px; min-height: 150px;";
+  
+  // Create loading placeholder
+  const placeholder = document.createElement("div");
+  placeholder.className = "loading-placeholder";
+  container.appendChild(placeholder);
+  
+  const img = document.createElement("img");
+  img.style.cssText = `
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 300px;
+    object-fit: contain;
+    cursor: pointer;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `;
+  
+  img.src = item.url;
+  img.alt = item.caption || `Image ${index + 1}`;
+  img.loading = "lazy";
+  
+  // Handle image load/error
+  if (status === 'loaded') {
+    // Image already preloaded, show immediately
+    img.style.opacity = "1";
+    placeholder.style.display = "none";
     
+    // Add caption
+    if (item.caption) {
+      const caption = document.createElement("div");
+      caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px; word-break: break-word; max-width: 400px;";
+      caption.textContent = item.caption.length > 40 ? 
+        item.caption.substring(0, 40) + "..." : item.caption;
+      container.appendChild(caption);
+    }
+  } else {
+    // Image failed to preload, try loading again
     img.onload = () => {
-      spinner.style.display = "none";
-      img.style.display = "block";
+      img.style.opacity = "1";
+      placeholder.style.display = "none";
       
       // Add caption
       if (item.caption) {
         const caption = document.createElement("div");
-        caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px;";
+        caption.style.cssText = "color: white; text-align: center; font-size: 13px; margin-top: 8px; word-break: break-word; max-width: 400px;";
         caption.textContent = item.caption.length > 40 ? 
           item.caption.substring(0, 40) + "..." : item.caption;
         container.appendChild(caption);
@@ -1508,20 +1573,34 @@ function renderImages(data, query) {
     };
     
     img.onerror = () => {
-      spinner.style.display = "none";
-      img.style.display = "block";
-      img.alt = "Failed to load image";
-      img.style.border = "2px dashed #f87171";
+      placeholder.style.display = "none";
+      const errorDiv = document.createElement("div");
+      errorDiv.style.cssText = `
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fee;
+        border: 2px dashed #f87171;
+        border-radius: 8px;
+        color: #dc2626;
+        font-size: 12px;
+        padding: 10px;
+        text-align: center;
+      `;
+      errorDiv.textContent = "Failed to load image";
+      container.appendChild(errorDiv);
     };
-    
-    img.onclick = (e) => { 
-      e.stopPropagation(); 
-      openFullscreen(index); 
-    };
-    
-    container.appendChild(img);
-    gallery.appendChild(container);
-  });
+  }
+  
+  img.onclick = (e) => { 
+    e.stopPropagation(); 
+    openFullscreen(index); 
+  };
+  
+  container.appendChild(img);
+  gallery.appendChild(container);
 }
 
 /* ---------- FULLSCREEN VIEW FUNCTIONS ---------- */
