@@ -1157,7 +1157,6 @@ const webAppUrlAll = "https://script.google.com/macros/s/AKfycbxV2_zUbYNt3j_FPtR
 const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
 
 /* ---------- GLOBAL VARIABLES ---------- */
-let refreshInterval;
 let allData = [];
 let reversedData = [];
 let currentImages = [];
@@ -1648,24 +1647,10 @@ fsImage.addEventListener("dblclick", e => {
   updateTransform();
 });
 
-/* ---------- AUTO REFRESH ---------- */
-function startAutoRefresh() {
-  if (refreshInterval) clearInterval(refreshInterval);
-  refreshInterval = setInterval(loadData, 60000); // Refresh every 60 seconds
-}
-
 /* ---------- INITIALIZATION ---------- */
 window.addEventListener('load', () => {
   // Load data immediately
   loadData();
-  
-  // Set up auto-refresh
-  startAutoRefresh();
-  
-  // Clean up on page unload
-  window.addEventListener('beforeunload', () => {
-    if (refreshInterval) clearInterval(refreshInterval);
-  });
 });
 
 /* ---------- EXPORT FOR DEBUGGING ---------- */
