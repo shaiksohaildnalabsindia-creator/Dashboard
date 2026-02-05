@@ -798,6 +798,14 @@ function setupResizeObserver() {
   }
 }
 
+// Format date to mm/dd/yyyy
+function formatDateMMDDYYYY(date) {
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+}
+
 // Start camera and scanner
 async function startCamera() {
   try {
@@ -944,6 +952,7 @@ function startScanner() {
 async function saveTrackingNumber(code, barcodeType, barcodeFormat) {
   try {
     const now = new Date();
+    const scanDate = formatDateMMDDYYYY(now); // Format date as mm/dd/yyyy
     
     await fetch(WEB_APP_URL, {
       method: "POST",
@@ -953,13 +962,14 @@ async function saveTrackingNumber(code, barcodeType, barcodeFormat) {
         tracking: code,
         barcodeType: barcodeType,
         barcodeFormat: barcodeFormat,
-        timestamp: now.toISOString()
+        date: scanDate // Send only date in mm/dd/yyyy format
       }),
       mode: "no-cors"
     });
 
     statusEl.textContent = `Saved ✅ (${barcodeType})`;
-    timestampEl.textContent = `Scan Time: ${now.toLocaleString()}`;
+    // Display the date in the UI
+    timestampEl.textContent = `Scan Date: ${scanDate}`;
 
   } catch (err) {
     console.error("Save error:", err);
