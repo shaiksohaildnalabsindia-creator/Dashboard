@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Google Drive Image Gallery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Sticky Header */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #ffffff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    /* Search Box */
+    .search-container {
+      position: relative;
+    }
+
+    .search-container input {
+      padding: 8px 30px 8px 12px;
+      font-size: 14px;
+      width: 240px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    .search-container input:focus {
+      border-color: #007bff;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #888;
+      display: none;
+    }
+
+    .clear-btn:hover {
+      color: #000;
+    }
+
+    /* Gallery */
+    .content {
+      padding: 20px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+
+    .item {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .item img {
+      width: 100%;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.25s;
+    }
+
+    .item img:hover {
+      transform: scale(1.05);
+    }
+
+    .caption {
+      margin-top: 8px;
+      font-size: 14px;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 8px;
+    }
+
+    .lightbox-caption {
+      color: #fff;
+      margin-top: 15px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 40px;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sticky Header -->
+  <div class="header">
+    <h1>Samples Gallery</h1>
+
+    <div class="search-container">
+      <input
+        type="text"
+        id="search"
+        placeholder="Search file name..."
+        oninput="filterImages()"
+      >
+      <span class="clear-btn" id="clearBtn" onclick="clearSearch()">×</span>
+    </div>
+  </div>
+
+  <!-- Gallery -->
+  <div class="content">
+    <div class="gallery" id="gallery"></div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <span class="close" onclick="closeLightbox()">×</span>
+    <img id="lightbox-img">
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+
+  <script>
+    let allItems = [];
+
+    const gallery = document.getElementById("gallery");
+    const searchInput = document.getElementById("search");
+    const clearBtn = document.getElementById("clearBtn");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+    const lightboxCaption = document.getElementById("lightbox-caption");
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+
+    // Load images from Apps Script Web App
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(items => {
+        allItems = items;
+        renderGallery(items);
+      })
+      .catch(err => {
+        console.error(err);
+        gallery.innerHTML = "<p>Failed to load images.</p>";
+      });
+
+    function renderGallery(items) {
+      gallery.innerHTML = "";
+      items.forEach(item => {
+        const container = document.createElement("div");
+        container.className = "item";
+
+        const img = document.createElement("img");
+        img.src = item.url;
+        img.alt = item.caption;
+        img.onclick = () => openLightbox(item.url, item.caption);
+
+        const caption = document.createElement("div");
+        caption.className = "caption";
+        caption.textContent = item.caption;
+
+        container.appendChild(img);
+        container.appendChild(caption);
+        gallery.appendChild(container);
+      });
+    }
+
+    function filterImages() {
+      const query = searchInput.value.toLowerCase();
+      clearBtn.style.display = query ? "block" : "none";
+
+      const filtered = allItems.filter(item =>
+        item.caption.toLowerCase().includes(query)
+      );
+      renderGallery(filtered);
+    }
+
+    function clearSearch() {
+      searchInput.value = "";
+      clearBtn.style.display = "none";
+      renderGallery(allItems);
+      searchInput.focus();
+    }
+
+    function openLightbox(src, caption) {
+      lightboxImg.src = src;
+      lightboxCaption.textContent = caption;
+      lightbox.classList.add("active");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("active");
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") closeLightbox();
+    });
+
+    lightbox.addEventListener("click", e => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  </script>
+
+</body>
+</html>
