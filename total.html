@@ -625,6 +625,23 @@
       to { transform: rotate(360deg); }
     }
 
+    /* Cache indicator */
+    .cache-indicator {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+      background: #f3f4f6;
+      color: #6b7280;
+      vertical-align: middle;
+    }
+
+    .cache-indicator.fresh {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
     /* Toast notification */
     .toast {
       position: fixed;
@@ -653,6 +670,10 @@
 
     .toast-error {
       background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-info {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     }
 
     .toast-icon {
@@ -1055,6 +1076,7 @@
       <div class="page-title">
         <span>📊</span>
         <span>All Parcels</span>
+        <span id="cacheIndicator" class="cache-indicator" style="display: none;">Cached</span>
       </div>
       <div class="page-subtitle">View and search all parcels in the system</div>
     </div>
@@ -1095,7 +1117,7 @@
             </select>
           </div>
 
-          <button class="refresh-btn" onclick="loadData()">
+          <button class="refresh-btn" onclick="forceRefresh()">
             <span>🔄</span>
             <span>Refresh</span>
           </button>
@@ -1156,15 +1178,11 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ---------- CACHE SETTINGS ---------- */
+const CACHE_KEY = 'parcel_pro_all_parcels';
+const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes cache (longer than Delivered Today)
 const webAppUrlAll = "https://script.google.com/macros/s/AKfycbxV2_zUbYNt3j_FPtRtauZ1wZaXFqc2fDik3PWK18Asoki_cGYH2HEdKgPhUNaNGLyJGQ/exec";
 const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
-
-/* ---------- GLOBAL VARIABLES ---------- */
-let allData = [];
-let reversedData = [];
-let currentImages = [];
-let currentIndex = 0;
-let isLoading = false;
 
 /* ---------- DOM ELEMENTS ---------- */
 const sidebar = document.getElementById('sidebar');
@@ -1177,12 +1195,84 @@ const imageCaption = document.getElementById("imageCaption");
 const tableBody = document.getElementById("tableBody");
 const countElement = document.getElementById("count");
 const toast = document.getElementById('toast');
+const cacheIndicator = document.getElementById('cacheIndicator');
 
 /* ---------- ZOOM AND PAN VARIABLES ---------- */
 let scale = 1;
 let translateX = 0, translateY = 0;
 let isDragging = false;
 let startX = 0, startY = 0;
+
+/* ---------- GLOBAL VARIABLES ---------- */
+let refreshInterval;
+let allData = [];
+let reversedData = [];
+let currentImages = [];
+let currentIndex = 0;
+let isLoading = false;
+let memoryCache = null;
+let isFromCache = false;
+
+/* ---------- CACHE FUNCTIONS ---------- */
+function saveToCache(data) {
+  const cacheData = {
+    data: data,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+  memoryCache = cacheData;
+}
+
+function getFromCache() {
+  // Check memory cache first (fastest)
+  if (memoryCache && memoryCache.timestamp) {
+    const isExpired = (Date.now() - memoryCache.timestamp) > CACHE_DURATION;
+    if (!isExpired) {
+      return memoryCache.data;
+    }
+    memoryCache = null;
+  }
+  
+  // Fall back to localStorage
+  const cached = localStorage.getItem(CACHE_KEY);
+  if (!cached) return null;
+  
+  try {
+    const parsed = JSON.parse(cached);
+    const isExpired = (Date.now() - parsed.timestamp) > CACHE_DURATION;
+    
+    if (isExpired) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    
+    // Update memory cache
+    memoryCache = parsed;
+    return parsed.data;
+  } catch (e) {
+    localStorage.removeItem(CACHE_KEY);
+    return null;
+  }
+}
+
+function clearCache() {
+  memoryCache = null;
+  localStorage.removeItem(CACHE_KEY);
+  showToast('Cache cleared', 'info');
+}
+
+function updateCacheIndicator(isCached) {
+  isFromCache = isCached;
+  if (isCached) {
+    cacheIndicator.style.display = 'inline-block';
+    cacheIndicator.textContent = 'Cached';
+    cacheIndicator.className = 'cache-indicator fresh';
+  } else {
+    cacheIndicator.style.display = 'inline-block';
+    cacheIndicator.textContent = 'Live';
+    cacheIndicator.className = 'cache-indicator';
+  }
+}
 
 /* ---------- SIDEBAR FUNCTIONS ---------- */
 function goToDashboard() {
@@ -1218,7 +1308,7 @@ function showToast(message, type = 'success') {
   toast.textContent = message;
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+    <span class="toast-icon">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
     <span>${message}</span>
   `;
   toast.classList.add('show');
@@ -1262,10 +1352,31 @@ function getStatusClass(status) {
 }
 
 /* ---------- DATA LOADING ---------- */
-function loadData() {
-  if (isLoading) return;
+function loadData(forceRefresh = false) {
+  if (isLoading && !forceRefresh) return;
+  
+  // Check cache first (unless forcing refresh)
+  if (!forceRefresh) {
+    const cachedData = getFromCache();
+    if (cachedData) {
+      console.log('Loading from cache');
+      allData = Array.isArray(cachedData) ? cachedData : [];
+      reversedData = [...allData].reverse();
+      filterTable();
+      updateCacheIndicator(true);
+      showToast(`Loaded ${allData.length} parcels from cache`, 'info');
+      
+      // Refresh data in background if cache is older than 2 minutes
+      const cacheAge = Date.now() - (memoryCache?.timestamp || 0);
+      if (cacheAge > 120000) {
+        setTimeout(() => loadData(true), 1000);
+      }
+      return;
+    }
+  }
   
   isLoading = true;
+  updateCacheIndicator(false);
   
   // Show loading state
   tableBody.innerHTML = `
@@ -1273,7 +1384,7 @@ function loadData() {
       <td colspan="7">
         <div class="loading-container">
           <div class="loading-spinner"></div>
-          <div>Loading parcels data...</div>
+          <div>${forceRefresh ? 'Refreshing parcels...' : 'Loading parcels data...'}</div>
         </div>
       </td>
     </tr>
@@ -1297,13 +1408,24 @@ function loadData() {
 function handleDataError() {
   isLoading = false;
   
+  // Try to load from cache if API fails
+  const cachedData = getFromCache();
+  if (cachedData) {
+    allData = Array.isArray(cachedData) ? cachedData : [];
+    reversedData = [...allData].reverse();
+    filterTable();
+    updateCacheIndicator(true);
+    showToast(`Showing cached data (offline mode)`, 'info');
+    return;
+  }
+  
   tableBody.innerHTML = `
     <tr>
       <td colspan="7">
         <div class="empty-state">
           <div class="empty-icon">⚠️</div>
           <div>Failed to load data. Please try again.</div>
-          <button onclick="loadData()" class="refresh-btn" style="margin-top: 15px;">
+          <button onclick="forceRefresh()" class="refresh-btn" style="margin-top: 15px;">
             <span>🔄</span>
             <span>Retry</span>
           </button>
@@ -1322,10 +1444,17 @@ function handleData(data) {
   // Reverse the data array to show newest first
   reversedData = [...allData].reverse();
   
+  // Save to cache
+  saveToCache(allData);
+  
   // Initial display
   filterTable();
   
-  showToast(`Loaded ${allData.length} parcels`, 'success');
+  if (isFromCache) {
+    showToast(`Refreshed ${allData.length} parcels`, 'success');
+  } else {
+    showToast(`Loaded ${allData.length} parcels`, 'success');
+  }
 }
 
 /* ---------- FILTER AND DISPLAY ---------- */
@@ -1426,10 +1555,52 @@ function filterTable() {
   });
 }
 
+/* ---------- IMAGE CACHING ---------- */
+function getImageCacheKey(tracking) {
+  return `parcel_pro_images_${tracking}`;
+}
+
+function saveImagesToCache(tracking, images) {
+  const cacheData = {
+    data: images,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(getImageCacheKey(tracking), JSON.stringify(cacheData));
+}
+
+function getImagesFromCache(tracking) {
+  const cached = localStorage.getItem(getImageCacheKey(tracking));
+  if (!cached) return null;
+  
+  try {
+    const parsed = JSON.parse(cached);
+    const isExpired = (Date.now() - parsed.timestamp) > CACHE_DURATION;
+    
+    if (isExpired) {
+      localStorage.removeItem(getImageCacheKey(tracking));
+      return null;
+    }
+    
+    return parsed.data;
+  } catch (e) {
+    localStorage.removeItem(getImageCacheKey(tracking));
+    return null;
+  }
+}
+
 /* ---------- IMAGE MODAL FUNCTIONS ---------- */
 function openModal(tracking) {
   console.log("Opening modal for tracking:", tracking);
   imageModal.classList.add("show");
+  
+  // Check image cache first
+  const cachedImages = getImagesFromCache(tracking);
+  
+  if (cachedImages) {
+    renderImages(cachedImages, tracking, true);
+    return;
+  }
+  
   gallery.innerHTML = `<div class="modal-loading">Loading images for ${tracking}...</div>`;
   fetchImages(tracking.toLowerCase());
 }
@@ -1438,27 +1609,6 @@ function closeModal() {
   imageModal.classList.remove("show");
   gallery.innerHTML = "";
   currentImages = [];
-}
-
-/* ---------- IMAGE FETCH FUNCTIONS ---------- */
-async function fetchImages(query) {
-  try {
-    const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
-    renderImages(data, query);
-  } catch (error) {
-    console.error('Error fetching images:', error);
-    gallery.innerHTML = `
-      <div class="error-message">
-        <p>Failed to load images. Please try again.</p>
-        <button onclick="fetchImages('${query}')" class="refresh-btn" style="margin-top: 10px;">
-          <span>🔄</span>
-          <span>Retry</span>
-        </button>
-      </div>`;
-  }
 }
 
 /* ---------- IMAGE PRELOADING FUNCTIONS ---------- */
@@ -1475,7 +1625,40 @@ function preloadImages(images) {
   return Promise.all(promises);
 }
 
-function renderImages(data, query) {
+async function fetchImages(query) {
+  try {
+    const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    
+    // Cache the images
+    saveImagesToCache(query, data);
+    
+    renderImages(data, query, false);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    
+    // Try to load from cache
+    const cachedImages = getImagesFromCache(query);
+    if (cachedImages) {
+      renderImages(cachedImages, query, true);
+      showToast('Showing cached images', 'info');
+      return;
+    }
+    
+    gallery.innerHTML = `
+      <div class="error-message">
+        <p>Failed to load images. Please try again.</p>
+        <button onclick="fetchImages('${query}')" class="refresh-btn" style="margin-top: 10px;">
+          <span>🔄</span>
+          <span>Retry</span>
+        </button>
+      </div>`;
+  }
+}
+
+function renderImages(data, query, fromCache = false) {
   gallery.innerHTML = "";
   
   if (!Array.isArray(data)) {
@@ -1495,24 +1678,38 @@ function renderImages(data, query) {
     return;
   }
   
-  // Show initial loading message
-  gallery.innerHTML = `<div class="modal-loading">Preloading ${currentImages.length} image(s)...</div>`;
-  
-  // Preload images first
-  preloadImages(currentImages).then((results) => {
-    // After preloading, render all images at once
-    gallery.innerHTML = "";
+  if (fromCache) {
+    // Show cached images immediately
+    gallery.innerHTML = `<div class="modal-loading">Loading ${currentImages.length} cached image(s)...</div>`;
     
-    results.forEach((result, index) => {
-      createImageElement(result.item, index, result.status);
+    // Render cached images without preloading
+    setTimeout(() => {
+      gallery.innerHTML = "";
+      currentImages.forEach((item, index) => {
+        createImageElement(item, index, 'loaded');
+      });
+      showToast(`Loaded ${currentImages.length} images from cache`, 'info');
+    }, 300);
+  } else {
+    // Show initial loading message for fresh images
+    gallery.innerHTML = `<div class="modal-loading">Preloading ${currentImages.length} image(s)...</div>`;
+    
+    // Preload images first
+    preloadImages(currentImages).then((results) => {
+      // After preloading, render all images at once
+      gallery.innerHTML = "";
+      
+      results.forEach((result, index) => {
+        createImageElement(result.item, index, result.status);
+      });
+      
+      // Show success message
+      const loadedCount = results.filter(r => r.status === 'loaded').length;
+      if (loadedCount < currentImages.length) {
+        showToast(`${loadedCount} of ${currentImages.length} images loaded successfully`, 'info');
+      }
     });
-    
-    // Show success message
-    const loadedCount = results.filter(r => r.status === 'loaded').length;
-    if (loadedCount < currentImages.length) {
-      showToast(`${loadedCount} of ${currentImages.length} images loaded successfully`, 'info');
-    }
-  });
+  }
 }
 
 function createImageElement(item, index, status = 'loaded') {
@@ -1726,22 +1923,56 @@ fsImage.addEventListener("dblclick", e => {
   updateTransform();
 });
 
-/* ---------- INITIALIZATION ---------- */
-window.addEventListener('load', () => {
-  // Load data immediately
-  loadData();
+/* ---------- MANUAL REFRESH ---------- */
+function forceRefresh() {
+  loadData(true);
+}
+
+/* ---------- PAGE VISIBILITY API ---------- */
+// Refresh data when page becomes visible again (if cache is older than 5 minutes)
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    // Page is visible again
+    if (memoryCache) {
+      const cacheAge = Date.now() - memoryCache.timestamp;
+      if (cacheAge > 300000) { // 5 minutes
+        loadData(true);
+      }
+    }
+  }
 });
 
-/* ---------- EXPORT FOR DEBUGGING ---------- */
+/* ---------- INITIALIZATION ---------- */
+window.addEventListener('load', () => {
+  // Load data (will use cache if available)
+  loadData();
+  
+  // Clean up on page unload
+  window.addEventListener('beforeunload', () => {
+    if (refreshInterval) clearInterval(refreshInterval);
+  });
+});
+
+/* ---------- DEBUG FUNCTIONS ---------- */
 window.app = {
-  loadData,
+  loadData: (force) => loadData(force),
+  clearCache,
   filterTable,
   openModal,
   closeModal,
   openFullscreen,
   closeFullscreen,
   prevImage,
-  nextImage
+  nextImage,
+  getCacheInfo: () => {
+    const cached = getFromCache();
+    return {
+      hasCache: !!cached,
+      itemCount: cached ? cached.length : 0,
+      memoryCache: memoryCache,
+      isFromCache
+    };
+  }
 };
 </script>
 
