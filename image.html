@@ -1,77 +1,905 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Upload Sample Images</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; display: flex; justify-content: center; padding: 20px; }
-  .form-container { width: 100%; max-width: 800px; background: #fff; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-  h2 { margin-bottom: 20px; }
-  .form-group { margin-bottom: 25px; }
-  label { display: block; margin-bottom: 8px; font-weight: 500; }
-  select, .upload-input { width: 100%; padding: 14px; border: 1.5px solid #d1d5db; border-radius: 10px; font-size: 15px; background: #f9fafb; }
-  select:focus { border-color: #3b82f6; background: #fff; outline: none; }
-  .preview-container { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 12px; border: 2px dashed #d1d5db; min-height: 120px; }
-  .preview { width: 120px; height: 120px; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; background: #fff; }
-  .preview img { width: 100%; height: 100%; object-fit: cover; }
-  .remove-btn { position: absolute; top: 6px; right: 6px; background: #ef4444; color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 14px; cursor: pointer; }
-  #addMoreBtn { width: 120px; height: 120px; font-size: 36px; display: flex; align-items: center; justify-content: center; background: #10b981; color: white; border: none; border-radius: 10px; cursor: pointer; }
-  .button-group { display: flex; gap: 15px; margin-top: 30px; }
-  button { flex: 1; padding: 15px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  .submit-btn { background: #3b82f6; color: white; }
-  .clear-btn { background: #f3f4f6; color: #4b5563; border: 1.5px solid #d1d5db; }
-  .error-message { color: #dc3545; font-size: 13px; margin-top: 5px; display: none; }
-  .image-counter { background: #3b82f6; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 8px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Sample Images</title>
+  <style>
+    /* ---------- SIDEBAR STYLES (Consistent with other pages) ---------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #1e293b;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header:hover .logo-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+      margin-left: 52px;
+      font-weight: 400;
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+    }
+
+    .menu-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 600;
+      padding: 0 20px 8px 20px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .menu-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #475569;
+      text-decoration: none;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      margin: 0 8px;
+      border-radius: 8px;
+    }
+
+    .menu-item:hover {
+      background: #f1f5f9;
+      color: #334155;
+      transform: translateX(4px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu-item.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: #3b82f6;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .menu-item-icon {
+      font-size: 18px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-item-text {
+      flex: 1;
+    }
+
+    .menu-item-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .external-link {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ---------- TOPBAR ---------- */
+    .topbar {
+      background: #ffffff;
+      padding: 18px 25px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .menu-btn {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 15px;
+      color: #4b5563;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    .menu-btn:hover {
+      background-color: #f3f4f6;
+    }
+
+    .page-info {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* ---------- FORM WRAPPER ---------- */
+    .form-wrapper {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      animation: slideIn 0.5s ease;
+      border: 1px solid #e2e8f0;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      padding: 25px 30px;
+      text-align: center;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .form-content {
+      padding: 30px;
+    }
+
+    /* ---------- FORM STYLES ---------- */
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group label::before {
+      content: '•';
+      color: #3b82f6;
+      font-size: 18px;
+    }
+
+    select, .upload-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f9fafb;
+      font-family: inherit;
+    }
+
+    select:focus, .upload-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    select.error, .upload-input.error {
+      border-color: #dc3545;
+    }
+
+    select.success, .upload-input.success {
+      border-color: #10b981;
+    }
+
+    .dropdown-arrow {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 12px;
+      padding-right: 40px;
+      appearance: none;
+      cursor: pointer;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+      padding-left: 8px;
+    }
+
+    /* ---------- IMAGE UPLOAD SECTION ---------- */
+    .upload-section {
+      margin-top: 5px;
+    }
+
+    .file-input-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 2px solid #0ea5e9;
+      border-radius: 10px;
+      color: #0369a1;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 15px;
+    }
+
+    .file-input-label:hover {
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+
+    .file-input-label input[type="file"] {
+      display: none;
+    }
+
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+      position: relative;
+      min-height: 140px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 2px dashed #d1d5db;
+      transition: border-color 0.3s;
+    }
+
+    .preview-container:hover {
+      border-color: #3b82f6;
+    }
+
+    .preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 120px;
+      height: 120px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: white;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .preview:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      line-height: 22px;
+      text-align: center;
+      cursor: pointer;
+      z-index: 1;
+      opacity: 0.9;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .remove-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    #addMoreBtn {
+      width: 120px;
+      height: 120px;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+      margin: 0;
+    }
+
+    #addMoreBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ---------- BUTTONS ---------- */
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: inherit;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .clear-btn {
+      background: #f3f4f6;
+      color: #4b5563;
+      border: 1.5px solid #d1d5db;
+    }
+
+    .clear-btn:hover {
+      background: #e5e7eb;
+      transform: translateY(-2px);
+    }
+
+    /* ---------- COUNTER BADGES ---------- */
+    .image-counter {
+      background: #3b82f6;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    /* ---------- STATUS CONTAINER ---------- */
+    .status-container {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      animation: fadeIn 0.5s ease;
+      border: 1px solid;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .status-success {
+      background: #f0fdf4;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .status-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    .status-loading {
+      background: #fffbeb;
+      color: #92400e;
+      border-color: #fde68a;
+      text-align: center;
+    }
+
+    /* ---------- LOADING SPINNER ---------- */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(59, 130, 246, 0.3);
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---------- TOAST NOTIFICATION ---------- */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .toast-error {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .toast-icon {
+      font-size: 20px;
+    }
+
+    /* ---------- MOBILE STYLES ---------- */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0 !important;
+      }
+
+      .menu-btn {
+        display: flex !important;
+      }
+
+      .form-wrapper {
+        padding: 20px;
+      }
+
+      .form-content {
+        padding: 20px;
+      }
+
+      .preview {
+        width: 100px;
+        height: 100px;
+      }
+
+      #addMoreBtn {
+        width: 100px;
+        height: 100px;
+        font-size: 28px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+
+      .user-menu {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .preview {
+        width: 80px;
+        height: 80px;
+      }
+
+      #addMoreBtn {
+        width: 80px;
+        height: 80px;
+        font-size: 24px;
+      }
+
+      .remove-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        line-height: 18px;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    select:focus-visible,
+    input:focus-visible,
+    button:focus-visible,
+    .menu-item:focus-visible,
+    .menu-btn:focus-visible,
+    .sidebar-header:focus-visible,
+    .file-input-label:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="form-container">
-  <h2>📷 Upload Sample Images</h2>
-
-  <!-- Tracking No Dropdown -->
-  <div class="form-group">
-    <label for="trackingSelect">Select Tracking No</label>
-    <select id="trackingSelect">
-      <option value="">Loading tracking numbers...</option>
-    </select>
-    <div class="error-message" id="trackingError">Please select a tracking number</div>
-  </div>
-
-  <!-- Patient Name Dropdown -->
-  <div class="form-group">
-    <label for="patientSelect">Select Patient Name
-      <span id="patientCount" class="image-counter" style="display:none;">0 available</span>
-    </label>
-    <select id="patientSelect">
-      <option value="">Loading patients...</option>
-    </select>
-    <div class="error-message" id="patientError">Please select a patient</div>
-  </div>
-
-  <!-- Image Upload -->
-  <div class="form-group">
-    <label for="imageUpload">Select Images
-      <span id="imageCount" class="image-counter">0 selected</span>
-    </label>
-    <div class="preview-container" id="previewContainer">
-      <button type="button" id="addMoreBtn" aria-label="Add more images">+</button>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div class="logo-text">Parcel Pro</div>
     </div>
-    <div class="error-message" id="imageError">Please select at least one image</div>
+    <div class="sidebar-subtitle">Delivery Management System</div>
   </div>
 
-  <div class="button-group">
-    <button class="submit-btn" onclick="uploadImages()" id="uploadBtn">📤 Upload Images</button>
-    <button class="clear-btn" onclick="clearAll()">🗑️ Clear All</button>
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <div class="menu-section-title">Operations</div>
+      <div class="menu-items">
+        <a href="parcel_entry.html" class="menu-item">
+          <span class="menu-item-icon">📦</span>
+          <span class="menu-item-text">Parcel Entry</span>
+        </a>
+        <a href="parcel_entry_form.html" class="menu-item">
+          <span class="menu-item-icon">🔍</span>
+          <span class="menu-item-text">Parcel Scanner</span>
+        </a>
+        <a href="upload_sample_images.html" class="menu-item active">
+          <span class="menu-item-icon">📷</span>
+          <span class="menu-item-text">Upload Images</span>
+          <span class="menu-item-badge">New</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Reports</div>
+      <div class="menu-items">
+        <a href="delivered_today.html" class="menu-item">
+          <span class="menu-item-icon">📅</span>
+          <span class="menu-item-text">Delivered Today</span>
+        </a>
+        <a href="total.html" class="menu-item">
+          <span class="menu-item-icon">📊</span>
+          <span class="menu-item-text">All Parcels</span>
+        </a>
+        <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="menu-item">
+          <span class="menu-item-icon">🖼️</span>
+          <span class="menu-item-text">Sample Gallery</span>
+          <span class="external-link">↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div>© 2024 Parcel Pro</div>
+    <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">v2.1.0</div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+      ☰
+    </button>
+    <div class="page-info">
+      <div class="page-title">
+        <span>📷</span>
+        <span>Upload Sample Images</span>
+      </div>
+      <div class="page-subtitle">Upload images with tracking number and patient details</div>
+    </div>
+    <div class="user-menu">
+      <div class="user-avatar">U</div>
+    </div>
+  </header>
+
+  <!-- Form Content -->
+  <div class="form-wrapper">
+    <div class="form-container">
+      <div class="header">
+        <h2>📷 Upload Sample Images</h2>
+        <p>Select tracking number, patient name, and upload related images</p>
+      </div>
+
+      <div class="form-content">
+        <!-- Tracking No Dropdown -->
+        <div class="form-group">
+          <label for="trackingSelect">Select Tracking Number</label>
+          <select id="trackingSelect" class="dropdown-arrow">
+            <option value="">Loading tracking numbers...</option>
+          </select>
+          <div class="error-message" id="trackingError">Please select a tracking number</div>
+        </div>
+
+        <!-- Patient Name Dropdown -->
+        <div class="form-group">
+          <label for="patientSelect">
+            Select Patient Name
+            <span id="patientCount" class="image-counter" style="display:none;">0 available</span>
+          </label>
+          <select id="patientSelect" class="dropdown-arrow">
+            <option value="">Loading patients...</option>
+          </select>
+          <div class="error-message" id="patientError">Please select a patient</div>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label for="imageUpload">
+            Select Images
+            <span id="imageCount" class="image-counter">0 selected</span>
+          </label>
+          
+          <div class="upload-section">
+            <label class="file-input-label">
+              <span>📁 Choose Files</span>
+              <input type="file" id="imageUpload" accept="image/*" multiple capture="environment">
+            </label>
+            
+            <div class="preview-container" id="previewContainer">
+              <button type="button" id="addMoreBtn" aria-label="Add more images">+</button>
+            </div>
+            <div class="error-message" id="imageError">Please select at least one image</div>
+          </div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="status-container" id="status"></div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+          <button class="submit-btn" onclick="uploadImages()" id="uploadBtn">
+            <span>📤</span>
+            <span>Upload Images</span>
+          </button>
+          <button class="clear-btn" onclick="clearAll()">
+            <span>🗑️</span>
+            <span>Clear All</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
 <script>
 const TRACKING_URL = "https://script.google.com/macros/s/AKfycbxrAMIt5g_szYTWAXFAACOI7R-XpJiP9CS9bGEsX5bja552Ic-EoAJwbBSN99ZTwdyU_A/exec";
-const PATIENT_URL = "https://script.google.com/macros/s/AKfycbxB5-Po-A-N70dR7Ie9VXP0QDHw1hFARAhaMTDoD4FbcNbDrPdh4W1nWootW1iepmtWbA/exec";
+const PATIENT_URL = "https://script.google.com/macros/s/AKfycbxB5-Po-A-N70dR7Ie9VXP0QDHw1hFARAhaMTDoD4FbcNbDrPdh4W1nW1iepmtWbA/exec";
 
+/* ---------- DOM ELEMENTS ---------- */
+const sidebar = document.getElementById('sidebar');
 const trackingSelect = document.getElementById('trackingSelect');
 const patientSelect = document.getElementById('patientSelect');
 const previewContainer = document.getElementById('previewContainer');
@@ -79,19 +907,82 @@ const addMoreBtn = document.getElementById('addMoreBtn');
 const uploadBtn = document.getElementById('uploadBtn');
 const patientCount = document.getElementById('patientCount');
 const imageCount = document.getElementById('imageCount');
+const imageUpload = document.getElementById('imageUpload');
+const statusDiv = document.getElementById('status');
+const toast = document.getElementById('toast');
 
 let filesToUpload = [];
+let isLoading = false;
 
-// Load tracking numbers dynamically
+/* ---------- SIDEBAR FUNCTIONS ---------- */
+function goToDashboard() {
+  window.location.href = "index.html";
+}
+
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+}
+
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768 && 
+      !sidebar.contains(e.target) && 
+      !e.target.classList.contains('menu-btn')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('open');
+  }
+});
+
+/* ---------- TOAST FUNCTION ---------- */
+function showToast(message, type = 'success') {
+  toast.textContent = message;
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${type === 'success' ? '✅' : '❌'}</span>
+    <span>${message}</span>
+  `;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
+
+/* ---------- UPDATE COUNTERS ---------- */
+function updateImageCounter() {
+  const count = filesToUpload.length;
+  imageCount.textContent = `${count} selected`;
+  imageCount.style.display = 'inline-block';
+}
+
+/* ---------- LOAD DATA FUNCTIONS ---------- */
 function loadTrackingNumbers() {
   fetch(TRACKING_URL)
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    })
     .then(data => {
-      trackingSelect.innerHTML = '<option value="">Select Tracking No</option>';
-      if(!data || data.length === 0){
-        trackingSelect.innerHTML = '<option value="">No tracking numbers</option>';
+      trackingSelect.innerHTML = '<option value="">Select Tracking Number</option>';
+      
+      if (!data || data.length === 0) {
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = "No tracking numbers available";
+        trackingSelect.appendChild(option);
         return;
       }
+      
       data.forEach(trk => {
         const option = document.createElement('option');
         option.value = trk;
@@ -99,33 +990,49 @@ function loadTrackingNumbers() {
         trackingSelect.appendChild(option);
       });
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error('Error loading tracking numbers:', err);
+      trackingSelect.innerHTML = '<option value="">Error loading tracking numbers</option>';
+      showToast('Failed to load tracking numbers', 'error');
+    });
 }
 
-// Load today's patients dynamically
 function loadPatients() {
   fetch(PATIENT_URL)
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    })
     .then(data => {
       patientSelect.innerHTML = '<option value="">Select Patient</option>';
-      if(!data || data.length === 0){
-        patientSelect.innerHTML = '<option value="">No patients today</option>';
+      
+      if (!data || data.length === 0) {
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = "No patients available";
+        patientSelect.appendChild(option);
         patientCount.style.display = 'none';
         return;
       }
+      
       data.forEach(p => {
         const option = document.createElement('option');
         option.value = p;
         option.textContent = p;
         patientSelect.appendChild(option);
       });
+      
       patientCount.textContent = `${data.length} available`;
       patientCount.style.display = 'inline-block';
     })
-    .catch(err => console.error(err));
+    .catch(err => {
+      console.error('Error loading patients:', err);
+      patientSelect.innerHTML = '<option value="">Error loading patients</option>';
+      showToast('Failed to load patients', 'error');
+    });
 }
 
-// Image handling
+/* ---------- IMAGE HANDLING ---------- */
 function handleFileInput(file) {
   const wrapper = document.createElement("div");
   wrapper.className = "preview";
@@ -136,10 +1043,15 @@ function handleFileInput(file) {
   const removeBtn = document.createElement("button");
   removeBtn.className = "remove-btn";
   removeBtn.textContent = "×";
+  removeBtn.setAttribute('aria-label', 'Remove image');
+
   removeBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     const index = filesToUpload.indexOf(file);
-    if(index > -1) filesToUpload.splice(index, 1);
+    if (index > -1) {
+      filesToUpload.splice(index, 1);
+      URL.revokeObjectURL(img.src);
+    }
     wrapper.remove();
     updateImageCounter();
     validateForm();
@@ -153,24 +1065,25 @@ function handleFileInput(file) {
   validateForm();
 }
 
-function updateImageCounter() {
-  const count = filesToUpload.length;
-  imageCount.textContent = `${count} selected`;
-  imageCount.style.display = 'inline-block';
-}
-
+// Add More Images
 addMoreBtn.addEventListener("click", () => {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = "image/*";
   input.multiple = true;
+  input.capture = "environment";
   input.style.display = "none";
 
   input.addEventListener("change", (event) => {
     const fileList = event.target.files;
-    if(fileList.length > 0){
-      for(let i=0;i<fileList.length;i++){
-        handleFileInput(fileList[i]);
+    if (fileList.length > 0) {
+      for (let i = 0; i < fileList.length; i++) {
+        if (filesToUpload.length < 20) { // Limit to 20 images
+          handleFileInput(fileList[i]);
+        } else {
+          showToast('Maximum 20 images allowed', 'error');
+          break;
+        }
       }
     }
   });
@@ -180,47 +1093,98 @@ addMoreBtn.addEventListener("click", () => {
   document.body.removeChild(input);
 });
 
+// File input change handler
+imageUpload.addEventListener('change', (event) => {
+  const fileList = event.target.files;
+  if (fileList.length > 0) {
+    for (let i = 0; i < fileList.length; i++) {
+      if (filesToUpload.length < 20) {
+        handleFileInput(fileList[i]);
+      } else {
+        showToast('Maximum 20 images allowed', 'error');
+        break;
+      }
+    }
+  }
+  // Reset file input
+  imageUpload.value = '';
+});
+
+/* ---------- VALIDATION ---------- */
 function validateForm() {
   let isValid = true;
-
-  if(!trackingSelect.value){
+  
+  // Clear all errors first
+  document.querySelectorAll('.error-message').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  trackingSelect.classList.remove('error');
+  patientSelect.classList.remove('error');
+  
+  // Validate tracking number
+  if (!trackingSelect.value) {
+    trackingSelect.classList.add('error');
     document.getElementById('trackingError').style.display = 'block';
     isValid = false;
-  } else { document.getElementById('trackingError').style.display = 'none'; }
-
-  if(!patientSelect.value){
+  }
+  
+  // Validate patient
+  if (!patientSelect.value) {
+    patientSelect.classList.add('error');
     document.getElementById('patientError').style.display = 'block';
     isValid = false;
-  } else { document.getElementById('patientError').style.display = 'none'; }
-
-  if(filesToUpload.length === 0){
+  }
+  
+  // Validate images
+  if (filesToUpload.length === 0) {
     document.getElementById('imageError').style.display = 'block';
     isValid = false;
-  } else { document.getElementById('imageError').style.display = 'none'; }
-
+  }
+  
   return isValid;
 }
 
-// Placeholder resize function
-function resizeImage(file){ return Promise.resolve(URL.createObjectURL(file)); }
+/* ---------- IMAGE PROCESSING ---------- */
+function resizeImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      resolve(e.target.result); // Returns base64 data URL
+    };
+    reader.onerror = () => {
+      // If reading fails, return empty string
+      resolve('');
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
-// In your HTML, update the uploadImages function:
-
-async function uploadImages(){
-  if(!validateForm()){ 
-    alert('Please fix errors before uploading'); 
-    return; 
+/* ---------- UPLOAD FUNCTION ---------- */
+async function uploadImages() {
+  // Validate form
+  if (!validateForm()) {
+    showToast('Please fix the errors in the form', 'error');
+    return;
   }
 
-  uploadBtn.disabled = true;
-  uploadBtn.textContent = "Uploading...";
-
+  if (isLoading) return;
+  
   const tracking = trackingSelect.value.trim();
   const patient = patientSelect.value.trim();
+  
+  // Show loading state
+  isLoading = true;
+  uploadBtn.disabled = true;
+  uploadBtn.innerHTML = '<span class="spinner"></span><span>Uploading...</span>';
+  
+  statusDiv.className = 'status-container status-loading';
+  statusDiv.innerHTML = '<div class="loading-spinner"></div><div>Processing and uploading images...</div>';
+  statusDiv.style.display = 'block';
 
   try {
-    // Resize images if needed (keep your existing resizeImage function)
-    const resizePromises = filesToUpload.map(f => resizeImage(f));
+    // Resize all images
+    const resizePromises = filesToUpload.map(file => resizeImage(file));
     const resizedImages = await Promise.all(resizePromises);
     
     // Filter out any null/undefined results
@@ -233,6 +1197,7 @@ async function uploadImages(){
     // Join images with pipe separator
     const imagesParam = validImages.join("|");
 
+    // Upload to API
     const response = await fetch(PATIENT_URL, {
       method: "POST",
       headers: {
@@ -245,57 +1210,144 @@ async function uploadImages(){
       })
     });
     
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
     
-    if(data.success){
-      alert(`✅ ${data.message || 'Images uploaded successfully!'}`);
+    if (data.success) {
+      showToast('Images uploaded successfully!', 'success');
+      statusDiv.className = 'status-container status-success';
+      statusDiv.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">✅</span>
+          <div>
+            <strong>Upload Successful!</strong>
+            <div style="margin-top: 5px; font-size: 14px;">
+              Tracking: ${tracking}<br>
+              Patient: ${patient}<br>
+              Images: ${filesToUpload.length} uploaded<br>
+              Time: ${new Date().toLocaleTimeString()}
+            </div>
+          </div>
+        </div>
+      `;
       
-      // Clear form
-      filesToUpload.forEach(f => {
-        if (typeof f === 'object' && f.preview) {
-          URL.revokeObjectURL(f.preview);
-        }
+      // Clear uploaded images
+      filesToUpload.forEach(file => {
+        const img = document.querySelector(`img[src*="${URL.createObjectURL(file)}"]`);
+        if (img) URL.revokeObjectURL(img.src);
       });
       
-      filesToUpload = [];
       previewContainer.querySelectorAll('.preview').forEach(div => div.remove());
+      filesToUpload = [];
       updateImageCounter();
+      
+      // Refresh patient list
+      loadPatients();
       
     } else {
       throw new Error(data.error || 'Upload failed');
     }
-  } catch(err){
+    
+  } catch (err) {
     console.error('Upload error:', err);
-    alert(`❌ Upload failed: ${err.message}`);
+    showToast(`Upload failed: ${err.message}`, 'error');
+    statusDiv.className = 'status-container status-error';
+    statusDiv.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 24px;">❌</span>
+        <div>
+          <strong>Upload Failed</strong>
+          <div style="margin-top: 5px; font-size: 14px;">
+            Please check your connection and try again.
+          </div>
+        </div>
+      </div>
+    `;
   } finally {
+    // Restore button
+    isLoading = false;
     uploadBtn.disabled = false;
-    uploadBtn.textContent = "📤 Upload Images";
+    uploadBtn.innerHTML = '<span>📤</span><span>Upload Images</span>';
   }
 }
 
-// Make sure resizeImage function returns a valid base64 string:
-function resizeImage(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      resolve(e.target.result); // This should be a data URL
-    };
-    reader.readAsDataURL(file);
+/* ---------- CLEAR FUNCTION ---------- */
+function clearAll() {
+  // Clear file list
+  filesToUpload.forEach(file => {
+    const img = document.querySelector(`img[src*="${URL.createObjectURL(file)}"]`);
+    if (img) URL.revokeObjectURL(img.src);
   });
-}
-
-function clearAll(){
-  filesToUpload.forEach(f => URL.revokeObjectURL(f));
-  previewContainer.querySelectorAll('.preview').forEach(div=>div.remove());
+  
+  // Remove previews
+  previewContainer.querySelectorAll('.preview').forEach(div => div.remove());
   filesToUpload = [];
   updateImageCounter();
+  
+  // Reset selects
   trackingSelect.value = '';
   patientSelect.value = '';
+  
+  // Clear validation states
+  trackingSelect.classList.remove('error');
+  patientSelect.classList.remove('error');
   document.getElementById('trackingError').style.display = 'none';
   document.getElementById('patientError').style.display = 'none';
   document.getElementById('imageError').style.display = 'none';
+  
+  // Hide status
+  statusDiv.style.display = 'none';
+  
+  showToast('Form cleared', 'success');
 }
 
+/* ---------- KEYBOARD SHORTCUTS ---------- */
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + Enter to upload
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    uploadImages();
+  }
+  
+  // Escape to clear form
+  if (e.key === 'Escape') {
+    clearAll();
+  }
+  
+  // Enter key on sidebar header to go to dashboard
+  if (e.key === 'Enter' && e.target.classList.contains('sidebar-header')) {
+    goToDashboard();
+  }
+});
+
+/* ---------- DRAG AND DROP ---------- */
+document.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+});
+
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  if (e.dataTransfer.files.length > 0) {
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      if (e.dataTransfer.files[i].type.startsWith('image/')) {
+        if (filesToUpload.length < 20) {
+          handleFileInput(e.dataTransfer.files[i]);
+        } else {
+          showToast('Maximum 20 images allowed', 'error');
+          break;
+        }
+      }
+    }
+  }
+});
+
+/* ---------- INITIALIZATION ---------- */
 window.addEventListener('load', () => {
   loadTrackingNumbers();
   loadPatients();
