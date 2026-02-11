@@ -36,7 +36,7 @@
       top: 0;
       left: 0;
       height: 100%;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
       overflow-y: auto;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
@@ -64,6 +64,7 @@
       gap: 12px;
       font-size: 20px;
       font-weight: 700;
+      transition: all 0.3s ease;
     }
 
     .logo-icon {
@@ -85,6 +86,7 @@
     .logo-text {
       font-size: 18px;
       font-weight: 700;
+      transition: opacity 0.3s ease;
     }
 
     .sidebar-subtitle {
@@ -93,6 +95,7 @@
       margin-top: 5px;
       margin-left: 52px;
       font-weight: 400;
+      transition: opacity 0.3s ease;
     }
 
     .sidebar-menu {
@@ -101,6 +104,7 @@
 
     .menu-section {
       margin-bottom: 20px;
+      transition: all 0.3s ease;
     }
 
     .menu-section-title {
@@ -112,6 +116,7 @@
       padding: 0 20px 8px 20px;
       margin-bottom: 8px;
       border-bottom: 1px solid #f1f5f9;
+      transition: all 0.3s ease;
     }
 
     .menu-items {
@@ -133,6 +138,8 @@
       position: relative;
       margin: 0 8px;
       border-radius: 8px;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .menu-item:hover {
@@ -165,10 +172,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
     }
 
     .menu-item-text {
       flex: 1;
+      transition: opacity 0.3s ease;
     }
 
     .menu-item-badge {
@@ -178,6 +187,7 @@
       padding: 2px 6px;
       border-radius: 10px;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
 
     .external-link {
@@ -192,6 +202,131 @@
       font-size: 12px;
       color: #64748b;
       text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Collapse button styles */
+    .collapse-expand {
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      background: #2a3a4d;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ba2c1;
+      transition: all 0.3s ease;
+      z-index: 101;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .collapse-expand:hover {
+      background: #354356;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .collapse-expand .icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Collapsed state styles */
+    .sidebar.collapsed {
+      width: 70px;
+      transform: translateX(0) !important;
+    }
+
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .sidebar-subtitle,
+    .sidebar.collapsed .menu-section-title,
+    .sidebar.collapsed .menu-item-text,
+    .sidebar.collapsed .sidebar-footer {
+      display: none;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-header {
+      padding: 25px 10px;
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .logo {
+      justify-content: center;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .logo-icon {
+      margin: 0;
+      font-size: 32px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .sidebar.collapsed .menu-item {
+      padding: 14px 0;
+      justify-content: center;
+      margin: 0 8px;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .menu-item-icon {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .sidebar.collapsed .collapse-expand .icon {
+      transform: rotate(180deg);
+    }
+
+    .sidebar.collapsed .menu-item-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      padding: 1px 4px;
+      min-width: auto;
+    }
+
+    /* Tooltip for collapsed state */
+    .sidebar.collapsed .menu-item:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #2a3a4d;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      margin-left: 8px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .menu-item:hover::before {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #2a3a4d;
+      margin-left: -6px;
+      z-index: 1001;
     }
 
     /* ---------- MAIN CONTENT ---------- */
@@ -202,6 +337,10 @@
       display: flex;
       flex-direction: column;
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: 70px;
     }
 
     /* ---------- TOPBAR ---------- */
@@ -761,7 +900,6 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-left: auto;
     }
 
     .refresh-btn:hover {
@@ -780,8 +918,17 @@
         transform: translateX(0);
       }
 
+      .sidebar.collapsed {
+        width: 70px;
+        transform: translateX(0) !important;
+      }
+
       .main-content {
         margin-left: 0 !important;
+      }
+
+      .main-content.sidebar-collapsed {
+        margin-left: 70px !important;
       }
 
       .menu-btn {
@@ -908,7 +1055,8 @@
     button:focus-visible,
     .menu-item:focus-visible,
     .menu-btn:focus-visible,
-    .sidebar-header:focus-visible {
+    .sidebar-header:focus-visible,
+    .collapse-expand:focus-visible {
       outline: 2px solid #3b82f6;
       outline-offset: 2px;
     }
@@ -930,15 +1078,15 @@
     <div class="menu-section">
       <div class="menu-section-title">Operations</div>
       <div class="menu-items">
-        <a href="/Dashboard/parcel_entry" class="menu-item">
+        <a href="/Dashboard/parcel_entry" class="menu-item" data-tooltip="Parcel Entry">
           <span class="menu-item-icon">📦</span>
           <span class="menu-item-text">Parcel Entry</span>
         </a>
-        <a href="/Dashboard/parcel_entry_form" class="menu-item">
+        <a href="/Dashboard/parcel_entry_form" class="menu-item" data-tooltip="Parcel Scanner">
           <span class="menu-item-icon">🔍</span>
           <span class="menu-item-text">Parcel Scanner</span>
         </a>
-        <a href="/Dashboard/upload_sample_images" class="menu-item">
+        <a href="/Dashboard/upload_sample_images" class="menu-item" data-tooltip="Upload Images">
           <span class="menu-item-icon">📷</span>
           <span class="menu-item-text">Upload Images</span>
         </a>
@@ -948,15 +1096,15 @@
     <div class="menu-section">
       <div class="menu-section-title">Reports</div>
       <div class="menu-items">
-        <a href="/Dashboard/delivered_today" class="menu-item">
+        <a href="/Dashboard/delivered_today" class="menu-item" data-tooltip="Delivered Today">
           <span class="menu-item-icon">📅</span>
           <span class="menu-item-text">Delivered Today</span>
         </a>
-        <a href="/Dashboard/total" class="menu-item">
+        <a href="/Dashboard/total" class="menu-item" data-tooltip="All Parcels">
           <span class="menu-item-icon">📊</span>
           <span class="menu-item-text">All Parcels</span>
         </a>
-        <a href="/Dashboard/gallery" class="menu-item active">
+        <a href="/Dashboard/gallery" class="menu-item active" data-tooltip="Sample Gallery">
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
         </a>
@@ -968,6 +1116,17 @@
     </div>
   </div>
 
+  <!-- Collapse Button -->
+  <button class="icon-button collapse-expand z-index-1 shrink-sidebar" 
+          aria-label="Collapse/Expand" 
+          type="button" 
+          onclick="toggleCollapse()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon lpanel align-middle rtl-rotate-180" aria-hidden="true">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M353.7 98.5c6.6 0 13.1 2.5 18.2 7.5l131.7 131.7c10 10 10 26.3 0 36.3L371.8 405.7c-10 10-26.3 10-36.3 0s-10-26.3 0-36.3L449 255.9 335.5 142.4c-10-10-10-26.3 0-36.3 5-5.1 11.6-7.6 18.2-7.6"></path>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M220.9 226.8h216.7c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H220.9c-14.2 0-25.7-11.5-25.7-25.7s11.5-25.7 25.7-25.7m-195.2 0h94.4c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 278.1 0 266.6 0 252.5s11.5-25.7 25.7-25.7m0-125.1H169c14.2 0 25.7 11.5 25.7 25.7S183.2 153 169 153H25.7C11.5 153 0 141.5 0 127.3s11.5-25.6 25.7-25.6m0 250H169c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 403.1 0 391.6 0 377.4s11.5-25.7 25.7-25.7"></path>
+    </svg>
+  </button>
+
   <div class="sidebar-footer">
     <div>© 2024 Parcel Pro</div>
     <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">v2.1.0</div>
@@ -975,7 +1134,7 @@
 </aside>
 
 <!-- Main Content -->
-<div class="main-content">
+<div class="main-content" id="mainContent">
   <!-- Topbar -->
   <header class="topbar">
     <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
@@ -1070,6 +1229,7 @@ let currentLightboxItems = [];
 
 /* ---------- DOM ELEMENTS ---------- */
 const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
 const content = document.getElementById("content");
 const searchInput = document.getElementById("search");
 const clearBtn = document.getElementById("clearBtn");
@@ -1082,12 +1242,47 @@ const imageSize = document.getElementById("imageSize");
 const totalCount = document.getElementById("totalCount");
 const toast = document.getElementById('toast');
 
+/* ---------- COLLAPSE FUNCTIONS ---------- */
+function toggleCollapse() {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  
+  sidebar.classList.toggle('collapsed');
+  mainContent.classList.toggle('sidebar-collapsed');
+  
+  // Save state to localStorage
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  localStorage.setItem('sidebarCollapsed', isCollapsed);
+  
+  // Update tooltips for all menu items
+  updateMenuTooltips();
+}
+
+function updateMenuTooltips() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  
+  if (isCollapsed) {
+    // Add tooltips if collapsed
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const text = item.querySelector('.menu-item-text').textContent;
+      item.setAttribute('data-tooltip', text);
+    });
+  } else {
+    // Remove tooltips if expanded
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.removeAttribute('data-tooltip');
+    });
+  }
+}
+
 /* ---------- SIDEBAR FUNCTIONS ---------- */
 function goToDashboard() {
   window.location.href = "/Dashboard/";
 }
 
 function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
   sidebar.classList.toggle('open');
 }
 
@@ -1106,6 +1301,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('resize', () => {
+  const sidebar = document.getElementById('sidebar');
   if (window.innerWidth > 768) {
     sidebar.classList.remove('open');
   }
@@ -1521,6 +1717,14 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowLeft") prevImage();
     else if (e.key === "ArrowRight") nextImage();
   }
+  
+  // Global Escape for collapsed sidebar tooltips
+  if (e.key === 'Escape' && sidebar.classList.contains('collapsed')) {
+    // Remove any lingering tooltips
+    document.querySelectorAll('.menu-item:hover').forEach(item => {
+      item.blur();
+    });
+  }
 });
 
 // Close lightbox when clicking on background
@@ -1530,6 +1734,18 @@ lightbox.addEventListener("click", e => {
 
 // Auto-focus search on load
 window.addEventListener('load', () => {
+  // Initialize sidebar state from localStorage
+  const wasCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+  if (wasCollapsed) {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('sidebar-collapsed');
+  }
+  
+  // Update tooltips based on initial state
+  updateMenuTooltips();
+  
+  // Focus search
   searchInput.focus();
 });
 
@@ -1561,6 +1777,7 @@ window.galleryApp = {
   closeLightbox,
   prevImage,
   nextImage,
+  toggleCollapse,
   getAllItems: () => allItems,
   getFilteredItems: () => filteredItems
 };
