@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Records</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    /* ---------- SIDEBAR STYLES (EXACT SAME AS PARCEL PRO) ---------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      color: #1e293b;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      overflow-y: auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header:hover {
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-header:hover .logo-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-subtitle {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 5px;
+      margin-left: 52px;
+      font-weight: 400;
+      transition: opacity 0.3s ease;
+    }
+
+    .sidebar-menu {
+      padding: 20px 0;
+    }
+
+    .menu-section {
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .menu-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      font-weight: 600;
+      padding: 0 20px 8px 20px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+      transition: all 0.3s ease;
+    }
+
+    .menu-items {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #475569;
+      text-decoration: none;
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      position: relative;
+      margin: 0 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .menu-item:hover {
+      background: #f1f5f9;
+      color: #334155;
+      transform: translateX(4px);
+    }
+
+    .menu-item.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .menu-item.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: #3b82f6;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .menu-item-icon {
+      font-size: 18px;
+      width: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .menu-item-text {
+      flex: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .menu-item-badge {
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .external-link {
+      opacity: 0.7;
+      font-size: 12px;
+    }
+
+    .sidebar-footer {
+      padding: 20px;
+      margin-top: auto;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Collapse button styles */
+    .collapse-expand {
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      background: #2a3a4d;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ba2c1;
+      transition: all 0.3s ease;
+      z-index: 101;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .collapse-expand:hover {
+      background: #354356;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .collapse-expand .icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Collapsed state styles */
+    .sidebar.collapsed {
+      width: 70px;
+      transform: translateX(0) !important;
+    }
+
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .sidebar-subtitle,
+    .sidebar.collapsed .menu-section-title,
+    .sidebar.collapsed .menu-item-text,
+    .sidebar.collapsed .sidebar-footer {
+      display: none;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-header {
+      padding: 25px 10px;
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .logo {
+      justify-content: center;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .logo-icon {
+      margin: 0;
+      font-size: 32px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .sidebar.collapsed .menu-item {
+      padding: 14px 0;
+      justify-content: center;
+      margin: 0 8px;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .menu-item-icon {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .sidebar.collapsed .collapse-expand .icon {
+      transform: rotate(180deg);
+    }
+
+    .sidebar.collapsed .menu-item-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      padding: 1px 4px;
+      min-width: auto;
+    }
+
+    /* Tooltip for collapsed state */
+    .sidebar.collapsed .menu-item:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #2a3a4d;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      margin-left: 8px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .menu-item:hover::before {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #2a3a4d;
+      margin-left: -6px;
+      z-index: 1001;
+    }
+
+    /* ---------- MAIN CONTENT ---------- */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: 70px;
+    }
+
+    /* ---------- TOPBAR ---------- */
+    .topbar {
+      background: #ffffff;
+      padding: 18px 25px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .menu-btn {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-right: 15px;
+      color: #4b5563;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      display: none;
+    }
+
+    .menu-btn:hover {
+      background-color: #f3f4f6;
+    }
+
+    .page-info {
+      flex: 1;
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    /* ---------- CONTENT WRAPPER ---------- */
+    .content-wrapper {
+      flex: 1;
+      padding: 30px;
+      background: #f8fafc;
+      overflow-y: auto;
+    }
+
+    .content-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      animation: slideIn 0.5s ease;
+      border: 1px solid #e2e8f0;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- HEADER SECTION ---------- */
+    .header {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      padding: 25px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .header-content {
+      flex: 1;
+    }
+
+    .header h2 {
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .stats-card {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px 20px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 150px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-count {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .stats-label {
+      font-size: 12px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ---------- FILTER INFO ---------- */
+    .filter-info {
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin: 20px 30px;
+      border-left: 4px solid #8b5cf6;
+      font-size: 14px;
+      color: #4c1d95;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+    }
+
+    .filter-info strong {
+      color: #7c3aed;
+      font-weight: 600;
+    }
+
+    /* ---------- SEARCH BAR ---------- */
+    .search-container {
+      padding: 25px 30px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .search-box-wrapper {
+      display: flex;
+      gap: 15px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .search-box-container {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .search-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #374151;
+      font-weight: 500;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .search-label::before {
+      content: '🔍';
+      font-size: 14px;
+      opacity: 0.7;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 16px;
+      padding-left: 45px;
+      border: 1.5px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #ffffff;
+      font-family: inherit;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 16px center;
+      background-size: 16px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-btn, .clear-btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: fit-content;
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .clear-btn {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: white;
+    }
+
+    .clear-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+    }
+
+    .search-stats {
+      margin-top: 15px;
+      font-size: 13px;
+      color: #6b7280;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      padding: 12px 15px;
+      background: #f3f4f6;
+      border-radius: 8px;
+    }
+
+    .search-stats span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ---------- TABLE STYLES ---------- */
+    .table-container {
+      padding: 25px 30px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #e5e7eb;
+    }
+
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background-color 0.2s;
+    }
+
+    th { 
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e5e7eb;
+      white-space: nowrap;
+    }
+
+    td {
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    tr:hover td {
+      background: #f9fafb;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .sno-cell {
+      width: 60px;
+      color: #6b7280;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    /* ---------- TRACKING LINK ---------- */
+    .tracking-link {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eff6ff;
+      border: 1px solid transparent;
+      font-size: 13px;
+    }
+
+    .tracking-link:hover {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+
+    /* ---------- EMPTY STATE ---------- */
+    .no-results {
+      padding: 60px 20px;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .no-results-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* ---------- LOADING STATE ---------- */
+    .loading-container {
+      padding: 40px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---------- IMAGE MODAL STYLES ---------- */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal.show { 
+      display: flex; 
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 95vh;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+
+    /* ---------- GALLERY ---------- */
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .gallery img {
+      max-width: 80vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+      cursor: zoom-in;
+      display: block;
+      transition: transform 0.2s, opacity 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .gallery img:hover {
+      transform: scale(1.01);
+    }
+
+    /* Image container with loading placeholder */
+    .img-container {
+      position: relative;
+      display: inline-block;
+      min-width: 200px;
+      min-height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Loading placeholder animation */
+    @keyframes loading {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
+    .loading-placeholder {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    .modal-loading {
+      color: white;
+      font-size: 18px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .error-message {
+      color: #f87171;
+      background: rgba(254, 226, 226, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 20px;
+      border: 1px solid rgba(254, 226, 226, 0.2);
+    }
+
+    /* ---------- FULLSCREEN ---------- */
+    .fullscreen {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    .fullscreen.show { 
+      display: flex; 
+      animation: fadeIn 0.3s ease;
+    }
+
+    .fullscreen img {
+      max-width: 95vw;
+      max-height: 95vh;
+      object-fit: contain;
+      cursor: grab;
+      transition: transform 0.1s ease-out;
+      transform-origin: center center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Navigation arrows in fullscreen */
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: none;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2001;
+      transition: all 0.2s;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-arrow:hover {
+      background: rgba(255,255,255,0.25);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .nav-arrow.prev {
+      left: 20px;
+    }
+
+    .nav-arrow.next {
+      right: 20px;
+    }
+
+    /* Close button */
+    .close-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 2001;
+      transition: all 0.2s;
+      pointer-events: auto;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
+    }
+
+    /* Info panel */
+    .info-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      z-index: 2001;
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ---------- SEARCH HIGHLIGHT ---------- */
+    mark {
+      background-color: #fef3c7;
+      color: #92400e;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    /* ---------- MOBILE STYLES ---------- */
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        width: 280px;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar.collapsed {
+        width: 70px;
+        transform: translateX(0) !important;
+      }
+
+      .main-content {
+        margin-left: 0 !important;
+      }
+
+      .main-content.sidebar-collapsed {
+        margin-left: 70px !important;
+      }
+
+      .menu-btn {
+        display: flex !important;
+      }
+
+      .content-wrapper {
+        padding: 15px;
+      }
+
+      .header {
+        padding: 20px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-card {
+        align-self: flex-start;
+      }
+
+      .filter-info {
+        margin: 15px;
+        padding: 15px;
+      }
+
+      .search-container {
+        padding: 20px;
+      }
+
+      .search-box-wrapper {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .search-box-container {
+        min-width: 100%;
+      }
+
+      .search-buttons {
+        width: 100%;
+      }
+
+      .search-btn, .clear-btn {
+        flex: 1;
+        justify-content: center;
+      }
+
+      .table-container {
+        padding: 15px;
+      }
+
+      th, td {
+        padding: 12px 15px;
+        font-size: 13px;
+      }
+
+      .user-menu {
+        display: none;
+      }
+
+      .nav-arrow {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+      }
+
+      .close-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-card {
+        min-width: 120px;
+        padding: 12px 15px;
+      }
+
+      .stats-count {
+        font-size: 24px;
+      }
+
+      .search-stats {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    select:focus-visible,
+    input:focus-visible,
+    button:focus-visible,
+    .menu-item:focus-visible,
+    .menu-btn:focus-visible,
+    .sidebar-header:focus-visible,
+    .tracking-link:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Sidebar (EXACT SAME AS PARCEL PRO PAGE) -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
+    <div class="logo">
+      <div class="logo-icon">📦</div>
+      <div class="logo-text">Parcel Pro</div>
+    </div>
+    <div class="sidebar-subtitle">Delivery Management System</div>
+  </div>
+
+  <div class="sidebar-menu">
+    <div class="menu-section">
+      <div class="menu-section-title">Operations</div>
+      <div class="menu-items">
+        <a href="/Dashboard/parcel_entry" class="menu-item" data-tooltip="Parcel Entry">
+          <span class="menu-item-icon">📦</span>
+          <span class="menu-item-text">Parcel Entry</span>
+        </a>
+        <a href="/Dashboard/parcel_entry_form" class="menu-item" data-tooltip="Parcel Scanner">
+          <span class="menu-item-icon">🔍</span>
+          <span class="menu-item-text">Parcel Scanner</span>
+        </a>
+        <a href="/Dashboard/upload_sample_images" class="menu-item" data-tooltip="Upload Images">
+          <span class="menu-item-icon">📷</span>
+          <span class="menu-item-text">Upload Images</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-section-title">Reports</div>
+      <div class="menu-items">
+        <a href="/Dashboard/delivered_today" class="menu-item" data-tooltip="Delivered Today">
+          <span class="menu-item-icon">📅</span>
+          <span class="menu-item-text">Delivered Today</span>
+        </a>
+        <a href="/Dashboard/total" class="menu-item" data-tooltip="All Parcels">
+          <span class="menu-item-icon">📊</span>
+          <span class="menu-item-text">All Parcels</span>
+        </a>
+        <a href="/Dashboard/gallery" class="menu-item" data-tooltip="Sample Gallery">
+          <span class="menu-item-icon">🖼️</span>
+          <span class="menu-item-text">Sample Gallery</span>
+        </a>
+        <a href="/Dashboard/Records" class="menu-item active" data-tooltip="Patients Record">
+          <span class="menu-item-icon">📋</span>
+          <span class="menu-item-text">Patients Record</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Collapse Button (SAME AS PARCEL PRO) -->
+  <button class="icon-button collapse-expand z-index-1 shrink-sidebar" 
+          aria-label="Collapse/Expand" 
+          type="button" 
+          onclick="toggleCollapse()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon lpanel align-middle rtl-rotate-180" aria-hidden="true">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M353.7 98.5c6.6 0 13.1 2.5 18.2 7.5l131.7 131.7c10 10 10 26.3 0 36.3L371.8 405.7c-10 10-26.3 10-36.3 0s-10-26.3 0-36.3L449 255.9 335.5 142.4c-10-10-10-26.3 0-36.3 5-5.1 11.6-7.6 18.2-7.6"></path>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M220.9 226.8h216.7c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H220.9c-14.2 0-25.7-11.5-25.7-25.7s11.5-25.7 25.7-25.7m-195.2 0h94.4c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 278.1 0 266.6 0 252.5s11.5-25.7 25.7-25.7m0-125.1H169c14.2 0 25.7 11.5 25.7 25.7S183.2 153 169 153H25.7C11.5 153 0 141.5 0 127.3s11.5-25.6 25.7-25.6m0 250H169c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 403.1 0 391.6 0 377.4s11.5-25.7 25.7-25.7"></path>
+    </svg>
+  </button>
+
+  <div class="sidebar-footer">
+    <div>© 2024 Parcel Pro</div>
+    <div style="font-size: 11px; opacity: 0.6; margin-top: 5px;">v2.1.0</div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<div class="main-content" id="mainContent">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+      ☰
+    </button>
+    <div class="page-info">
+      <div class="page-title">
+        <span>📋</span>
+        <span>Patients Record</span>
+      </div>
+      <div class="page-subtitle">View and search all patient records in the system</div>
+    </div>
+    <div class="user-menu">
+      <div class="user-avatar">U</div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <div class="content-wrapper">
+    <div class="content-container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-content">
+          <h2>📋 Patients Record</h2>
+          <p>View all patient records with search, filter, and image viewing capabilities</p>
+        </div>
+        <div class="stats-card">
+          <span class="stats-count" id="totalCount">0</span>
+          <span class="stats-label">Total Records</span>
+        </div>
+      </div>
+
+      <!-- Filter Info -->
+      <div class="filter-info">
+        Showing only records where <strong>at least 2 of the first 4 columns</strong> have data.
+        <br>First 4 columns: Sample Entry Date, Collection Date, Test name, Patient name
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-box-wrapper">
+          <div class="search-box-container">
+            <label class="search-label">Search Patient Records</label>
+            <input type="text" 
+                   id="searchInput" 
+                   class="search-input" 
+                   placeholder="Search by patient name, test name, location, tracking number..."
+                   onkeypress="if(event.key === 'Enter') performSearch()">
+          </div>
+          
+          <div class="search-buttons">
+            <button class="search-btn" onclick="performSearch()">
+              <span>🔍</span>
+              <span>Search</span>
+            </button>
+            <button class="clear-btn" onclick="clearSearch()">
+              <span>🗑️</span>
+              <span>Clear</span>
+            </button>
+          </div>
+        </div>
+        
+        <div class="search-stats" id="searchStats">
+          <!-- Search stats will be displayed here -->
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="sno-cell">S/No</th>
+              <th>Sample Entry Date</th>
+              <th>Collection Date</th>
+              <th>Test name</th>
+              <th>Patient name</th>
+              <th>Patient child name</th>
+              <th>Sample type</th>
+              <th>Consent</th>
+              <th>Location</th>
+              <th>Invoice NO</th>
+              <th>Tracking no</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="11">
+                <div class="loading-container">
+                  <div class="loading-spinner"></div>
+                  <div>Loading patient records...</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="modal">
+  <button class="close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
+  <div class="modal-content">
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
+
+<!-- Fullscreen Modal -->
+<div id="fullscreen" class="fullscreen">
+  <button class="close-btn" onclick="closeFullscreen()" aria-label="Close fullscreen">×</button>
+  <button class="nav-arrow prev" onclick="prevImage()" aria-label="Previous image">‹</button>
+  <button class="nav-arrow next" onclick="nextImage()" aria-label="Next image">›</button>
+  <div class="info-panel" id="infoPanel">
+    <span id="imageCounter">1/1</span>
+    <span>•</span>
+    <span id="imageCaption">Image</span>
+  </div>
+  <img id="fsImage" src="" alt="Fullscreen view">
+</div>
+
+<script>
+/* ===== API URLS ===== */
+const DATA_API =
+  "https://script.google.com/macros/s/AKfycbx4xArW62ztoofyoU578qkNRmBpxbU7tN0eJmlcu_Xh16FlHzZKws6PiyLvbsxCZD0hqw/exec";
+
+const IMAGE_API =
+  "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+
+/* ===== DOM ELEMENTS ===== */
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+const tableBody = document.getElementById("tableBody");
+const imageModal = document.getElementById("imageModal");
+const gallery = document.getElementById("gallery");
+const fullscreen = document.getElementById("fullscreen");
+const fsImage = document.getElementById("fsImage");
+const imageCounter = document.getElementById("imageCounter");
+const imageCaption = document.getElementById("imageCaption");
+const searchInput = document.getElementById("searchInput");
+const searchStats = document.getElementById("searchStats");
+const totalCount = document.getElementById("totalCount");
+
+/* ===== ZOOM AND PAN VARIABLES ===== */
+let scale = 1;
+let translateX = 0, translateY = 0;
+let isDragging = false;
+let startX = 0, startY = 0;
+
+/* ===== GLOBAL VARIABLES ===== */
+let allData = [];
+let filteredData = [];
+let currentDisplayData = [];
+let isSearching = false;
+let currentSearchTerm = "";
+let currentImages = [];
+let currentIndex = 0;
+
+/* ===== SIDEBAR FUNCTIONS (EXACT SAME AS PARCEL PRO) ===== */
+function goToDashboard() {
+  window.location.href = "/Dashboard/";
+}
+
+function toggleSidebar() {
+  sidebar.classList.toggle('open');
+}
+
+/* ---------- COLLAPSE FUNCTIONS (EXACT SAME AS PARCEL PRO) ---------- */
+function toggleCollapse() {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  
+  sidebar.classList.toggle('collapsed');
+  mainContent.classList.toggle('sidebar-collapsed');
+  
+  // Save state to localStorage
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  localStorage.setItem('sidebarCollapsed', isCollapsed);
+  
+  // Update tooltips for all menu items
+  updateMenuTooltips();
+}
+
+function updateMenuTooltips() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  
+  if (isCollapsed) {
+    // Add tooltips if collapsed
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const text = item.querySelector('.menu-item-text').textContent;
+      item.setAttribute('data-tooltip', text);
+    });
+  } else {
+    // Remove tooltips if expanded
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.removeAttribute('data-tooltip');
+    });
+  }
+}
+
+// Initialize sidebar state on page load (SAME AS PARCEL PRO)
+window.addEventListener('load', () => {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  
+  // Check if sidebar was collapsed previously
+  const wasCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+  if (wasCollapsed) {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('sidebar-collapsed');
+  }
+  
+  // Update tooltips based on initial state
+  updateMenuTooltips();
+});
+
+document.addEventListener('click', (e) => {
+  if (window.innerWidth <= 768 && 
+      !sidebar.contains(e.target) && 
+      !e.target.classList.contains('menu-btn')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
+});
+
+window.addEventListener('resize', () => {
+  const sidebar = document.getElementById('sidebar');
+  if (window.innerWidth > 768) {
+    sidebar.classList.remove('open');
+  }
+});
+
+/* ===== HELPER FUNCTION: Check if row has min 2 of first 4 columns with data ===== */
+function hasMinTwoColumnsFilled(row) {
+  const firstFourColumns = [
+    row["Sample Entry Date"],
+    row["Collection Date"], 
+    row["Test name"],
+    row["Patient name"]
+  ];
+  
+  const filledCount = firstFourColumns.filter(col => 
+    col && col.toString().trim() !== ""
+  ).length;
+  
+  return filledCount >= 2;
+}
+
+/* ===== HELPER FUNCTION: Check if row matches search term ===== */
+function matchesSearch(row, searchTerm) {
+  if (!searchTerm || searchTerm.trim() === "") return true;
+  
+  const searchLower = searchTerm.toLowerCase().trim();
+  
+  // Define which columns to search in
+  const searchableColumns = [
+    "Sample Entry Date",
+    "Collection Date",
+    "Test name",
+    "Patient name",
+    "Patient child name",
+    "sample type",
+    "Consent Received / Not",
+    "Location",
+    "Invoice NO",
+    "Tracking no"
+  ];
+  
+  // Check if search term exists in any of the searchable columns
+  return searchableColumns.some(column => {
+    const value = row[column];
+    if (value && value.toString().toLowerCase().includes(searchLower)) {
+      return true;
+    }
+    return false;
+  });
+}
+
+/* ===== SEARCH FUNCTIONS ===== */
+function performSearch() {
+  const searchTerm = searchInput.value.trim();
+  currentSearchTerm = searchTerm;
+  isSearching = searchTerm !== "";
+  
+  if (searchTerm === "") {
+    clearSearch();
+    return;
+  }
+  
+  // Filter the already filtered data (that meets the 2-column criteria)
+  const searchResults = filteredData.filter(row => matchesSearch(row, searchTerm));
+  
+  // Update display
+  updateTableDisplay(searchResults, searchTerm);
+  
+  // Update search stats
+  updateSearchStats(searchResults.length, searchTerm);
+}
+
+function clearSearch() {
+  searchInput.value = "";
+  currentSearchTerm = "";
+  isSearching = false;
+  
+  // Reset to showing all filtered data
+  updateTableDisplay(filteredData);
+  
+  // Clear search stats
+  searchStats.innerHTML = "";
+}
+
+function updateSearchStats(resultCount, searchTerm = "") {
+  if (!searchTerm) {
+    searchStats.innerHTML = "";
+    return;
+  }
+  
+  searchStats.innerHTML = `
+    <span>Search results for "<strong>${searchTerm}</strong>"</span>
+    <span>Found: <strong>${resultCount}</strong> record(s)</span>
+    <span>Total filtered records: <strong>${filteredData.length}</strong></span>
+  `;
+}
+
+/* ===== TABLE DISPLAY FUNCTION ===== */
+function updateTableDisplay(dataToDisplay, searchTerm = "") {
+  currentDisplayData = dataToDisplay;
+  
+  // Clear existing table content
+  tableBody.innerHTML = '';
+  
+  if (dataToDisplay.length === 0) {
+    let message = "";
+    if (isSearching && searchTerm) {
+      message = `No records found matching "${searchTerm}"`;
+    } else {
+      message = "No records found that meet the criteria.";
+    }
+    
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="11" class="no-results">
+          <div class="no-results-icon">🔍</div>
+          ${message}<br>
+          <small style="opacity: 0.7;">${isSearching ? "Try a different search term or clear the search" : "Records need data in at least 2 of the first 4 columns"}</small>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  // Reverse to show newest first
+  const reversedData = [...dataToDisplay].reverse();
+  
+  // Add rows with serial numbers
+  reversedData.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    const serialNumber = reversedData.length - index;
+    
+    // Highlight search term in table cells
+    const highlightText = (text, columnName) => {
+      if (!searchTerm || !text) return text;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const textStr = text.toString();
+      const textLower = textStr.toLowerCase();
+      
+      if (textLower.includes(searchLower)) {
+        const startIndex = textLower.indexOf(searchLower);
+        const endIndex = startIndex + searchTerm.length;
+        
+        return textStr.substring(0, startIndex) + 
+               `<mark>${textStr.substring(startIndex, endIndex)}</mark>` + 
+               textStr.substring(endIndex);
+      }
+      return text;
+    };
+    
+    tr.innerHTML = `
+      <td class="sno-cell">${serialNumber}</td>
+      <td>${highlightText(row["Sample Entry Date"] || "", "Sample Entry Date")}</td>
+      <td>${highlightText(row["Collection Date"] || "", "Collection Date")}</td>
+      <td>${highlightText(row["Test name"] || "", "Test name")}</td>
+      <td>
+        ${row["Patient name"] ? `
+          <span class="tracking-link"
+                onclick="openModal('${row["Patient name"].replace(/'/g, "\\'")}')">
+            ${highlightText(row["Patient name"], "Patient name")}
+          </span>
+        ` : ""}
+      </td>
+      <td>${highlightText(row["Patient child name"] || "", "Patient child name")}</td>
+      <td>${highlightText(row["sample type"] || "", "sample type")}</td>
+      <td>${highlightText(row["Consent Received / Not"] || "", "Consent")}</td>
+      <td>${highlightText(row["Location"] || "", "Location")}</td>
+      <td>${highlightText(row["Invoice NO"] || "", "Invoice NO")}</td>
+      <td>${highlightText(row["Tracking no"] || "", "Tracking no")}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+/* ===== IMAGE PRELOADING FUNCTIONS ===== */
+function preloadImages(images) {
+  const promises = images.map((item, index) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = item.url;
+      img.onload = () => resolve({ index, item, status: 'loaded' });
+      img.onerror = () => resolve({ index, item, status: 'error' });
+    });
+  });
+  
+  return Promise.all(promises);
+}
+
+async function fetchImages(query) {
+  try {
+    const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    
+    // Filter images for the query
+    const filteredImages = data.filter(item => 
+      item.caption && item.caption.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    renderImages(filteredImages, query);
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    
+    gallery.innerHTML = `
+      <div class="error-message">
+        <p>Failed to load images. Please try again.</p>
+        <button onclick="fetchImages('${query}')" class="search-btn" style="margin-top: 10px;">
+          <span>🔄</span>
+          <span>Retry</span>
+        </button>
+      </div>`;
+  }
+}
+
+function renderImages(data, query) {
+  gallery.innerHTML = "";
+  
+  if (!Array.isArray(data)) {
+    gallery.innerHTML = `<div class="error-message">Invalid image data format.</div>`;
+    return;
+  }
+  
+  currentImages = data;
+  
+  if (currentImages.length === 0) {
+    gallery.innerHTML = `
+      <div class="error-message">
+        No images found for patient: <strong>${query.toUpperCase()}</strong>
+      </div>`;
+    return;
+  }
+  
+  // Show initial loading message
+  gallery.innerHTML = `<div class="modal-loading">Loading ${currentImages.length} image(s)...</div>`;
+  
+  // Preload images first
+  preloadImages(currentImages).then((results) => {
+    // After preloading, render all images at once
+    gallery.innerHTML = "";
+    
+    results.forEach((result, index) => {
+      createImageElement(result.item, index, result.status);
+    });
+  });
+}
+
+function createImageElement(item, index, status = 'loaded') {
+  const container = document.createElement("div");
+  container.className = "img-container";
+  container.style.cssText = "position: relative; min-width: 200px; min-height: 150px;";
+  
+  // Create loading placeholder
+  const placeholder = document.createElement("div");
+  placeholder.className = "loading-placeholder";
+  container.appendChild(placeholder);
+  
+  const img = document.createElement("img");
+  img.style.cssText = `
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    max-height: 300px;
+    object-fit: contain;
+    cursor: pointer;
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `;
+  
+  img.src = item.url;
+  img.alt = item.caption || `Image ${index + 1}`;
+  img.loading = "lazy";
+  
+  // Handle image load/error
+  if (status === 'loaded') {
+    // Image already preloaded, show immediately
+    img.style.opacity = "1";
+    placeholder.style.display = "none";
+  } else {
+    // Image failed to preload, try loading again
+    img.onload = () => {
+      img.style.opacity = "1";
+      placeholder.style.display = "none";
+    };
+    
+    img.onerror = () => {
+      placeholder.style.display = "none";
+      const errorDiv = document.createElement("div");
+      errorDiv.style.cssText = `
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fee;
+        border: 2px dashed #f87171;
+        border-radius: 8px;
+        color: #dc2626;
+        font-size: 12px;
+        padding: 10px;
+        text-align: center;
+      `;
+      errorDiv.textContent = "Failed to load image";
+      container.appendChild(errorDiv);
+    };
+  }
+  
+  img.onclick = (e) => { 
+    e.stopPropagation(); 
+    openFullscreen(index); 
+  };
+  
+  container.appendChild(img);
+  gallery.appendChild(container);
+}
+
+/* ===== IMAGE MODAL FUNCTIONS ===== */
+function openModal(query) {
+  console.log("Opening modal for patient:", query);
+  imageModal.classList.add("show");
+  
+  gallery.innerHTML = `<div class="modal-loading">Loading images for ${query}...</div>`;
+  fetchImages(query.toLowerCase());
+}
+
+function closeModal() {
+  imageModal.classList.remove("show");
+  gallery.innerHTML = "";
+  currentImages = [];
+}
+
+/* ===== FULLSCREEN VIEW FUNCTIONS ===== */
+function openFullscreen(index) {
+  if (!currentImages[index]) return;
+  
+  currentIndex = index;
+  fsImage.src = currentImages[index].url;
+  fsImage.alt = currentImages[index].caption || `Image ${index + 1}`;
+  
+  // Update info panel
+  imageCounter.textContent = `${index + 1}/${currentImages.length}`;
+  imageCaption.textContent = currentImages[index].caption || `Image ${index + 1}`;
+  
+  // Reset transform
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  updateTransform();
+  
+  fullscreen.classList.add("show");
+  fsImage.style.cursor = "grab";
+}
+
+function closeFullscreen() {
+  fullscreen.classList.remove("show");
+  fsImage.src = "";
+  
+  // Reset transform
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  updateTransform();
+}
+
+function prevImage() {
+  if (currentImages.length === 0) return;
+  currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+  openFullscreen(currentIndex);
+}
+
+function nextImage() {
+  if (currentImages.length === 0) return;
+  currentIndex = (currentIndex + 1) % currentImages.length;
+  openFullscreen(currentIndex);
+}
+
+function updateTransform() {
+  fsImage.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
+}
+
+/* ===== EVENT HANDLERS ===== */
+// Close modals when clicking outside content
+imageModal.addEventListener('click', (e) => {
+  if (e.target === imageModal) closeModal();
+});
+
+fullscreen.addEventListener('click', (e) => {
+  if (e.target === fullscreen) closeFullscreen();
+});
+
+// Keyboard controls
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (fullscreen.classList.contains("show")) closeFullscreen();
+    else if (imageModal.classList.contains("show")) closeModal();
+  } else if (fullscreen.classList.contains("show")) {
+    if (e.key === "ArrowLeft") prevImage();
+    else if (e.key === "ArrowRight") nextImage();
+  }
+});
+
+// Image zoom and pan
+fsImage.addEventListener("wheel", e => {
+  e.preventDefault();
+  
+  const zoomIntensity = 0.001;
+  const delta = -e.deltaY * zoomIntensity;
+  const newScale = Math.min(Math.max(1, scale + delta), 5);
+  
+  // Zoom toward cursor
+  const rect = fsImage.getBoundingClientRect();
+  const offsetX = e.clientX - rect.left - rect.width / 2;
+  const offsetY = e.clientY - rect.top - rect.height / 2;
+  
+  translateX -= offsetX * (newScale - scale);
+  translateY -= offsetY * (newScale - scale);
+  
+  scale = newScale;
+  updateTransform();
+});
+
+// Mouse pan
+fsImage.addEventListener("mousedown", e => {
+  if (scale <= 1) return;
+  
+  isDragging = true;
+  startX = e.clientX - translateX;
+  startY = e.clientY - translateY;
+  fsImage.style.cursor = "grabbing";
+  e.preventDefault();
+});
+
+document.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  
+  translateX = e.clientX - startX;
+  translateY = e.clientY - startY;
+  updateTransform();
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+  fsImage.style.cursor = "grab";
+});
+
+// Double click to reset zoom
+fsImage.addEventListener("dblclick", e => {
+  e.preventDefault();
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  updateTransform();
+});
+
+/* ===== INITIALIZATION ===== */
+function initializePage() {
+  // Load data
+  fetch(DATA_API)
+    .then(res => res.json())
+    .then(data => {
+      allData = data;
+      
+      // First filter: keep only rows with at least 2 of first 4 columns filled
+      filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
+      
+      // Update total count
+      totalCount.textContent = filteredData.length;
+      
+      // Update filter info with counts
+      const filterInfo = document.querySelector('.filter-info');
+      filterInfo.innerHTML += `<br>Showing <strong>${filteredData.length}</strong> of <strong>${allData.length}</strong> total records.`;
+      
+      // Initial display of filtered data
+      updateTableDisplay(filteredData);
+      
+      // Add event listener for Enter key in search
+      searchInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+          performSearch();
+        }
+      });
+    })
+    .catch(error => {
+      console.error("Error loading data:", error);
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="11" class="no-results">
+            <div class="no-results-icon">⚠️</div>
+            Error loading patient records. Please try again.<br>
+            <small style="color: #ef4444;">${error.message || "Network or server error"}</small>
+            <br>
+            <button class="search-btn" onclick="window.location.reload()" style="margin-top: 15px;">
+              <span>🔄</span>
+              <span>Retry</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+}
+
+// Initialize page when DOM is loaded
+document.addEventListener('DOMContentLoaded', initializePage);
+</script>
+
+</body>
+</html>
