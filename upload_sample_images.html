@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Upload Sample Images</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#ffffff">
   <style>
-    /* ---------- SIDEBAR STYLES (Same as parcel_entry.html) ---------- */
+    /* ---------- SIDEBAR STYLES (Updated with collapse functionality) ---------- */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -36,7 +30,7 @@
       top: 0;
       left: 0;
       height: 100%;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 1000;
       overflow-y: auto;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
@@ -64,6 +58,7 @@
       gap: 12px;
       font-size: 20px;
       font-weight: 700;
+      transition: all 0.3s ease;
     }
 
     .logo-icon {
@@ -85,6 +80,7 @@
     .logo-text {
       font-size: 18px;
       font-weight: 700;
+      transition: opacity 0.3s ease;
     }
 
     .sidebar-subtitle {
@@ -93,6 +89,7 @@
       margin-top: 5px;
       margin-left: 52px;
       font-weight: 400;
+      transition: opacity 0.3s ease;
     }
 
     .sidebar-menu {
@@ -101,6 +98,7 @@
 
     .menu-section {
       margin-bottom: 20px;
+      transition: all 0.3s ease;
     }
 
     .menu-section-title {
@@ -112,6 +110,7 @@
       padding: 0 20px 8px 20px;
       margin-bottom: 8px;
       border-bottom: 1px solid #f1f5f9;
+      transition: all 0.3s ease;
     }
 
     .menu-items {
@@ -133,6 +132,8 @@
       position: relative;
       margin: 0 8px;
       border-radius: 8px;
+      white-space: nowrap;
+      overflow: hidden;
     }
 
     .menu-item:hover {
@@ -165,10 +166,12 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: all 0.3s ease;
     }
 
     .menu-item-text {
       flex: 1;
+      transition: opacity 0.3s ease;
     }
 
     .menu-item-badge {
@@ -178,6 +181,7 @@
       padding: 2px 6px;
       border-radius: 10px;
       font-weight: 600;
+      transition: all 0.3s ease;
     }
 
     .external-link {
@@ -192,6 +196,131 @@
       font-size: 12px;
       color: #64748b;
       text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    /* Collapse button styles */
+    .collapse-expand {
+      position: absolute;
+      bottom: 20px;
+      right: 10px;
+      width: 36px;
+      height: 36px;
+      background: #2a3a4d;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ba2c1;
+      transition: all 0.3s ease;
+      z-index: 101;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .collapse-expand:hover {
+      background: #354356;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .collapse-expand .icon {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Collapsed state styles */
+    .sidebar.collapsed {
+      width: 70px;
+      transform: translateX(0) !important;
+    }
+
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .sidebar-subtitle,
+    .sidebar.collapsed .menu-section-title,
+    .sidebar.collapsed .menu-item-text,
+    .sidebar.collapsed .sidebar-footer {
+      display: none;
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-header {
+      padding: 25px 10px;
+      justify-content: center;
+    }
+
+    .sidebar.collapsed .logo {
+      justify-content: center;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .logo-icon {
+      margin: 0;
+      font-size: 32px;
+      width: 50px;
+      height: 50px;
+    }
+
+    .sidebar.collapsed .menu-item {
+      padding: 14px 0;
+      justify-content: center;
+      margin: 0 8px;
+      gap: 0;
+    }
+
+    .sidebar.collapsed .menu-item-icon {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .sidebar.collapsed .collapse-expand .icon {
+      transform: rotate(180deg);
+    }
+
+    .sidebar.collapsed .menu-item-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      font-size: 9px;
+      padding: 1px 4px;
+      min-width: auto;
+    }
+
+    /* Tooltip for collapsed state */
+    .sidebar.collapsed .menu-item:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #2a3a4d;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      margin-left: 8px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      font-weight: 500;
+    }
+
+    .sidebar.collapsed .menu-item:hover::before {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent transparent transparent #2a3a4d;
+      margin-left: -6px;
+      z-index: 1001;
     }
 
     /* ---------- MAIN CONTENT ---------- */
@@ -202,6 +331,10 @@
       display: flex;
       flex-direction: column;
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: 70px;
     }
 
     /* ---------- TOPBAR ---------- */
@@ -277,13 +410,13 @@
       font-size: 16px;
     }
 
-    /* ---------- UPLOAD FORM CONTAINER ---------- */
+    /* ---------- FORM WRAPPER ---------- */
     .form-wrapper {
       flex: 1;
       padding: 30px;
       display: flex;
-      flex-direction: column;
       align-items: center;
+      justify-content: center;
       background: #f8fafc;
     }
 
@@ -312,7 +445,7 @@
     .header {
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
       color: white;
-      padding: 25px;
+      padding: 25px 30px;
       text-align: center;
     }
 
@@ -323,13 +456,20 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+      margin: 0;
     }
 
     .form-content {
       padding: 30px;
     }
 
-    /* ---------- UPLOAD FORM STYLES ---------- */
+    /* ---------- FORM STYLES ---------- */
     .form-group {
       margin-bottom: 25px;
     }
@@ -377,6 +517,16 @@
       border-color: #10b981;
     }
 
+    .dropdown-arrow {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 12px;
+      padding-right: 40px;
+      appearance: none;
+      cursor: pointer;
+    }
+
     .error-message {
       color: #dc3545;
       font-size: 13px;
@@ -385,13 +535,18 @@
       padding-left: 8px;
     }
 
+    /* ---------- IMAGE UPLOAD SECTION - CHOOSE FILES REMOVED ---------- */
+    .upload-section {
+      margin-top: 5px;
+    }
+
     .preview-container {
       display: flex;
       flex-wrap: wrap;
       gap: 15px;
       margin-top: 15px;
       position: relative;
-      min-height: 120px;
+      min-height: 140px;
       padding: 15px;
       background: #f9fafb;
       border-radius: 12px;
@@ -474,6 +629,7 @@
       box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
     }
 
+    /* ---------- BUTTONS ---------- */
     .button-group {
       display: flex;
       gap: 15px;
@@ -522,7 +678,18 @@
       transform: translateY(-2px);
     }
 
-    /* Status Container */
+    /* ---------- COUNTER BADGES ---------- */
+    .image-counter {
+      background: #3b82f6;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    /* ---------- STATUS CONTAINER ---------- */
     .status-container {
       margin-top: 25px;
       padding: 20px;
@@ -556,7 +723,7 @@
       text-align: center;
     }
 
-    /* Spinner */
+    /* ---------- LOADING SPINNER ---------- */
     .spinner {
       display: inline-block;
       width: 20px;
@@ -571,7 +738,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Toast notification */
+    /* ---------- TOAST NOTIFICATION ---------- */
     .toast {
       position: fixed;
       top: 20px;
@@ -605,44 +772,29 @@
       font-size: 20px;
     }
 
-    /* Counter Badge */
-    .image-counter {
-      background: #3b82f6;
+    /* ---------- REFRESH BUTTON ---------- */
+    .refresh-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-left: 8px;
-    }
-
-    /* File Input Styling */
-    .file-input-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      border: 2px solid #0ea5e9;
+      border: none;
       border-radius: 10px;
-      color: #0369a1;
+      padding: 12px 24px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
     }
 
-    .file-input-label:hover {
-      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    .refresh-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
     }
 
-    .file-input-label input[type="file"] {
-      display: none;
-    }
-
-    /* Mobile Styles */
+    /* ---------- MOBILE STYLES ---------- */
     @media (max-width: 768px) {
       .sidebar {
         transform: translateX(-100%);
@@ -653,8 +805,17 @@
         transform: translateX(0);
       }
 
+      .sidebar.collapsed {
+        width: 70px;
+        transform: translateX(0) !important;
+      }
+
       .main-content {
         margin-left: 0 !important;
+      }
+
+      .main-content.sidebar-collapsed {
+        margin-left: 70px !important;
       }
 
       .menu-btn {
@@ -715,11 +876,12 @@
 
     /* Focus styles for accessibility */
     select:focus-visible,
+    input:focus-visible,
     button:focus-visible,
     .menu-item:focus-visible,
     .menu-btn:focus-visible,
     .sidebar-header:focus-visible,
-    .file-input-label:focus-visible {
+    .collapse-expand:focus-visible {
       outline: 2px solid #3b82f6;
       outline-offset: 2px;
     }
@@ -741,15 +903,15 @@
     <div class="menu-section">
       <div class="menu-section-title">Operations</div>
       <div class="menu-items">
-        <a href="/Dashboard/parcel_entry" class="menu-item">
+        <a href="parcel_entry.html" class="menu-item" data-tooltip="Parcel Entry">
           <span class="menu-item-icon">📦</span>
           <span class="menu-item-text">Parcel Entry</span>
         </a>
-        <a href="/Dashboard/parcel_entry_form" class="menu-item">
+        <a href="parcel_entry_form.html" class="menu-item" data-tooltip="Parcel Scanner">
           <span class="menu-item-icon">🔍</span>
           <span class="menu-item-text">Parcel Scanner</span>
         </a>
-        <a href="/Dashboard/upload_sample_images" class="menu-item active">
+        <a href="upload_sample_images.html" class="menu-item active" data-tooltip="Upload Images">
           <span class="menu-item-icon">📷</span>
           <span class="menu-item-text">Upload Images</span>
           <span class="menu-item-badge">New</span>
@@ -760,21 +922,36 @@
     <div class="menu-section">
       <div class="menu-section-title">Reports</div>
       <div class="menu-items">
-        <a href="/Dashboard/delivered_today" class="menu-item">
+        <a href="delivered_today.html" class="menu-item" data-tooltip="Delivered Today">
           <span class="menu-item-icon">📅</span>
           <span class="menu-item-text">Delivered Today</span>
         </a>
-        <a href="/Dashboard/total" class="menu-item">
+        <a href="total.html" class="menu-item" data-tooltip="All Parcels">
           <span class="menu-item-icon">📊</span>
-          <span class="menu-item-text">Total Samples</span>
+          <span class="menu-item-text">All Parcels</span>
         </a>
-        <a href="/Dashboard/gallery" class="menu-item">
+        <a href="https://script.google.com/a/macros/dnalabsindia.com/s/AKfycbyRGVI_o6lBULgdc53o0EfWrbWnkC5t7WZLgQ2VpToNp3WGuBIl7-Sv_64wQXQk-uVoLw/exec" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="menu-item" data-tooltip="Sample Gallery">
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
+          <span class="external-link">↗</span>
         </a>
       </div>
     </div>
   </div>
+
+  <!-- Collapse Button -->
+  <button class="icon-button collapse-expand z-index-1 shrink-sidebar" 
+          aria-label="Collapse/Expand" 
+          type="button" 
+          onclick="toggleCollapse()">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="icon lpanel align-middle rtl-rotate-180" aria-hidden="true">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M353.7 98.5c6.6 0 13.1 2.5 18.2 7.5l131.7 131.7c10 10 10 26.3 0 36.3L371.8 405.7c-10 10-26.3 10-36.3 0s-10-26.3 0-36.3L449 255.9 335.5 142.4c-10-10-10-26.3 0-36.3 5-5.1 11.6-7.6 18.2-7.6"></path>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M220.9 226.8h216.7c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H220.9c-14.2 0-25.7-11.5-25.7-25.7s11.5-25.7 25.7-25.7m-195.2 0h94.4c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 278.1 0 266.6 0 252.5s11.5-25.7 25.7-25.7m0-125.1H169c14.2 0 25.7 11.5 25.7 25.7S183.2 153 169 153H25.7C11.5 153 0 141.5 0 127.3s11.5-25.6 25.7-25.6m0 250H169c14.2 0 25.7 11.5 25.7 25.7s-11.5 25.7-25.7 25.7H25.7C11.5 403.1 0 391.6 0 377.4s11.5-25.7 25.7-25.7"></path>
+    </svg>
+  </button>
 
   <div class="sidebar-footer">
     <div>© 2024 Parcel Pro</div>
@@ -783,7 +960,7 @@
 </aside>
 
 <!-- Main Content -->
-<div class="main-content">
+<div class="main-content" id="mainContent">
   <!-- Topbar -->
   <header class="topbar">
     <button class="menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
@@ -794,9 +971,13 @@
         <span>📷</span>
         <span>Upload Sample Images</span>
       </div>
-      <div class="page-subtitle">Upload images for tracking numbers</div>
+      <div class="page-subtitle">Upload images with tracking number and patient details</div>
     </div>
     <div class="user-menu">
+      <button class="refresh-btn" onclick="reloadAll()">
+        <span>🔄</span>
+        <span>Refresh Data</span>
+      </button>
       <div class="user-avatar">U</div>
     </div>
   </header>
@@ -806,38 +987,53 @@
     <div class="form-container">
       <div class="header">
         <h2>📷 Upload Sample Images</h2>
-        <p style="opacity: 0.9; font-size: 14px; margin-top: 5px;">Select tracking number and upload related images</p>
+        <p>Select tracking number, patient name, and upload related images</p>
       </div>
 
       <div class="form-content">
+        <!-- Tracking No Dropdown -->
         <div class="form-group">
-          <label for="trackingSelect">
-            Select Tracking Number
-            <span id="trackingCount" class="image-counter" style="display: none;">0 available</span>
-          </label>
-          <select id="trackingSelect" class="upload-input">
+          <label for="trackingSelect">Select Tracking Number</label>
+          <select id="trackingSelect" class="dropdown-arrow">
             <option value="">Loading tracking numbers...</option>
           </select>
           <div class="error-message" id="trackingError">Please select a tracking number</div>
         </div>
 
+        <!-- Patient Name Dropdown - EXACT SEQUENCE FROM API -->
+        <div class="form-group">
+          <label for="patientSelect">
+            Select Patient Name
+            <span id="patientCount" class="image-counter" style="display:none;">0 available</span>
+          </label>
+          <select id="patientSelect" class="dropdown-arrow">
+            <option value="">Loading patients...</option>
+          </select>
+          <div class="error-message" id="patientError">Please select a patient</div>
+        </div>
+
+        <!-- Image Upload - ONLY + BUTTON, CHOOSE FILES REMOVED -->
         <div class="form-group">
           <label for="imageUpload">
             Select Images
             <span id="imageCount" class="image-counter">0 selected</span>
           </label>
           
-          <label class="file-input-label">
-            <span>📁 Choose Files</span>
-            <input type="file" id="imageUpload" accept="image/*" multiple capture="environment">
-          </label>
-          
-          <div class="preview-container" id="previewContainer">
-            <button type="button" id="addMoreBtn" aria-label="Add more images">+</button>
+          <div class="upload-section">
+            <!-- FILE INPUT HIDDEN - TRIGGERED BY + BUTTON ONLY -->
+            <input type="file" id="imageUpload" accept="image/*" multiple capture="environment" style="display: none;">
+            
+            <div class="preview-container" id="previewContainer">
+              <button type="button" id="addMoreBtn" aria-label="Add more images">+</button>
+            </div>
+            <div class="error-message" id="imageError">Please select at least one image</div>
           </div>
-          <div class="error-message" id="imageError">Please select at least one image</div>
         </div>
 
+        <!-- Status Display -->
+        <div class="status-container" id="status"></div>
+
+        <!-- Action Buttons -->
         <div class="button-group">
           <button class="submit-btn" onclick="uploadImages()" id="uploadBtn">
             <span>📤</span>
@@ -848,8 +1044,6 @@
             <span>Clear All</span>
           </button>
         </div>
-
-        <div class="status-container" id="status"></div>
       </div>
     </div>
   </div>
@@ -859,25 +1053,63 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxrAMIt5g_szYTWAXFAACOI7R-XpJiP9CS9bGEsX5bja552Ic-EoAJwbBSN99ZTwdyU_A/exec";
+const TRACKING_URL = "https://script.google.com/macros/s/AKfycbxrAMIt5g_szYTWAXFAACOI7R-XpJiP9CS9bGEsX5bja552Ic-EoAJwbBSN99ZTwdyU_A/exec";
+const PATIENT_URL = "https://script.google.com/macros/s/AKfycbxB5-Po-A-N70dR7Ie9VXP0QDHw1hFARAhaMTDoD4FbcNbDrPdh4W1nWootW1iepmtWbA/exec";
 
-// DOM Elements
+/* ---------- DOM ELEMENTS ---------- */
 const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
 const trackingSelect = document.getElementById('trackingSelect');
+const patientSelect = document.getElementById('patientSelect');
 const previewContainer = document.getElementById('previewContainer');
-const uploadBtn = document.getElementById('uploadBtn');
 const addMoreBtn = document.getElementById('addMoreBtn');
+const uploadBtn = document.getElementById('uploadBtn');
+const patientCount = document.getElementById('patientCount');
+const imageCount = document.getElementById('imageCount');
 const imageUpload = document.getElementById('imageUpload');
 const statusDiv = document.getElementById('status');
 const toast = document.getElementById('toast');
-const trackingCount = document.getElementById('trackingCount');
-const imageCount = document.getElementById('imageCount');
 
 let filesToUpload = [];
+let isLoading = false;
 
-// Sidebar Functions (Same as parcel_entry.html)
+/* ---------- SIDEBAR COLLAPSE FUNCTIONS ---------- */
+function toggleCollapse() {
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  
+  sidebar.classList.toggle('collapsed');
+  mainContent.classList.toggle('sidebar-collapsed');
+  
+  // Save state to localStorage
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  localStorage.setItem('sidebarCollapsed', isCollapsed);
+  
+  // Update tooltips for all menu items
+  updateMenuTooltips();
+}
+
+function updateMenuTooltips() {
+  const sidebar = document.getElementById('sidebar');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  
+  if (isCollapsed) {
+    // Add tooltips if collapsed
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const text = item.querySelector('.menu-item-text')?.textContent || '';
+      item.setAttribute('data-tooltip', text);
+    });
+  } else {
+    // Remove tooltips if expanded
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.removeAttribute('data-tooltip');
+    });
+  }
+}
+
+/* ---------- SIDEBAR MOBILE FUNCTIONS ---------- */
 function goToDashboard() {
-  window.location.href = "/Dashboard/";
+  window.location.href = "index.html";
 }
 
 function toggleSidebar() {
@@ -904,7 +1136,7 @@ window.addEventListener('resize', () => {
   }
 });
 
-// Show toast notification
+/* ---------- TOAST FUNCTION ---------- */
 function showToast(message, type = 'success') {
   toast.textContent = message;
   toast.className = `toast toast-${type}`;
@@ -919,19 +1151,16 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
-// Update image counter
+/* ---------- UPDATE COUNTERS ---------- */
 function updateImageCounter() {
   const count = filesToUpload.length;
   imageCount.textContent = `${count} selected`;
   imageCount.style.display = 'inline-block';
-  
-  // Update add button text
-  addMoreBtn.textContent = filesToUpload.length === 0 ? '+' : '+';
 }
 
-// Fetch today's tracking numbers
+/* ---------- LOAD DATA FUNCTIONS ---------- */
 function loadTrackingNumbers() {
-  fetch(WEB_APP_URL)
+  fetch(TRACKING_URL)
     .then(res => {
       if (!res.ok) throw new Error('Network response was not ok');
       return res.json();
@@ -940,23 +1169,22 @@ function loadTrackingNumbers() {
       trackingSelect.innerHTML = '<option value="">Select Tracking Number</option>';
       
       if (!data || data.length === 0) {
-        const option = document.createElement("option");
+        const option = document.createElement('option');
         option.value = "";
-        option.textContent = "No tracking numbers today";
+        option.textContent = "No tracking numbers available";
         trackingSelect.appendChild(option);
-        trackingCount.style.display = 'none';
+        showToast('No tracking numbers found', 'info');
         return;
       }
       
-      data.forEach(tracking => {
-        const option = document.createElement("option");
-        option.value = tracking;
-        option.textContent = tracking;
+      data.forEach(trk => {
+        const option = document.createElement('option');
+        option.value = trk;
+        option.textContent = trk;
         trackingSelect.appendChild(option);
       });
       
-      trackingCount.textContent = `${data.length} available`;
-      trackingCount.style.display = 'inline-block';
+      showToast(`Loaded ${data.length} tracking numbers`, 'success');
     })
     .catch(err => {
       console.error('Error loading tracking numbers:', err);
@@ -965,7 +1193,54 @@ function loadTrackingNumbers() {
     });
 }
 
-// Handle image selection
+/* ---------- LOAD PATIENTS - PRESERVING EXACT API SEQUENCE ---------- */
+function loadPatients() {
+  fetch(PATIENT_URL)
+    .then(res => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.json();
+    })
+    .then(data => {
+      patientSelect.innerHTML = '<option value="">Select Patient</option>';
+      
+      if (!data || data.length === 0) {
+        const option = document.createElement('option');
+        option.value = "";
+        option.textContent = "No patients available";
+        patientSelect.appendChild(option);
+        patientCount.style.display = 'none';
+        showToast('No patients found for today', 'info');
+        return;
+      }
+      
+      // IMPORTANT: Append options in the EXACT order received from the API
+      // No sorting, no modification - pure sequential insertion
+      data.forEach(patientName => {
+        const option = document.createElement('option');
+        option.value = patientName;
+        option.textContent = patientName;
+        patientSelect.appendChild(option);
+      });
+      
+      patientCount.textContent = `${data.length} available`;
+      patientCount.style.display = 'inline-block';
+      showToast(`Loaded ${data.length} patients (exact API sequence)`, 'success');
+    })
+    .catch(err => {
+      console.error('Error loading patients:', err);
+      patientSelect.innerHTML = '<option value="">Error loading patients</option>';
+      patientCount.style.display = 'none';
+      showToast('Failed to load patients', 'error');
+    });
+}
+
+function reloadAll() {
+  showToast('Refreshing data...', 'info');
+  loadTrackingNumbers();
+  loadPatients();
+}
+
+/* ---------- IMAGE HANDLING ---------- */
 function handleFileInput(file) {
   const wrapper = document.createElement("div");
   wrapper.className = "preview";
@@ -998,32 +1273,10 @@ function handleFileInput(file) {
   validateForm();
 }
 
-// Add More Images
+// + BUTTON - Main way to add images (Choose Files removed)
 addMoreBtn.addEventListener("click", () => {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "image/*";
-  input.multiple = true;
-  input.capture = "environment";
-  input.style.display = "none";
-
-  input.addEventListener("change", (event) => {
-    const fileList = event.target.files;
-    if (fileList.length > 0) {
-      for (let i = 0; i < fileList.length; i++) {
-        if (filesToUpload.length < 20) { // Limit to 20 images
-          handleFileInput(fileList[i]);
-        } else {
-          showToast('Maximum 20 images allowed', 'error');
-          break;
-        }
-      }
-    }
-  });
-
-  document.body.appendChild(input);
-  input.click();
-  document.body.removeChild(input);
+  // Use the hidden file input instead of creating a new one
+  imageUpload.click();
 });
 
 // File input change handler
@@ -1039,11 +1292,11 @@ imageUpload.addEventListener('change', (event) => {
       }
     }
   }
-  // Reset file input
+  // Reset file input so the same file can be selected again
   imageUpload.value = '';
 });
 
-// Resize and compress image
+/* ---------- ADVANCED IMAGE COMPRESSION ---------- */
 function resizeImage(file, maxSize = 1000000) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1101,32 +1354,42 @@ function resizeImage(file, maxSize = 1000000) {
   });
 }
 
-// Form validation
+/* ---------- VALIDATION ---------- */
 function validateForm() {
   let isValid = true;
+  
+  // Clear all errors first
+  document.querySelectorAll('.error-message').forEach(el => {
+    el.style.display = 'none';
+  });
+  
+  trackingSelect.classList.remove('error');
+  patientSelect.classList.remove('error');
   
   // Validate tracking number
   if (!trackingSelect.value) {
     trackingSelect.classList.add('error');
     document.getElementById('trackingError').style.display = 'block';
     isValid = false;
-  } else {
-    trackingSelect.classList.remove('error');
-    document.getElementById('trackingError').style.display = 'none';
+  }
+  
+  // Validate patient
+  if (!patientSelect.value) {
+    patientSelect.classList.add('error');
+    document.getElementById('patientError').style.display = 'block';
+    isValid = false;
   }
   
   // Validate images
   if (filesToUpload.length === 0) {
     document.getElementById('imageError').style.display = 'block';
     isValid = false;
-  } else {
-    document.getElementById('imageError').style.display = 'none';
   }
   
   return isValid;
 }
 
-// Upload Images
+/* ---------- UPLOAD FUNCTION ---------- */
 async function uploadImages() {
   // Validate form
   if (!validateForm()) {
@@ -1134,9 +1397,13 @@ async function uploadImages() {
     return;
   }
 
-  const tracking = trackingSelect.value;
+  if (isLoading) return;
+  
+  const tracking = trackingSelect.value.trim();
+  const patient = patientSelect.value.trim();
   
   // Show loading state
+  isLoading = true;
   uploadBtn.disabled = true;
   uploadBtn.innerHTML = '<span class="spinner"></span><span>Uploading...</span>';
   
@@ -1145,23 +1412,36 @@ async function uploadImages() {
   statusDiv.style.display = 'block';
 
   try {
-    // Resize all images
+    // Resize all images with advanced compression
     const resizePromises = filesToUpload.map(file => resizeImage(file, 1000000));
     const resizedImages = await Promise.all(resizePromises);
     
-    // Join images with delimiter
-    const imagesParam = resizedImages.join("|");
+    // Filter out any null/undefined results
+    const validImages = resizedImages.filter(img => img && img !== '');
     
-    // Upload to Google Apps Script
-    const response = await fetch(WEB_APP_URL, {
+    if (validImages.length === 0) {
+      throw new Error('No valid images to upload');
+    }
+
+    // Join images with pipe separator
+    const imagesParam = validImages.join("|");
+
+    // Upload to API
+    const response = await fetch(PATIENT_URL, {
       method: "POST",
-      body: new URLSearchParams({
-        tracking: tracking,
-        image: imagesParam
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ 
+        tracking: tracking, 
+        patient: patient, 
+        image: imagesParam 
       })
     });
     
-    if (!response.ok) throw new Error('Upload failed');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     
     const data = await response.json();
     
@@ -1175,7 +1455,8 @@ async function uploadImages() {
             <strong>Upload Successful!</strong>
             <div style="margin-top: 5px; font-size: 14px;">
               Tracking: ${tracking}<br>
-              Images: ${filesToUpload.length} uploaded<br>
+              Patient: ${patient}<br>
+              Images: ${filesToUpload.length} uploaded (compressed to WebP)<br>
               Time: ${new Date().toLocaleTimeString()}
             </div>
           </div>
@@ -1192,13 +1473,16 @@ async function uploadImages() {
       filesToUpload = [];
       updateImageCounter();
       
+      // Refresh patient list
+      loadPatients();
+      
     } else {
       throw new Error(data.error || 'Upload failed');
     }
     
   } catch (err) {
     console.error('Upload error:', err);
-    showToast('Upload failed. Please try again.', 'error');
+    showToast(`Upload failed: ${err.message}`, 'error');
     statusDiv.className = 'status-container status-error';
     statusDiv.innerHTML = `
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -1213,12 +1497,13 @@ async function uploadImages() {
     `;
   } finally {
     // Restore button
+    isLoading = false;
     uploadBtn.disabled = false;
     uploadBtn.innerHTML = '<span>📤</span><span>Upload Images</span>';
   }
 }
 
-// Clear all images
+/* ---------- CLEAR FUNCTION ---------- */
 function clearAll() {
   // Clear file list
   filesToUpload.forEach(file => {
@@ -1231,12 +1516,15 @@ function clearAll() {
   filesToUpload = [];
   updateImageCounter();
   
-  // Reset tracking select
+  // Reset selects
   trackingSelect.value = '';
+  patientSelect.value = '';
   
   // Clear validation states
   trackingSelect.classList.remove('error');
+  patientSelect.classList.remove('error');
   document.getElementById('trackingError').style.display = 'none';
+  document.getElementById('patientError').style.display = 'none';
   document.getElementById('imageError').style.display = 'none';
   
   // Hide status
@@ -1245,7 +1533,7 @@ function clearAll() {
   showToast('Form cleared', 'success');
 }
 
-// Keyboard shortcuts
+/* ---------- KEYBOARD SHORTCUTS ---------- */
 document.addEventListener('keydown', (e) => {
   // Ctrl/Cmd + Enter to upload
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -1262,14 +1550,14 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && e.target.classList.contains('sidebar-header')) {
     goToDashboard();
   }
+  
+  // Escape to close sidebar
+  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+    sidebar.classList.remove('open');
+  }
 });
 
-// Initialize on load
-window.addEventListener('load', () => {
-  loadTrackingNumbers();
-});
-
-// Prevent drag and drop default behavior
+/* ---------- DRAG AND DROP ---------- */
 document.addEventListener('dragover', (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -1292,13 +1580,24 @@ document.addEventListener('drop', (e) => {
     }
   }
 });
-</script>
 
+/* ---------- INITIALIZATION ---------- */
+window.addEventListener('load', () => {
+  // Check if sidebar was collapsed previously
+  const wasCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  
+  if (wasCollapsed) {
+    sidebar.classList.add('collapsed');
+    mainContent.classList.add('sidebar-collapsed');
+  }
+  
+  // Update tooltips based on initial state
+  updateMenuTooltips();
+  
+  // Load data
+  loadTrackingNumbers();
+  loadPatients();
+});
+</script>
 </body>
 </html>
-
-
-
-
-
-
