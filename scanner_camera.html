@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Barcode Scanner</title>
+<title>Barcode Scanner with Manual Entry</title>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -295,7 +295,7 @@
     overflow: hidden;
     box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
     background: #000;
-    aspect-ratio: 4/3; /* Maintain consistent aspect ratio */
+    aspect-ratio: 4/3;
   }
 
   video { 
@@ -303,7 +303,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    /* Removed transform: scaleX(-1) to fix mirror issue */
   }
 
   .scanner-overlay {
@@ -453,7 +452,258 @@
     gap: 10px;
   }
 
-  /* ---------- ERROR MESSAGE ---------- */
+  /* ---------- MANUAL ENTRY STYLES ---------- */
+  .manual-entry-section {
+    text-align: center;
+    margin: 15px 0;
+  }
+
+  .manual-entry-btn {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .manual-entry-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  /* Modal Styles - Updated with new design */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal.show {
+    display: flex;
+  }
+
+  .modal-content {
+    background: #fff;
+    width: 450px;
+    max-width: 90%;
+    margin: 80px auto;
+    padding: 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    animation: modalSlideIn 0.3s ease-out;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .modal-header {
+    margin-bottom: 15px;
+  }
+
+  .modal-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+  }
+
+  .form-group input.error {
+    border-color: #dc3545;
+  }
+
+  .form-group small {
+    display: block;
+    margin-top: 5px;
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .btn-primary {
+    background: #007bff;
+    color: white;
+    flex: 2;
+  }
+
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+    flex: 1;
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+
+  .btn-primary.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    position: relative;
+    color: transparent;
+  }
+
+  .btn-primary.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .modal-footer {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+  }
+
+  /* Temporary Message */
+  .temporary-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    z-index: 2000;
+    animation: slideDown 0.3s ease-out;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .temporary-message.info { background: #3b82f6; }
+  .temporary-message.success { background: #10b981; }
+  .temporary-message.warning { background: #f59e0b; }
+  .temporary-message.error { background: #ef4444; }
+
+  @keyframes slideDown {
+    from {
+      top: -50px;
+      opacity: 0;
+    }
+    to {
+      top: 20px;
+      opacity: 1;
+    }
+  }
+
+  .temporary-message.fade-out {
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Manual Stats */
+  .manual-stats {
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin: 10px 0;
+    display: inline-block;
+  }
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-label {
+    font-weight: 600;
+    color: #92400e;
+  }
+
+  .stat-value {
+    background: white;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    color: #92400e;
+  }
+
+  /* Error Message */
   .error-message {
     background: #FEE2E2;
     border: 2px solid #EF4444;
@@ -477,6 +727,48 @@
 
   .error-message li {
     margin-bottom: 5px;
+  }
+
+  /* Damaged Barcode Help */
+  .damaged-barcode-help {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    max-width: 300px;
+    border-left: 4px solid #f59e0b;
+    z-index: 150;
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .damaged-barcode-help h4 {
+    color: #92400e;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .damaged-barcode-help ul {
+    margin-left: 20px;
+    color: #4b5563;
+    font-size: 13px;
+  }
+
+  .damaged-barcode-help li {
+    margin-bottom: 5px;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
   }
 
   /* Mobile Styles */
@@ -508,21 +800,35 @@
 
     .video-container {
       max-width: 100%;
-      aspect-ratio: 4/3; /* Maintain same aspect ratio on mobile */
-      min-height: auto; /* Remove fixed min-height */
+      aspect-ratio: 4/3;
     }
     
     .scanner-frame {
-      height: 150px; /* Slightly smaller frame on mobile */
+      height: 150px;
     }
     
     .scanner-frame::before {
       font-size: 11px;
       padding: 4px 8px;
       top: -25px;
-      white-space: normal; /* Allow text to wrap */
+      white-space: normal;
       text-align: center;
       width: 90%;
+      max-width: 250px;
+    }
+    
+    .modal-actions {
+      flex-direction: column;
+    }
+    
+    .manual-entry-btn {
+      width: 90%;
+      justify-content: center;
+    }
+
+    .damaged-barcode-help {
+      bottom: 15px;
+      right: 15px;
       max-width: 250px;
     }
   }
@@ -530,7 +836,10 @@
   /* Focus styles for accessibility */
   .menu-item:focus-visible,
   .menu-btn:focus-visible,
-  .sidebar-header:focus-visible {
+  .sidebar-header:focus-visible,
+  .manual-entry-btn:focus-visible,
+  .btn-primary:focus-visible,
+  .btn-secondary:focus-visible {
     outline: 2px solid #6366F1;
     outline-offset: 2px;
   }
@@ -583,7 +892,7 @@
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
         </a>
-       <a href="/Dashboard/Record" class="menu-item" data-tooltip="Patients Record">
+        <a href="/Dashboard/Record" class="menu-item" data-tooltip="Patients Record">
           <span class="menu-item-icon">📋</span>
           <span class="menu-item-text">Patients Records</span>
         </a>
@@ -638,6 +947,13 @@
         </div>
       </div>
 
+      <!-- Manual Entry Section - Single Button -->
+      <div class="manual-entry-section">
+        <button id="manualEntryBtn" class="manual-entry-btn">
+          <span>📝</span> Can't scan? Enter manually
+        </button>
+      </div>
+
       <div id="errorMessage" style="display: none;">
         <!-- Error messages will be inserted here -->
       </div>
@@ -666,6 +982,8 @@
         </div>
       </div>
 
+      <!-- Manual Stats will be inserted here dynamically -->
+
       <div class="complete-panel" id="completePanel" style="display: none;">
         <div class="complete-message">
           <span>✅</span>
@@ -673,6 +991,37 @@
         </div>
         <div class="timestamp" id="countdown">Redirecting to dashboard in 3 seconds...</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Entry Modal - Updated with new design -->
+<div id="manualEntryModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Manual Tracking Number Entry</h3>
+    </div>
+
+    <div class="form-group">
+      <label for="manualTracking">Tracking Number:</label>
+      <input type="text" id="manualTracking" placeholder="Enter tracking number" autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="trackingDropdown">Select from Pre-loaded List:</label>
+      <select id="trackingDropdown">
+        <option>Loading...</option>
+      </select>
+      <small>Select a number to auto-fill the field above.</small>
+    </div>
+
+    <div class="modal-actions">
+      <button id="submitManualEntry" class="btn-primary">Submit Entry</button>
+      <button id="cancelManualEntry" class="btn-secondary">Cancel</button>
+    </div>
+
+    <div class="modal-footer">
+      ⚠️ Please verify the number is correct before submitting. Manual entries are logged separately.
     </div>
   </div>
 </div>
@@ -700,6 +1049,17 @@ const countInfo = document.getElementById("countInfo");
 const errorMessageDiv = document.getElementById("errorMessage");
 const beep = document.getElementById("beep-sound");
 
+// Manual Entry Elements
+const manualEntryBtn = document.getElementById('manualEntryBtn');
+const manualModal = document.getElementById('manualEntryModal');
+const cancelManualBtn = document.getElementById('cancelManualEntry');
+const submitManualBtn = document.getElementById('submitManualEntry');
+const manualTrackingInput = document.getElementById('manualTracking');
+const trackingDropdown = document.getElementById('trackingDropdown');
+
+// Google Apps Script URL for loading tracking numbers
+const TRACKING_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0eXdOvzB5zVGRNkQkCnCmLixnZdH3E-uXpZRkv4nIZfqMDmOcuU1DvcFGVshO3yyG/exec";
+
 // Get courier & count from URL
 const params = new URLSearchParams(window.location.search);
 const totalCount = Number(params.get("count") || 0);
@@ -714,6 +1074,32 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwiTXXO1ypYhs-fykSl
 let scanned = new Set();
 let currentStream = null;
 let resizeObserver = null;
+let manualEntryCount = 0;
+let noScanTimer = null;
+
+// Load tracking numbers into dropdown
+function loadTrackingNumbers() {
+  fetch(TRACKING_SCRIPT_URL)
+    .then(res => res.json())
+    .then(data => {
+      trackingDropdown.innerHTML = '<option value="">Select Tracking Number</option>';
+      data.forEach(num => {
+        const option = document.createElement("option");
+        option.value = num;
+        option.textContent = num;
+        trackingDropdown.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error("Error loading tracking numbers:", err);
+      trackingDropdown.innerHTML = '<option value="">Error loading tracking numbers</option>';
+    });
+}
+
+// Auto-fill input when dropdown changes
+trackingDropdown.addEventListener("change", () => {
+  manualTrackingInput.value = trackingDropdown.value;
+});
 
 // Initialize progress
 updateProgress();
@@ -723,12 +1109,15 @@ function updateProgress() {
   const scannedCount = scanned.size;
   const progressPercent = totalCount > 0 ? (scannedCount / totalCount) * 100 : 0;
   
-  progressText.textContent = `Progress: ${scannedCount}/${totalCount} scanned`;
+  progressText.textContent = `Progress: ${scannedCount}/${totalCount} scanned (${manualEntryCount} manual)`;
   progressFill.style.width = `${progressPercent}%`;
   
   if (scannedCount >= totalCount && totalCount > 0) {
     showCompletePanel();
   }
+  
+  // Update manual count display
+  updateManualCount();
 }
 
 // Show complete panel
@@ -761,6 +1150,7 @@ function showError(title, message) {
         <li>Try refreshing the page</li>
         <li>Make sure no other app is using the camera</li>
         <li>Try using Chrome, Firefox, or Edge browser</li>
+        <li>Use the manual entry button if scanning continues to fail</li>
       </ul>
       <button onclick="startCamera()" style="
         background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -771,8 +1161,21 @@ function showError(title, message) {
         cursor: pointer;
         font-weight: 600;
         margin-top: 10px;
+        margin-right: 10px;
       ">
         Try Starting Camera Again
+      </button>
+      <button onclick="showManualEntryModal()" style="
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 10px;
+      ">
+        Manual Entry
       </button>
     </div>
   `;
@@ -794,7 +1197,6 @@ function setupResizeObserver() {
     for (let entry of entries) {
       const scannerFrame = document.querySelector('.scanner-frame');
       if (scannerFrame) {
-        // Adjust scanner frame height based on container size
         const containerHeight = entry.target.clientHeight;
         const newHeight = Math.min(200, containerHeight * 0.6);
         scannerFrame.style.height = `${newHeight}px`;
@@ -810,7 +1212,7 @@ function setupResizeObserver() {
 
 // Format date to mm/dd/yyyy
 function formatDateMMDDYYYY(date) {
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const year = date.getFullYear();
   return `${month}/${day}/${year}`;
@@ -822,16 +1224,13 @@ async function startCamera() {
     hideError();
     statusEl.textContent = "Requesting camera access...";
     
-    // Stop any existing stream
     if (currentStream) {
       currentStream.getTracks().forEach(track => track.stop());
     }
     
-    // Request camera access with flexible constraints
     const stream = await navigator.mediaDevices.getUserMedia({ 
       video: { 
-        facingMode: { ideal: 'environment' }, // Prefer rear camera
-        // Use flexible constraints for mobile compatibility
+        facingMode: { ideal: 'environment' },
         width: { ideal: 1280, max: 1920 },
         height: { ideal: 720, max: 1080 },
         frameRate: { ideal: 30 }
@@ -841,10 +1240,8 @@ async function startCamera() {
     currentStream = stream;
     video.srcObject = stream;
     
-    // Setup resize observer for responsive design
     setupResizeObserver();
     
-    // Wait for video to be ready
     return new Promise((resolve) => {
       video.onloadedmetadata = () => {
         statusEl.textContent = "Camera started. Initializing scanner...";
@@ -859,9 +1256,8 @@ async function startCamera() {
         resolve();
       };
       
-      // Set a timeout in case onloadedmetadata doesn't fire
       setTimeout(() => {
-        if (video.readyState >= 1) { // HAVE_CURRENT_DATA
+        if (video.readyState >= 1) {
           statusEl.textContent = "Camera started. Initializing scanner...";
           startScanner();
           resolve();
@@ -889,13 +1285,13 @@ async function startCamera() {
     
     showError(errorTitle, errorMsg);
     statusEl.textContent = "Camera access failed";
+    showDamagedBarcodeHelp();
   }
 }
 
 // Start barcode scanner
 function startScanner() {
   try {
-    // Get ZXing from global scope (loaded from CDN)
     const { BrowserMultiFormatReader } = window.ZXing;
     
     if (!BrowserMultiFormatReader) {
@@ -906,10 +1302,21 @@ function startScanner() {
     
     statusEl.textContent = "Scanner ready. Point camera at barcode...";
     
-    // Start scanning
+    // Clear any existing no-scan timer
+    if (noScanTimer) {
+      clearTimeout(noScanTimer);
+    }
+    
+    // Set new no-scan timer
+    noScanTimer = setTimeout(() => {
+      if (scanned.size === 0) {
+        showTemporaryMessage('No barcode detected. Try manual entry or check the barcode condition.', 'info');
+        showDamagedBarcodeHelp();
+      }
+    }, 10000);
+    
     reader.decodeFromVideoDevice(null, video, (result, err) => {
       if (err) {
-        // Ignore not found errors - they're normal when no barcode is detected
         if (err.name !== 'NotFoundException') {
           console.error("Scanner error:", err);
         }
@@ -918,34 +1325,37 @@ function startScanner() {
       
       if (!result) return;
       
-      const code = result.getText().trim();
-      if (!code || scanned.has(code)) return;
+      // Clear no-scan timer on successful scan
+      if (noScanTimer) {
+        clearTimeout(noScanTimer);
+        noScanTimer = null;
+      }
+      
+      let code = result.getText().trim();
+      if (!code) return;
+      
+      // Suggest correction for common OCR errors
+      code = suggestCorrection(code);
+      
+      if (scanned.has(code)) return;
       
       scanned.add(code);
       
-      // Get barcode format
       const format = result.getBarcodeFormat ? result.getBarcodeFormat() : 'UNKNOWN';
       const formatName = format.toString().replace('_', ' ');
-      
-      // Determine if it's 1D or 2D
       const is2D = ['QR_CODE', 'DATA_MATRIX', 'AZTEC', 'PDF_417'].includes(format);
       
-      // Display result
       resultEl.textContent = code;
       barcodeTypeEl.innerHTML = `
         <span class="barcode-icon">${is2D ? '⬜' : '📏'}</span>
         <span>${is2D ? '2D Code' : 'Linear Barcode'} (${formatName})</span>
       `;
       
-      // Play beep + vibrate
       beep.currentTime = 0;
       beep.play().catch(() => {});
       if (navigator.vibrate) navigator.vibrate(200);
 
-      // Save tracking number
       saveTrackingNumber(code, is2D ? '2D Code' : 'Linear Barcode', formatName);
-      
-      // Update progress
       updateProgress();
     });
     
@@ -953,33 +1363,41 @@ function startScanner() {
     
   } catch (error) {
     console.error("Scanner initialization error:", error);
-    showError("Scanner Error", "Failed to initialize barcode scanner. Please refresh the page.");
+    showError("Scanner Error", "Failed to initialize barcode scanner. Please refresh the page or use manual entry.");
     statusEl.textContent = "Scanner initialization failed";
   }
 }
 
 // Save tracking number to Google Sheets
-async function saveTrackingNumber(code, barcodeType, barcodeFormat) {
+async function saveTrackingNumber(code, barcodeType, barcodeFormat, isManual = false) {
   try {
     const now = new Date();
-    const scanDate = formatDateMMDDYYYY(now); // Format date as mm/dd/yyyy
+    const scanDate = formatDateMMDDYYYY(now);
+    
+    const payload = { 
+      page: "page2", 
+      tracking: code,
+      barcodeType: barcodeType,
+      barcodeFormat: barcodeFormat,
+      date: scanDate
+    };
+    
+    // Add manual entry specific data
+    if (isManual) {
+      payload.entryMethod = 'manual';
+    } else {
+      payload.entryMethod = 'scan';
+    }
     
     await fetch(WEB_APP_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        page: "page2", 
-        tracking: code,
-        barcodeType: barcodeType,
-        barcodeFormat: barcodeFormat,
-        date: scanDate // Send only date in mm/dd/yyyy format
-      }),
+      body: JSON.stringify(payload),
       mode: "no-cors"
     });
 
-    statusEl.textContent = `Saved ✅ (${barcodeType})`;
-    // Display the date in the UI
-    timestampEl.textContent = `Scan Date: ${scanDate}`;
+    statusEl.textContent = `Saved ✅ (${isManual ? 'Manual' : barcodeType})`;
+    timestampEl.textContent = `Scan Date: ${scanDate}${isManual ? ' - Manual Entry' : ''}`;
 
   } catch (err) {
     console.error("Save error:", err);
@@ -1000,6 +1418,11 @@ function stopCamera() {
     resizeObserver.disconnect();
     resizeObserver = null;
   }
+  
+  if (noScanTimer) {
+    clearTimeout(noScanTimer);
+    noScanTimer = null;
+  }
 }
 
 // Sidebar functions
@@ -1010,6 +1433,234 @@ function goToDashboard() {
 
 function toggleSidebar() {
   sidebar.classList.toggle('open');
+}
+
+// Manual Entry Functions
+function showManualEntryModal() {
+  pauseScanner();
+  manualModal.classList.add('show');
+  manualTrackingInput.focus();
+  manualTrackingInput.classList.remove('error');
+  // Reload tracking numbers when modal opens
+  loadTrackingNumbers();
+}
+
+function hideManualEntryModal() {
+  manualModal.classList.remove('show');
+  manualTrackingInput.value = '';
+  trackingDropdown.innerHTML = '<option>Loading...</option>';
+  resumeScanner();
+}
+
+function pauseScanner() {
+  if (video && video.srcObject) {
+    video.pause();
+  }
+}
+
+function resumeScanner() {
+  if (video && video.srcObject && video.paused) {
+    video.play().catch(e => console.error("Failed to resume video:", e));
+  }
+}
+
+function validateTrackingNumber(tracking) {
+  if (!tracking || tracking.trim() === '') {
+    return { valid: false, message: 'Tracking number cannot be empty' };
+  }
+  
+  tracking = tracking.trim();
+  
+  if (tracking.length < 3) {
+    return { valid: false, message: 'Tracking number is too short (minimum 3 characters)' };
+  }
+  
+  if (tracking.length > 50) {
+    return { valid: false, message: 'Tracking number is too long (maximum 50 characters)' };
+  }
+  
+  // Allow alphanumeric, hyphens, spaces, and common punctuation
+  const invalidChars = /[^a-zA-Z0-9\-\s\.\/\\:]/;
+  if (invalidChars.test(tracking)) {
+    return { valid: false, message: 'Tracking number contains invalid characters' };
+  }
+  
+  return { valid: true, tracking };
+}
+
+async function handleManualEntry() {
+  let tracking = manualTrackingInput.value.trim();
+  
+  const validation = validateTrackingNumber(tracking);
+  if (!validation.valid) {
+    manualTrackingInput.classList.add('error');
+    alert(validation.message);
+    return;
+  }
+  
+  tracking = validation.tracking;
+  
+  if (scanned.has(tracking)) {
+    alert('This tracking number has already been scanned!');
+    hideManualEntryModal();
+    return;
+  }
+  
+  // Show loading state
+  submitManualBtn.classList.add('loading');
+  submitManualBtn.disabled = true;
+  
+  scanned.add(tracking);
+  manualEntryCount++;
+  
+  const barcodeType = "Manual Entry";
+  
+  resultEl.textContent = tracking;
+  barcodeTypeEl.innerHTML = `
+    <span class="barcode-icon">📝</span>
+    <span>${barcodeType}</span>
+  `;
+  
+  beep.currentTime = 0;
+  beep.play().catch(() => {});
+  if (navigator.vibrate) navigator.vibrate(200);
+  
+  await saveTrackingNumber(tracking, barcodeType, "Manual", true);
+  
+  updateProgress();
+  
+  // Remove loading state
+  submitManualBtn.classList.remove('loading');
+  submitManualBtn.disabled = false;
+  
+  hideManualEntryModal();
+}
+
+function showTemporaryMessage(message, type = 'info') {
+  let messageEl = document.getElementById('temporaryMessage');
+  if (!messageEl) {
+    messageEl = document.createElement('div');
+    messageEl.id = 'temporaryMessage';
+    document.body.appendChild(messageEl);
+  }
+  
+  messageEl.textContent = message;
+  messageEl.className = `temporary-message ${type}`;
+  
+  setTimeout(() => {
+    messageEl.classList.add('fade-out');
+    setTimeout(() => {
+      messageEl.remove();
+    }, 300);
+  }, 3000);
+}
+
+function showDamagedBarcodeHelp() {
+  // Remove existing help message if any
+  const existingHelp = document.querySelector('.damaged-barcode-help');
+  if (existingHelp) {
+    existingHelp.remove();
+  }
+  
+  const helpDiv = document.createElement('div');
+  helpDiv.className = 'damaged-barcode-help';
+  helpDiv.innerHTML = `
+    <h4>📦 Having trouble scanning?</h4>
+    <ul>
+      <li>Adjust distance (closer/farther)</li>
+      <li>Ensure good lighting</li>
+      <li>Clean the barcode surface</li>
+      <li>Try different angles</li>
+      <li>Use the <strong>📝 Manual Entry</strong> button below</li>
+    </ul>
+    <button onclick="this.parentElement.remove()" style="
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      text-decoration: underline;
+    ">Dismiss</button>
+  `;
+  document.body.appendChild(helpDiv);
+  
+  // Auto-dismiss after 30 seconds
+  setTimeout(() => {
+    if (helpDiv.parentElement) {
+      helpDiv.remove();
+    }
+  }, 30000);
+}
+
+function suggestCorrection(detectedCode) {
+  // Common OCR error corrections
+  let corrected = detectedCode
+    .replace(/O/g, '0')
+    .replace(/I/g, '1')
+    .replace(/Z/g, '2')
+    .replace(/S/g, '5')
+    .replace(/B/g, '8')
+    .replace(/G/g, '6');
+  
+  return corrected;
+}
+
+function updateManualCount() {
+  let statsDiv = document.getElementById('manualStats');
+  if (!statsDiv) {
+    statsDiv = document.createElement('div');
+    statsDiv.id = 'manualStats';
+    statsDiv.className = 'manual-stats';
+    progressPanel.parentNode.insertBefore(statsDiv, progressPanel.nextSibling);
+  }
+  
+  statsDiv.innerHTML = `
+    <div class="stat-item">
+      <span class="stat-label">Manual Entries:</span>
+      <span class="stat-value">${manualEntryCount}</span>
+    </div>
+  `;
+}
+
+function initManualEntry() {
+  // Single button event listener
+  if (manualEntryBtn) {
+    manualEntryBtn.addEventListener('click', showManualEntryModal);
+  }
+  
+  if (cancelManualBtn) {
+    cancelManualBtn.addEventListener('click', hideManualEntryModal);
+  }
+  
+  if (submitManualBtn) {
+    submitManualBtn.addEventListener('click', handleManualEntry);
+  }
+  
+  if (manualTrackingInput) {
+    manualTrackingInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleManualEntry();
+      }
+    });
+    
+    manualTrackingInput.addEventListener('input', () => {
+      manualTrackingInput.classList.remove('error');
+    });
+  }
+  
+  manualModal.addEventListener('click', (e) => {
+    if (e.target === manualModal) {
+      hideManualEntryModal();
+    }
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && manualModal.classList.contains('show')) {
+      hideManualEntryModal();
+    }
+  });
 }
 
 // Event listeners for mobile sidebar
@@ -1029,25 +1680,20 @@ document.addEventListener('keydown', (e) => {
 
 // Handle orientation changes
 window.addEventListener('orientationchange', () => {
-  // Wait for orientation change to complete
   setTimeout(() => {
     if (currentStream) {
-      // Restart camera to adjust to new orientation
       startCamera();
     }
   }, 300);
 });
 
 window.addEventListener('resize', () => {
-  // Close sidebar on desktop if it was open on mobile
   if (window.innerWidth > 768) {
     sidebar.classList.remove('open');
   }
   
-  // Debounce resize events
   clearTimeout(window.resizeTimer);
   window.resizeTimer = setTimeout(() => {
-    // Update scanner frame size
     const scannerFrame = document.querySelector('.scanner-frame');
     const videoContainer = document.getElementById('videoContainer');
     if (scannerFrame && videoContainer) {
@@ -1060,24 +1706,24 @@ window.addEventListener('resize', () => {
 
 // Check for camera support and start automatically
 window.addEventListener('load', () => {
-  // Check if browser supports camera
+  // Initialize manual entry first
+  initManualEntry();
+  
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showError("Browser Not Supported", 
       "Your browser doesn't support camera access. " +
-      "Please use Chrome, Firefox, or Edge on a device with a camera.");
+      "Please use Chrome, Firefox, or Edge on a device with a camera, or use manual entry.");
     statusEl.textContent = "Camera not supported in this browser";
     return;
   }
   
-  // Check if ZXing library loaded
   if (!window.ZXing) {
     showError("Scanner Library Error", 
-      "Failed to load barcode scanner library. Please check your internet connection and refresh the page.");
+      "Failed to load barcode scanner library. Please check your internet connection and refresh the page, or use manual entry.");
     statusEl.textContent = "Scanner library failed to load";
     return;
   }
   
-  // Start camera automatically
   setTimeout(() => {
     startCamera();
   }, 500);
@@ -1088,13 +1734,11 @@ window.addEventListener('beforeunload', () => {
   stopCamera();
 });
 
-// Handle page visibility changes (tab switching)
+// Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    // Page is hidden, pause video
     video.pause();
   } else {
-    // Page is visible again, resume if we have a stream
     if (currentStream && video.paused) {
       video.play().catch(e => console.error("Failed to resume video:", e));
     }
