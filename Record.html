@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patient Records</title>
+  <title>Patient Records - AJAX Powered</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -749,6 +749,54 @@
       to { transform: rotate(360deg); }
     }
 
+    /* Refresh button styles */
+    .refresh-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      margin-left: auto;
+    }
+
+    .refresh-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .refresh-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .refresh-btn .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Last updated indicator */
+    .last-updated {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     /* ---------- IMAGE MODAL STYLES ---------- */
     .modal {
       position: fixed;
@@ -1179,7 +1227,7 @@
         <span>📋</span>
         <span>Patients Record</span>
       </div>
-      <div class="page-subtitle">View and search all patient records in the system</div>
+      <div class="page-subtitle">AJAX-powered real-time data loading without page reloads</div>
     </div>
     <div class="user-menu">
       <div class="user-avatar">U</div>
@@ -1189,20 +1237,29 @@
   <!-- Content -->
   <div class="content-wrapper">
     <div class="content-container">
-      <!-- Header -->
+      <!-- Header with Refresh Button -->
       <div class="header">
         <div class="header-content">
           <h2>📋 Patients Record</h2>
-          <p>View all patient records with search, filter, and image viewing capabilities</p>
+          <p>View all patient records with AJAX-powered search and real-time updates</p>
+          <div class="last-updated" id="lastUpdated">
+            <span>⏱️ Last updated: <span id="updateTime">Never</span></span>
+          </div>
         </div>
-        <div class="stats-card">
-          <span class="stats-count" id="totalCount">0</span>
-          <span class="stats-label">Total Records</span>
+        <div style="display: flex; gap: 15px; align-items: center;">
+          <div class="stats-card">
+            <span class="stats-count" id="totalCount">0</span>
+            <span class="stats-label">Total Records</span>
+          </div>
+          <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+            <span id="refreshIcon">🔄</span>
+            <span id="refreshText">Refresh Data</span>
+          </button>
         </div>
       </div>
 
       <!-- Filter Info -->
-      <div class="filter-info">
+      <div class="filter-info" id="filterInfo">
         Showing only records where <strong>at least 2 of the first 4 columns</strong> have data.
         <br>First 4 columns: Sample Entry Date, Collection Date, Test name, Patient name
       </div>
@@ -1216,7 +1273,7 @@
                    id="searchInput" 
                    class="search-input" 
                    placeholder="Search by patient name, test name, location, tracking number..."
-                   onkeypress="if(event.key === 'Enter') performSearch()">
+                   onkeyup="debounceSearch()">
           </div>
           
           <div class="search-buttons">
@@ -1259,7 +1316,7 @@
               <td colspan="11">
                 <div class="loading-container">
                   <div class="loading-spinner"></div>
-                  <div>Loading patient records...</div>
+                  <div>Loading patient records via AJAX...</div>
                 </div>
               </td>
             </tr>
@@ -1293,11 +1350,8 @@
 
 <script>
 /* ===== API URLS ===== */
-const DATA_API =
-  "https://script.google.com/macros/s/AKfycbx4xArW62ztoofyoU578qkNRmBpxbU7tN0eJmlcu_Xh16FlHzZKws6PiyLvbsxCZD0hqw/exec";
-
-const IMAGE_API =
-  "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
+const DATA_API = "https://script.google.com/macros/s/AKfycbx4xArW62ztoofyoU578qkNRmBpxbU7tN0eJmlcu_Xh16FlHzZKws6PiyLvbsxCZD0hqw/exec";
+const IMAGE_API = "https://script.google.com/macros/s/AKfycbwZw152zyjIA1gU5Ssn4YRl8kTXrdaDlMB8XzZWHc6Hb4WNI7C6D5W4xH-sRI0lE_ZNTA/exec";
 
 /* ===== DOM ELEMENTS ===== */
 const sidebar = document.getElementById('sidebar');
@@ -1312,6 +1366,11 @@ const imageCaption = document.getElementById("imageCaption");
 const searchInput = document.getElementById("searchInput");
 const searchStats = document.getElementById("searchStats");
 const totalCount = document.getElementById("totalCount");
+const updateTime = document.getElementById("updateTime");
+const refreshBtn = document.getElementById("refreshBtn");
+const refreshIcon = document.getElementById("refreshIcon");
+const refreshText = document.getElementById("refreshText");
+const filterInfo = document.getElementById("filterInfo");
 
 /* ===== ZOOM AND PAN VARIABLES ===== */
 let scale = 1;
@@ -1327,6 +1386,8 @@ let isSearching = false;
 let currentSearchTerm = "";
 let currentImages = [];
 let currentIndex = 0;
+let searchTimeout = null;
+let isLoading = false;
 
 /* ===== SIDEBAR FUNCTIONS (EXACT SAME AS PARCEL PRO) ===== */
 function goToDashboard() {
@@ -1409,6 +1470,148 @@ window.addEventListener('resize', () => {
   }
 });
 
+/* ===== AJAX DATA LOADING FUNCTION ===== */
+function loadData(showLoadingIndicator = true) {
+  // Prevent multiple simultaneous requests
+  if (isLoading) return;
+  
+  isLoading = true;
+  
+  // Update UI to show loading state
+  if (showLoadingIndicator) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="11">
+          <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <div>Fetching latest patient records via AJAX...</div>
+          </div>
+        </td>
+      </tr>
+    `;
+  }
+  
+  // Update refresh button state
+  refreshBtn.disabled = true;
+  refreshIcon.style.animation = 'spin 1s linear infinite';
+  refreshText.textContent = 'Loading...';
+  
+  // Use XMLHttpRequest for broader browser compatibility
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', DATA_API + `?t=${Date.now()}`, true); // Add timestamp to prevent caching
+  
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      try {
+        const data = JSON.parse(xhr.responseText);
+        
+        // Store all data
+        allData = data;
+        
+        // Apply filter: keep only rows with at least 2 of first 4 columns filled
+        filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
+        
+        // Update UI with the new data
+        updateUIAfterLoad();
+        
+        // Update last updated time
+        updateLastUpdatedTime();
+        
+        console.log(`AJAX load complete: ${filteredData.length} records displayed out of ${allData.length} total`);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        showError('Failed to parse data. Please try again.');
+      }
+    } else {
+      console.error('AJAX error:', xhr.status, xhr.statusText);
+      showError(`Failed to load data (HTTP ${xhr.status}). Please try again.`);
+    }
+    
+    // Reset loading state
+    isLoading = false;
+    refreshBtn.disabled = false;
+    refreshIcon.style.animation = '';
+    refreshText.textContent = 'Refresh Data';
+  };
+  
+  xhr.onerror = function() {
+    console.error('Network error occurred');
+    showError('Network error. Please check your connection and try again.');
+    
+    isLoading = false;
+    refreshBtn.disabled = false;
+    refreshIcon.style.animation = '';
+    refreshText.textContent = 'Refresh Data';
+  };
+  
+  xhr.ontimeout = function() {
+    console.error('Request timeout');
+    showError('Request timeout. Please try again.');
+    
+    isLoading = false;
+    refreshBtn.disabled = false;
+    refreshIcon.style.animation = '';
+    refreshText.textContent = 'Refresh Data';
+  };
+  
+  xhr.timeout = 30000; // 30 second timeout
+  xhr.send();
+}
+
+/* ===== REFRESH DATA FUNCTION ===== */
+function refreshData() {
+  loadData(true);
+}
+
+/* ===== UPDATE LAST UPDATED TIME ===== */
+function updateLastUpdatedTime() {
+  const now = new Date();
+  const formattedTime = now.toLocaleTimeString() + ' ' + now.toLocaleDateString();
+  updateTime.textContent = formattedTime;
+}
+
+/* ===== UPDATE UI AFTER DATA LOAD ===== */
+function updateUIAfterLoad() {
+  // Update total count
+  totalCount.textContent = filteredData.length;
+  
+  // Update filter info with counts
+  filterInfo.innerHTML = `
+    Showing only records where <strong>at least 2 of the first 4 columns</strong> have data.<br>
+    First 4 columns: Sample Entry Date, Collection Date, Test name, Patient name<br>
+    Showing <strong>${filteredData.length}</strong> of <strong>${allData.length}</strong> total records.
+  `;
+  
+  // Clear search if active
+  if (isSearching) {
+    currentSearchTerm = "";
+    isSearching = false;
+    searchInput.value = "";
+  }
+  
+  // Display the data
+  updateTableDisplay(filteredData);
+  
+  // Clear search stats
+  searchStats.innerHTML = "";
+}
+
+/* ===== SHOW ERROR MESSAGE ===== */
+function showError(message) {
+  tableBody.innerHTML = `
+    <tr>
+      <td colspan="11" class="no-results">
+        <div class="no-results-icon">⚠️</div>
+        ${message}<br>
+        <button class="search-btn" onclick="loadData(true)" style="margin-top: 15px;">
+          <span>🔄</span>
+          <span>Try Again</span>
+        </button>
+      </td>
+    </tr>
+  `;
+}
+
 /* ===== HELPER FUNCTION: Check if row has min 2 of first 4 columns with data ===== */
 function hasMinTwoColumnsFilled(row) {
   const firstFourColumns = [
@@ -1486,6 +1689,13 @@ function clearSearch() {
   
   // Clear search stats
   searchStats.innerHTML = "";
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    performSearch();
+  }, 300); // Wait 300ms after user stops typing
 }
 
 function updateSearchStats(resultCount, searchTerm = "") {
@@ -1861,54 +2071,24 @@ fsImage.addEventListener("dblclick", e => {
 });
 
 /* ===== INITIALIZATION ===== */
-function initializePage() {
-  // Load data
-  fetch(DATA_API)
-    .then(res => res.json())
-    .then(data => {
-      allData = data;
-      
-      // First filter: keep only rows with at least 2 of first 4 columns filled
-      filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
-      
-      // Update total count
-      totalCount.textContent = filteredData.length;
-      
-      // Update filter info with counts
-      const filterInfo = document.querySelector('.filter-info');
-      filterInfo.innerHTML += `<br>Showing <strong>${filteredData.length}</strong> of <strong>${allData.length}</strong> total records.`;
-      
-      // Initial display of filtered data
-      updateTableDisplay(filteredData);
-      
-      // Add event listener for Enter key in search
-      searchInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-          performSearch();
-        }
-      });
-    })
-    .catch(error => {
-      console.error("Error loading data:", error);
-      tableBody.innerHTML = `
-        <tr>
-          <td colspan="11" class="no-results">
-            <div class="no-results-icon">⚠️</div>
-            Error loading patient records. Please try again.<br>
-            <small style="color: #ef4444;">${error.message || "Network or server error"}</small>
-            <br>
-            <button class="search-btn" onclick="window.location.reload()" style="margin-top: 15px;">
-              <span>🔄</span>
-              <span>Retry</span>
-            </button>
-          </td>
-        </tr>
-      `;
-    });
-}
-
-// Initialize page when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializePage);
+document.addEventListener('DOMContentLoaded', () => {
+  // Load data via AJAX
+  loadData(true);
+  
+  // Add event listeners
+  searchInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      performSearch();
+    }
+  });
+  
+  // Optional: Auto-refresh every 5 minutes
+  setInterval(() => {
+    if (!isLoading && !isSearching) {
+      loadData(false); // Silent refresh in background
+    }
+  }, 300000); // 5 minutes
+});
 </script>
 
 </body>
