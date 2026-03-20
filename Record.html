@@ -858,6 +858,11 @@
       font-family: monospace;
       font-size: 13px;
       border-left: 4px solid #f59e0b;
+      transition: all 0.3s ease;
+    }
+
+    .debug-panel.hidden {
+      display: none;
     }
 
     .debug-panel pre {
@@ -924,7 +929,7 @@
     }
 
     /* Optimized Image Gallery Grid */
-        .gallery {
+    .gallery {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -1300,15 +1305,15 @@
     <div class="menu-section">
       <div class="menu-section-title">Operations</div>
       <div class="menu-items">
-        <a href="#" class="menu-item" data-tooltip="Parcel Entry">
+        <a href="/Dashboard/parcel_entry" class="menu-item" data-tooltip="Parcel Entry">
           <span class="menu-item-icon">📦</span>
           <span class="menu-item-text">Parcel Entry</span>
         </a>
-        <a href="#" class="menu-item" data-tooltip="Parcel Scanner">
+        <a href="/Dashboard/parcel_entry_form" class="menu-item" data-tooltip="Parcel Scanner">
           <span class="menu-item-icon">🔍</span>
           <span class="menu-item-text">Parcel Scanner</span>
         </a>
-        <a href="#" class="menu-item" data-tooltip="Upload Images">
+        <a href="/Dashboard/upload_sample_images" class="menu-item" data-tooltip="Upload Images">
           <span class="menu-item-icon">📷</span>
           <span class="menu-item-text">Upload Images</span>
         </a>
@@ -1318,19 +1323,19 @@
     <div class="menu-section">
       <div class="menu-section-title">Reports</div>
       <div class="menu-items">
-        <a href="delivered_today.html" class="menu-item" data-tooltip="Delivered Today">
+        <a href="/Dashboard/delivered_today" class="menu-item" data-tooltip="Delivered Today">
           <span class="menu-item-icon">📅</span>
           <span class="menu-item-text">Delivered Today</span>
         </a>
-        <a href="total.html" class="menu-item" data-tooltip="All Parcels">
+        <a href="/Dashboard/total" class="menu-item" data-tooltip="All Parcels">
           <span class="menu-item-icon">📊</span>
           <span class="menu-item-text">All Parcels</span>
         </a>
-        <a href="gallery.html" class="menu-item" data-tooltip="Sample Gallery">
+        <a href="/Dashboard/gallery" class="menu-item" data-tooltip="Sample Gallery">
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
         </a>
-        <a href="Record.html" class="menu-item active" data-tooltip="Patients Record">
+        <a href="/Dashboard/Record" class="menu-item active" data-tooltip="Patients Record">
           <span class="menu-item-icon">📋</span>
           <span class="menu-item-text">Patients Record <span class="badge">Fast Images</span></span>
         </a>
@@ -1402,7 +1407,12 @@
       <div class="debug-panel" id="debugPanel">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <strong>🔧 Image Cache Stats</strong>
-          <span style="color: #f59e0b;" id="cacheStats">0 images cached</span>
+          <div>
+            <span style="color: #f59e0b;" id="cacheStats">0 images cached</span>
+            <button class="clear-btn" onclick="toggleDebugPanel()" style="margin-left: 10px; padding: 4px 8px; font-size: 11px;">
+              <span>👁️</span> Hide
+            </button>
+          </div>
         </div>
         <div class="button-group">
           <button class="debug-btn" onclick="testImageLoading()">
@@ -1598,11 +1608,34 @@ function toggleCollapse() {
   localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
 }
 
+// Toggle debug panel visibility
+function toggleDebugPanel() {
+  const panel = document.getElementById('debugPanel');
+  const btn = event.target.closest('button');
+  
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    btn.innerHTML = '<span>👁️</span> Hide';
+  } else {
+    panel.style.display = 'none';
+    btn.innerHTML = '<span>👁️</span> Show';
+  }
+}
+
 // Initialize sidebar
 window.addEventListener('load', () => {
   if (localStorage.getItem('sidebarCollapsed') === 'true') {
     sidebar.classList.add('collapsed');
     mainContent.classList.add('sidebar-collapsed');
+  }
+  
+  // Store debug panel visibility preference
+  const debugPanelHidden = localStorage.getItem('debugPanelHidden');
+  if (debugPanelHidden === 'true') {
+    const panel = document.getElementById('debugPanel');
+    panel.style.display = 'none';
+    const btn = document.querySelector('#debugPanel .clear-btn');
+    if (btn) btn.innerHTML = '<span>👁️</span> Show';
   }
 });
 
@@ -1673,6 +1706,8 @@ function preloadImage(url, caption) {
 // Update cache stats display
 function updateCacheStats() {
   cacheStats.textContent = `${imageCache.size} images cached`;
+  // Save cache stats to localStorage for persistence
+  localStorage.setItem('imageCacheSize', imageCache.size);
 }
 
 // Clear image cache
@@ -2136,4 +2171,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-Read this code
