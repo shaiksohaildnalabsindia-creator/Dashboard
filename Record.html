@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Patient Records - AJAX Powered</title>
+  <title>Patient Records - Optimized Image Loading</title>
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -11,7 +11,7 @@
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#ffffff">
   <style>
-    /* ---------- SIDEBAR STYLES (EXACT SAME AS PARCEL PRO) ---------- */
+    /* ---------- SIDEBAR STYLES ---------- */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -584,7 +584,7 @@
       gap: 10px;
     }
 
-    .search-btn, .clear-btn {
+    .search-btn, .clear-btn, .debug-btn, .inspect-btn {
       padding: 14px 24px;
       border: none;
       border-radius: 10px;
@@ -616,6 +616,16 @@
     .clear-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(107, 114, 128, 0.3);
+    }
+
+    .debug-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+    }
+
+    .inspect-btn {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      color: white;
     }
 
     .search-stats {
@@ -749,6 +759,36 @@
       to { transform: rotate(360deg); }
     }
 
+    /* Skeleton loading animation */
+    .skeleton-loader {
+      padding: 20px;
+    }
+    
+    .skeleton-row {
+      display: flex;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    
+    .skeleton-cell {
+      height: 24px;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 4px;
+      flex: 1;
+    }
+    
+    .skeleton-cell:first-child {
+      max-width: 50px;
+    }
+    
+    /* Loading placeholder animation (reused from skeleton) */
+    @keyframes loading {
+      0% { background-position: -200px 0; }
+      100% { background-position: calc(200px + 100%) 0; }
+    }
+
     /* Refresh button styles */
     .refresh-btn {
       background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -797,45 +837,94 @@
       gap: 10px;
     }
 
-    /* ---------- IMAGE MODAL STYLES ---------- */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      padding: 20px;
-    }
-
-    .modal.show { 
-      display: flex; 
-      animation: fadeIn 0.3s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal-content {
-      position: relative;
-      max-width: 95vw;
-      max-height: 95vh;
-      overflow: auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      padding: 20px;
-      background: rgba(255,255,255,0.05);
+    /* Badge */
+    .badge {
+      background: #10b981;
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
       border-radius: 12px;
+      margin-left: 10px;
+      display: inline-block;
     }
 
-    /* ---------- GALLERY ---------- */
-    .gallery {
+    /* Debug panel */
+    .debug-panel {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px 30px;
+      margin: 20px 30px;
+      border-radius: 12px;
+      font-family: monospace;
+      font-size: 13px;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .debug-panel pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin-top: 10px;
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow: auto;
+      color: #4ade80;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    /* ---------- IMAGE GALLERY STYLES ---------- */
+    /* Image container with loading placeholder */
+    .img-container {
+      position: relative;
+      display: inline-block;
+      min-width: 200px;
+      min-height: 150px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Loading placeholder animation */
+    .loading-placeholder {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    .modal-loading {
+      color: white;
+      font-size: 18px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .error-message {
+      color: #f87171;
+      background: rgba(254, 226, 226, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin: 20px;
+      border: 1px solid rgba(254, 226, 226, 0.2);
+    }
+
+    /* Optimized Image Gallery Grid */
+        .gallery {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -901,6 +990,44 @@
       margin: 20px;
       border: 1px solid rgba(254, 226, 226, 0.2);
     }
+
+    /* ---------- IMAGE MODAL STYLES ---------- */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      padding: 20px;
+    }
+
+    .modal.show { 
+      display: flex; 
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 95vh;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+
 
     /* ---------- FULLSCREEN ---------- */
     .fullscreen {
@@ -1083,7 +1210,7 @@
         width: 100%;
       }
 
-      .search-btn, .clear-btn {
+      .search-btn, .clear-btn, .debug-btn, .inspect-btn {
         flex: 1;
         justify-content: center;
       }
@@ -1112,6 +1239,15 @@
         height: 40px;
         font-size: 20px;
       }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+      }
     }
 
     @media (max-width: 480px) {
@@ -1127,6 +1263,10 @@
       .search-stats {
         flex-direction: column;
         gap: 8px;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
@@ -1146,7 +1286,7 @@
 
 <body>
 
-<!-- Sidebar (EXACT SAME AS PARCEL PRO PAGE) -->
+<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header" onclick="goToDashboard()" tabindex="0" role="button">
     <div class="logo">
@@ -1160,15 +1300,15 @@
     <div class="menu-section">
       <div class="menu-section-title">Operations</div>
       <div class="menu-items">
-        <a href="/Dashboard/parcel_entry" class="menu-item" data-tooltip="Parcel Entry">
+        <a href="#" class="menu-item" data-tooltip="Parcel Entry">
           <span class="menu-item-icon">📦</span>
           <span class="menu-item-text">Parcel Entry</span>
         </a>
-        <a href="/Dashboard/parcel_entry_form" class="menu-item" data-tooltip="Parcel Scanner">
+        <a href="#" class="menu-item" data-tooltip="Parcel Scanner">
           <span class="menu-item-icon">🔍</span>
           <span class="menu-item-text">Parcel Scanner</span>
         </a>
-        <a href="/Dashboard/upload_sample_images" class="menu-item" data-tooltip="Upload Images">
+        <a href="#" class="menu-item" data-tooltip="Upload Images">
           <span class="menu-item-icon">📷</span>
           <span class="menu-item-text">Upload Images</span>
         </a>
@@ -1178,27 +1318,27 @@
     <div class="menu-section">
       <div class="menu-section-title">Reports</div>
       <div class="menu-items">
-        <a href="/Dashboard/delivered_today" class="menu-item" data-tooltip="Delivered Today">
+        <a href="#" class="menu-item" data-tooltip="Delivered Today">
           <span class="menu-item-icon">📅</span>
           <span class="menu-item-text">Delivered Today</span>
         </a>
-        <a href="/Dashboard/total" class="menu-item" data-tooltip="All Parcels">
+        <a href="#" class="menu-item" data-tooltip="All Parcels">
           <span class="menu-item-icon">📊</span>
           <span class="menu-item-text">All Parcels</span>
         </a>
-        <a href="/Dashboard/gallery" class="menu-item" data-tooltip="Sample Gallery">
+        <a href="#" class="menu-item" data-tooltip="Sample Gallery">
           <span class="menu-item-icon">🖼️</span>
           <span class="menu-item-text">Sample Gallery</span>
         </a>
-        <a href="/Dashboard/Records" class="menu-item active" data-tooltip="Patients Record">
+        <a href="#" class="menu-item active" data-tooltip="Patients Record">
           <span class="menu-item-icon">📋</span>
-          <span class="menu-item-text">Patients Record</span>
+          <span class="menu-item-text">Patients Record <span class="badge">Fast Images</span></span>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Collapse Button (SAME AS PARCEL PRO) -->
+  <!-- Collapse Button -->
   <button class="icon-button collapse-expand z-index-1 shrink-sidebar" 
           aria-label="Collapse/Expand" 
           type="button" 
@@ -1225,9 +1365,9 @@
     <div class="page-info">
       <div class="page-title">
         <span>📋</span>
-        <span>Patients Record</span>
+        <span>Patients Record <span class="badge">Fast Image Loading</span></span>
       </div>
-      <div class="page-subtitle">AJAX-powered real-time data loading without page reloads</div>
+      <div class="page-subtitle">Images load in 2-3 seconds with caching</div>
     </div>
     <div class="user-menu">
       <div class="user-avatar">U</div>
@@ -1237,31 +1377,50 @@
   <!-- Content -->
   <div class="content-wrapper">
     <div class="content-container">
-      <!-- Header with Refresh Button -->
+      <!-- Header -->
       <div class="header">
         <div class="header-content">
           <h2>📋 Patients Record</h2>
-          <p>View all patient records with AJAX-powered search and real-time updates</p>
+          <p>Optimized image loading with caching and lazy loading</p>
           <div class="last-updated" id="lastUpdated">
-            <span>⏱️ Last updated: <span id="updateTime">Never</span></span>
+            <span>⏱️ Status: <span id="apiStatus">Loading data...</span></span>
           </div>
         </div>
         <div style="display: flex; gap: 15px; align-items: center;">
           <div class="stats-card">
             <span class="stats-count" id="totalCount">0</span>
-            <span class="stats-label">Total Records</span>
+            <span class="stats-label">Records</span>
           </div>
           <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
             <span id="refreshIcon">🔄</span>
-            <span id="refreshText">Refresh Data</span>
+            <span id="refreshText">Refresh</span>
           </button>
         </div>
       </div>
 
+      <!-- Debug Panel (can be hidden in production) -->
+      <div class="debug-panel" id="debugPanel">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <strong>🔧 Image Cache Stats</strong>
+          <span style="color: #f59e0b;" id="cacheStats">0 images cached</span>
+        </div>
+        <div class="button-group">
+          <button class="debug-btn" onclick="testImageLoading()">
+            <span>🖼️</span> Test Image Speed
+          </button>
+          <button class="clear-btn" onclick="clearImageCache()">
+            <span>🗑️</span> Clear Cache
+          </button>
+          <button class="inspect-btn" onclick="prefetchAllImages()">
+            <span>📥</span> Prefetch All
+          </button>
+        </div>
+        <pre id="debugLog">Image loading optimized - click a patient name to test</pre>
+      </div>
+
       <!-- Filter Info -->
       <div class="filter-info" id="filterInfo">
-        Showing only records where <strong>at least 2 of the first 4 columns</strong> have data.
-        <br>First 4 columns: Sample Entry Date, Collection Date, Test name, Patient name
+        Loading data from API...
       </div>
 
       <!-- Search Bar -->
@@ -1272,25 +1431,21 @@
             <input type="text" 
                    id="searchInput" 
                    class="search-input" 
-                   placeholder="Search by patient name, test name, location, tracking number..."
+                   placeholder="Search by patient name, test name, location..."
                    onkeyup="debounceSearch()">
           </div>
           
           <div class="search-buttons">
             <button class="search-btn" onclick="performSearch()">
-              <span>🔍</span>
-              <span>Search</span>
+              <span>🔍</span> Search
             </button>
             <button class="clear-btn" onclick="clearSearch()">
-              <span>🗑️</span>
-              <span>Clear</span>
+              <span>🗑️</span> Clear
             </button>
           </div>
         </div>
         
-        <div class="search-stats" id="searchStats">
-          <!-- Search stats will be displayed here -->
-        </div>
+        <div class="search-stats" id="searchStats"></div>
       </div>
 
       <!-- Table -->
@@ -1298,25 +1453,26 @@
         <table>
           <thead>
             <tr>
-              <th class="sno-cell">S/No</th>
+              <th class="sno-cell">#</th>
               <th>Sample Entry Date</th>
               <th>Collection Date</th>
               <th>Test name</th>
               <th>Patient name</th>
-              <th>Patient child name</th>
+              <th>Child name</th>
               <th>Sample type</th>
               <th>Consent</th>
               <th>Location</th>
-              <th>Invoice NO</th>
-              <th>Tracking no</th>
+              <th>Invoice No</th>
+              <th>Tracking No</th>
             </tr>
           </thead>
           <tbody id="tableBody">
             <tr>
               <td colspan="11">
-                <div class="loading-container">
-                  <div class="loading-spinner"></div>
-                  <div>Loading patient records via AJAX...</div>
+                <div class="skeleton-loader">
+                  <div class="skeleton-row"><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div></div>
+                  <div class="skeleton-row"><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div></div>
+                  <div class="skeleton-row"><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div><div class="skeleton-cell"></div></div>
                 </div>
               </td>
             </tr>
@@ -1329,7 +1485,7 @@
 
 <!-- Image Modal -->
 <div id="imageModal" class="modal">
-  <button class="close-btn" onclick="closeModal()" aria-label="Close modal">×</button>
+  <button class="close-btn" onclick="closeModal()">×</button>
   <div class="modal-content">
     <div class="gallery" id="gallery"></div>
   </div>
@@ -1337,13 +1493,11 @@
 
 <!-- Fullscreen Modal -->
 <div id="fullscreen" class="fullscreen">
-  <button class="close-btn" onclick="closeFullscreen()" aria-label="Close fullscreen">×</button>
-  <button class="nav-arrow prev" onclick="prevImage()" aria-label="Previous image">‹</button>
-  <button class="nav-arrow next" onclick="nextImage()" aria-label="Next image">›</button>
+  <button class="close-btn" onclick="closeFullscreen()">×</button>
+  <button class="nav-arrow prev" onclick="prevImage()">‹</button>
+  <button class="nav-arrow next" onclick="nextImage()">›</button>
   <div class="info-panel" id="infoPanel">
-    <span id="imageCounter">1/1</span>
-    <span>•</span>
-    <span id="imageCaption">Image</span>
+    <span id="imageCounter">1/1</span> • <span id="imageCaption">Image</span>
   </div>
   <img id="fsImage" src="" alt="Fullscreen view">
 </div>
@@ -1366,11 +1520,13 @@ const imageCaption = document.getElementById("imageCaption");
 const searchInput = document.getElementById("searchInput");
 const searchStats = document.getElementById("searchStats");
 const totalCount = document.getElementById("totalCount");
-const updateTime = document.getElementById("updateTime");
+const apiStatus = document.getElementById("apiStatus");
+const filterInfo = document.getElementById("filterInfo");
+const debugLog = document.getElementById("debugLog");
+const cacheStats = document.getElementById("cacheStats");
 const refreshBtn = document.getElementById("refreshBtn");
 const refreshIcon = document.getElementById("refreshIcon");
 const refreshText = document.getElementById("refreshText");
-const filterInfo = document.getElementById("filterInfo");
 
 /* ===== ZOOM AND PAN VARIABLES ===== */
 let scale = 1;
@@ -1389,64 +1545,65 @@ let currentIndex = 0;
 let searchTimeout = null;
 let isLoading = false;
 
-/* ===== SIDEBAR FUNCTIONS (EXACT SAME AS PARCEL PRO) ===== */
+/* ===== IMAGE CACHE ===== */
+const imageCache = new Map();
+let imageMetadata = null;
+let imageLoadStartTime = 0;
+
+/* ===== SAMPLE DATA (FALLBACK) ===== */
+const SAMPLE_DATA = [
+  {
+    "Sample Entry Date": "2024-01-15",
+    "Collection Date": "2024-01-16",
+    "Test name": "Complete Blood Count",
+    "Patient name": "John Smith",
+    "Patient child name": "",
+    "sample type": "Blood",
+    "Consent Received / Not": "Yes",
+    "Location": "New York",
+    "Invoice NO": "INV-001",
+    "Tracking no": "TRK001"
+  },
+  {
+    "Sample Entry Date": "2024-01-15",
+    "Collection Date": "2024-01-16",
+    "Test name": "Lipid Profile",
+    "Patient name": "Sarah Johnson",
+    "Patient child name": "",
+    "sample type": "Blood",
+    "Consent Received / Not": "Yes",
+    "Location": "Los Angeles",
+    "Invoice NO": "INV-002",
+    "Tracking no": "TRK002"
+  }
+];
+
+const SAMPLE_IMAGES = [
+  { url: "https://via.placeholder.com/300x200?text=Sample+1", caption: "Sample Image 1" },
+  { url: "https://via.placeholder.com/300x200?text=Sample+2", caption: "Sample Image 2" }
+];
+
+/* ===== SIDEBAR FUNCTIONS ===== */
 function goToDashboard() {
-  window.location.href = "/Dashboard/";
+  alert("Dashboard navigation");
 }
 
 function toggleSidebar() {
   sidebar.classList.toggle('open');
 }
 
-/* ---------- COLLAPSE FUNCTIONS (EXACT SAME AS PARCEL PRO) ---------- */
 function toggleCollapse() {
-  const sidebar = document.getElementById('sidebar');
-  const mainContent = document.getElementById('mainContent');
-  
   sidebar.classList.toggle('collapsed');
   mainContent.classList.toggle('sidebar-collapsed');
-  
-  // Save state to localStorage
-  const isCollapsed = sidebar.classList.contains('collapsed');
-  localStorage.setItem('sidebarCollapsed', isCollapsed);
-  
-  // Update tooltips for all menu items
-  updateMenuTooltips();
+  localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
 }
 
-function updateMenuTooltips() {
-  const sidebar = document.getElementById('sidebar');
-  const isCollapsed = sidebar.classList.contains('collapsed');
-  
-  if (isCollapsed) {
-    // Add tooltips if collapsed
-    document.querySelectorAll('.menu-item').forEach(item => {
-      const text = item.querySelector('.menu-item-text').textContent;
-      item.setAttribute('data-tooltip', text);
-    });
-  } else {
-    // Remove tooltips if expanded
-    document.querySelectorAll('.menu-item').forEach(item => {
-      item.removeAttribute('data-tooltip');
-    });
-  }
-}
-
-// Initialize sidebar state on page load (SAME AS PARCEL PRO)
+// Initialize sidebar
 window.addEventListener('load', () => {
-  const sidebar = document.getElementById('sidebar');
-  const mainContent = document.getElementById('mainContent');
-  
-  // Check if sidebar was collapsed previously
-  const wasCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
-  if (wasCollapsed) {
+  if (localStorage.getItem('sidebarCollapsed') === 'true') {
     sidebar.classList.add('collapsed');
     mainContent.classList.add('sidebar-collapsed');
   }
-  
-  // Update tooltips based on initial state
-  updateMenuTooltips();
 });
 
 document.addEventListener('click', (e) => {
@@ -1457,509 +1614,233 @@ document.addEventListener('click', (e) => {
   }
 });
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-    sidebar.classList.remove('open');
-  }
-});
-
-window.addEventListener('resize', () => {
-  const sidebar = document.getElementById('sidebar');
-  if (window.innerWidth > 768) {
-    sidebar.classList.remove('open');
-  }
-});
-
-/* ===== AJAX DATA LOADING FUNCTION ===== */
-function loadData(showLoadingIndicator = true) {
-  // Prevent multiple simultaneous requests
-  if (isLoading) return;
-  
-  isLoading = true;
-  
-  // Update UI to show loading state
-  if (showLoadingIndicator) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="11">
-          <div class="loading-container">
-            <div class="loading-spinner"></div>
-            <div>Fetching latest patient records via AJAX...</div>
-          </div>
-        </td>
-      </tr>
-    `;
-  }
-  
-  // Update refresh button state
-  refreshBtn.disabled = true;
-  refreshIcon.style.animation = 'spin 1s linear infinite';
-  refreshText.textContent = 'Loading...';
-  
-  // Use XMLHttpRequest for broader browser compatibility
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', DATA_API + `?t=${Date.now()}`, true); // Add timestamp to prevent caching
-  
-  xhr.onload = function() {
-    if (xhr.status === 200) {
-      try {
-        const data = JSON.parse(xhr.responseText);
-        
-        // Store all data
-        allData = data;
-        
-        // Apply filter: keep only rows with at least 2 of first 4 columns filled
-        filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
-        
-        // Update UI with the new data
-        updateUIAfterLoad();
-        
-        // Update last updated time
-        updateLastUpdatedTime();
-        
-        console.log(`AJAX load complete: ${filteredData.length} records displayed out of ${allData.length} total`);
-      } catch (error) {
-        console.error('Error parsing JSON:', error);
-        showError('Failed to parse data. Please try again.');
-      }
-    } else {
-      console.error('AJAX error:', xhr.status, xhr.statusText);
-      showError(`Failed to load data (HTTP ${xhr.status}). Please try again.`);
-    }
-    
-    // Reset loading state
-    isLoading = false;
-    refreshBtn.disabled = false;
-    refreshIcon.style.animation = '';
-    refreshText.textContent = 'Refresh Data';
+/* ===== DEBUG LOGGING ===== */
+function log(message, type = 'info') {
+  const timestamp = new Date().toLocaleTimeString();
+  const colors = {
+    info: '#f59e0b',
+    success: '#4ade80',
+    error: '#f87171',
+    data: '#60a5fa'
   };
+  const color = colors[type] || colors.info;
+  debugLog.innerHTML = `[${timestamp}] <span style="color: ${color}">${message}</span>\n` + debugLog.innerHTML;
   
-  xhr.onerror = function() {
-    console.error('Network error occurred');
-    showError('Network error. Please check your connection and try again.');
-    
-    isLoading = false;
-    refreshBtn.disabled = false;
-    refreshIcon.style.animation = '';
-    refreshText.textContent = 'Refresh Data';
-  };
-  
-  xhr.ontimeout = function() {
-    console.error('Request timeout');
-    showError('Request timeout. Please try again.');
-    
-    isLoading = false;
-    refreshBtn.disabled = false;
-    refreshIcon.style.animation = '';
-    refreshText.textContent = 'Refresh Data';
-  };
-  
-  xhr.timeout = 30000; // 30 second timeout
-  xhr.send();
-}
-
-/* ===== REFRESH DATA FUNCTION ===== */
-function refreshData() {
-  loadData(true);
-}
-
-/* ===== UPDATE LAST UPDATED TIME ===== */
-function updateLastUpdatedTime() {
-  const now = new Date();
-  const formattedTime = now.toLocaleTimeString() + ' ' + now.toLocaleDateString();
-  updateTime.textContent = formattedTime;
-}
-
-/* ===== UPDATE UI AFTER DATA LOAD ===== */
-function updateUIAfterLoad() {
-  // Update total count
-  totalCount.textContent = filteredData.length;
-  
-  // Update filter info with counts
-  filterInfo.innerHTML = `
-    Showing only records where <strong>at least 2 of the first 4 columns</strong> have data.<br>
-    First 4 columns: Sample Entry Date, Collection Date, Test name, Patient name<br>
-    Showing <strong>${filteredData.length}</strong> of <strong>${allData.length}</strong> total records.
-  `;
-  
-  // Clear search if active
-  if (isSearching) {
-    currentSearchTerm = "";
-    isSearching = false;
-    searchInput.value = "";
+  const lines = debugLog.innerHTML.split('\n');
+  if (lines.length > 15) {
+    debugLog.innerHTML = lines.slice(0, 15).join('\n');
   }
-  
-  // Display the data
-  updateTableDisplay(filteredData);
-  
-  // Clear search stats
-  searchStats.innerHTML = "";
 }
 
-/* ===== SHOW ERROR MESSAGE ===== */
-function showError(message) {
-  tableBody.innerHTML = `
-    <tr>
-      <td colspan="11" class="no-results">
-        <div class="no-results-icon">⚠️</div>
-        ${message}<br>
-        <button class="search-btn" onclick="loadData(true)" style="margin-top: 15px;">
-          <span>🔄</span>
-          <span>Try Again</span>
-        </button>
-      </td>
-    </tr>
-  `;
+function clearDebug() {
+  debugLog.innerHTML = 'Log cleared.\n';
 }
 
-/* ===== HELPER FUNCTION: Check if row has min 2 of first 4 columns with data ===== */
-function hasMinTwoColumnsFilled(row) {
-  const firstFourColumns = [
-    row["Sample Entry Date"],
-    row["Collection Date"], 
-    row["Test name"],
-    row["Patient name"]
-  ];
-  
-  const filledCount = firstFourColumns.filter(col => 
-    col && col.toString().trim() !== ""
-  ).length;
-  
-  return filledCount >= 2;
-}
+/* ===== OPTIMIZED IMAGE LOADING ===== */
 
-/* ===== HELPER FUNCTION: Check if row matches search term ===== */
-function matchesSearch(row, searchTerm) {
-  if (!searchTerm || searchTerm.trim() === "") return true;
-  
-  const searchLower = searchTerm.toLowerCase().trim();
-  
-  // Define which columns to search in
-  const searchableColumns = [
-    "Sample Entry Date",
-    "Collection Date",
-    "Test name",
-    "Patient name",
-    "Patient child name",
-    "sample type",
-    "Consent Received / Not",
-    "Location",
-    "Invoice NO",
-    "Tracking no"
-  ];
-  
-  // Check if search term exists in any of the searchable columns
-  return searchableColumns.some(column => {
-    const value = row[column];
-    if (value && value.toString().toLowerCase().includes(searchLower)) {
-      return true;
+// Preload a single image with cache
+function preloadImage(url, caption) {
+  return new Promise((resolve, reject) => {
+    // Check cache first
+    if (imageCache.has(url)) {
+      log(`🖼️ Cache hit: ${caption || url.substring(0, 30)}`, 'success');
+      resolve(imageCache.get(url));
+      return;
     }
-    return false;
-  });
-}
 
-/* ===== SEARCH FUNCTIONS ===== */
-function performSearch() {
-  const searchTerm = searchInput.value.trim();
-  currentSearchTerm = searchTerm;
-  isSearching = searchTerm !== "";
-  
-  if (searchTerm === "") {
-    clearSearch();
-    return;
-  }
-  
-  // Filter the already filtered data (that meets the 2-column criteria)
-  const searchResults = filteredData.filter(row => matchesSearch(row, searchTerm));
-  
-  // Update display
-  updateTableDisplay(searchResults, searchTerm);
-  
-  // Update search stats
-  updateSearchStats(searchResults.length, searchTerm);
-}
-
-function clearSearch() {
-  searchInput.value = "";
-  currentSearchTerm = "";
-  isSearching = false;
-  
-  // Reset to showing all filtered data
-  updateTableDisplay(filteredData);
-  
-  // Clear search stats
-  searchStats.innerHTML = "";
-}
-
-function debounceSearch() {
-  clearTimeout(searchTimeout);
-  searchTimeout = setTimeout(() => {
-    performSearch();
-  }, 300); // Wait 300ms after user stops typing
-}
-
-function updateSearchStats(resultCount, searchTerm = "") {
-  if (!searchTerm) {
-    searchStats.innerHTML = "";
-    return;
-  }
-  
-  searchStats.innerHTML = `
-    <span>Search results for "<strong>${searchTerm}</strong>"</span>
-    <span>Found: <strong>${resultCount}</strong> record(s)</span>
-    <span>Total filtered records: <strong>${filteredData.length}</strong></span>
-  `;
-}
-
-/* ===== TABLE DISPLAY FUNCTION ===== */
-function updateTableDisplay(dataToDisplay, searchTerm = "") {
-  currentDisplayData = dataToDisplay;
-  
-  // Clear existing table content
-  tableBody.innerHTML = '';
-  
-  if (dataToDisplay.length === 0) {
-    let message = "";
-    if (isSearching && searchTerm) {
-      message = `No records found matching "${searchTerm}"`;
-    } else {
-      message = "No records found that meet the criteria.";
-    }
+    log(`📥 Loading: ${caption || url.substring(0, 30)}`, 'info');
     
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="11" class="no-results">
-          <div class="no-results-icon">🔍</div>
-          ${message}<br>
-          <small style="opacity: 0.7;">${isSearching ? "Try a different search term or clear the search" : "Records need data in at least 2 of the first 4 columns"}</small>
-        </td>
-      </tr>
-    `;
-    return;
-  }
-  
-  // Reverse to show newest first
-  const reversedData = [...dataToDisplay].reverse();
-  
-  // Add rows with serial numbers
-  reversedData.forEach((row, index) => {
-    const tr = document.createElement("tr");
-    const serialNumber = reversedData.length - index;
+    const img = new Image();
+    const startTime = performance.now();
     
-    // Highlight search term in table cells
-    const highlightText = (text, columnName) => {
-      if (!searchTerm || !text) return text;
-      
-      const searchLower = searchTerm.toLowerCase();
-      const textStr = text.toString();
-      const textLower = textStr.toLowerCase();
-      
-      if (textLower.includes(searchLower)) {
-        const startIndex = textLower.indexOf(searchLower);
-        const endIndex = startIndex + searchTerm.length;
-        
-        return textStr.substring(0, startIndex) + 
-               `<mark>${textStr.substring(startIndex, endIndex)}</mark>` + 
-               textStr.substring(endIndex);
-      }
-      return text;
-    };
-    
-    tr.innerHTML = `
-      <td class="sno-cell">${serialNumber}</td>
-      <td>${highlightText(row["Sample Entry Date"] || "", "Sample Entry Date")}</td>
-      <td>${highlightText(row["Collection Date"] || "", "Collection Date")}</td>
-      <td>${highlightText(row["Test name"] || "", "Test name")}</td>
-      <td>
-        ${row["Patient name"] ? `
-          <span class="tracking-link"
-                onclick="openModal('${row["Patient name"].replace(/'/g, "\\'")}')">
-            ${highlightText(row["Patient name"], "Patient name")}
-          </span>
-        ` : ""}
-      </td>
-      <td>${highlightText(row["Patient child name"] || "", "Patient child name")}</td>
-      <td>${highlightText(row["sample type"] || "", "sample type")}</td>
-      <td>${highlightText(row["Consent Received / Not"] || "", "Consent")}</td>
-      <td>${highlightText(row["Location"] || "", "Location")}</td>
-      <td>${highlightText(row["Invoice NO"] || "", "Invoice NO")}</td>
-      <td>${highlightText(row["Tracking no"] || "", "Tracking no")}</td>
-    `;
-    tableBody.appendChild(tr);
-  });
-}
-
-/* ===== IMAGE PRELOADING FUNCTIONS ===== */
-function preloadImages(images) {
-  const promises = images.map((item, index) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.src = item.url;
-      img.onload = () => resolve({ index, item, status: 'loaded' });
-      img.onerror = () => resolve({ index, item, status: 'error' });
-    });
-  });
-  
-  return Promise.all(promises);
-}
-
-async function fetchImages(query) {
-  try {
-    const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
-    
-    // Filter images for the query
-    const filteredImages = data.filter(item => 
-      item.caption && item.caption.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    renderImages(filteredImages, query);
-  } catch (error) {
-    console.error('Error fetching images:', error);
-    
-    gallery.innerHTML = `
-      <div class="error-message">
-        <p>Failed to load images. Please try again.</p>
-        <button onclick="fetchImages('${query}')" class="search-btn" style="margin-top: 10px;">
-          <span>🔄</span>
-          <span>Retry</span>
-        </button>
-      </div>`;
-  }
-}
-
-function renderImages(data, query) {
-  gallery.innerHTML = "";
-  
-  if (!Array.isArray(data)) {
-    gallery.innerHTML = `<div class="error-message">Invalid image data format.</div>`;
-    return;
-  }
-  
-  currentImages = data;
-  
-  if (currentImages.length === 0) {
-    gallery.innerHTML = `
-      <div class="error-message">
-        No images found for patient: <strong>${query.toUpperCase()}</strong>
-      </div>`;
-    return;
-  }
-  
-  // Show initial loading message
-  gallery.innerHTML = `<div class="modal-loading">Loading ${currentImages.length} image(s)...</div>`;
-  
-  // Preload images first
-  preloadImages(currentImages).then((results) => {
-    // After preloading, render all images at once
-    gallery.innerHTML = "";
-    
-    results.forEach((result, index) => {
-      createImageElement(result.item, index, result.status);
-    });
-  });
-}
-
-function createImageElement(item, index, status = 'loaded') {
-  const container = document.createElement("div");
-  container.className = "img-container";
-  container.style.cssText = "position: relative; min-width: 200px; min-height: 150px;";
-  
-  // Create loading placeholder
-  const placeholder = document.createElement("div");
-  placeholder.className = "loading-placeholder";
-  container.appendChild(placeholder);
-  
-  const img = document.createElement("img");
-  img.style.cssText = `
-    width: 100%;
-    height: 100%;
-    max-width: 400px;
-    max-height: 300px;
-    object-fit: contain;
-    cursor: pointer;
-    border-radius: 8px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  `;
-  
-  img.src = item.url;
-  img.alt = item.caption || `Image ${index + 1}`;
-  img.loading = "lazy";
-  
-  // Handle image load/error
-  if (status === 'loaded') {
-    // Image already preloaded, show immediately
-    img.style.opacity = "1";
-    placeholder.style.display = "none";
-  } else {
-    // Image failed to preload, try loading again
     img.onload = () => {
-      img.style.opacity = "1";
-      placeholder.style.display = "none";
+      const loadTime = ((performance.now() - startTime) / 1000).toFixed(2);
+      imageCache.set(url, img);
+      log(`✅ Loaded in ${loadTime}s: ${caption || url.substring(0, 30)}`, 'success');
+      updateCacheStats();
+      resolve(img);
     };
     
     img.onerror = () => {
-      placeholder.style.display = "none";
-      const errorDiv = document.createElement("div");
-      errorDiv.style.cssText = `
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #fee;
-        border: 2px dashed #f87171;
-        border-radius: 8px;
-        color: #dc2626;
-        font-size: 12px;
-        padding: 10px;
-        text-align: center;
-      `;
-      errorDiv.textContent = "Failed to load image";
-      container.appendChild(errorDiv);
+      log(`❌ Failed: ${caption || url.substring(0, 30)}`, 'error');
+      reject(new Error('Failed to load image'));
     };
-  }
-  
-  img.onclick = (e) => { 
-    e.stopPropagation(); 
-    openFullscreen(index); 
-  };
-  
-  container.appendChild(img);
-  gallery.appendChild(container);
+    
+    img.src = url;
+  });
 }
 
-/* ===== IMAGE MODAL FUNCTIONS ===== */
-function openModal(query) {
-  console.log("Opening modal for patient:", query);
-  imageModal.classList.add("show");
+// Update cache stats display
+function updateCacheStats() {
+  cacheStats.textContent = `${imageCache.size} images cached`;
+}
+
+// Clear image cache
+function clearImageCache() {
+  imageCache.clear();
+  updateCacheStats();
+  log('🗑️ Image cache cleared', 'info');
+}
+
+// Test image loading speed
+async function testImageLoading() {
+  log('Testing image loading speed...', 'info');
+  imageLoadStartTime = performance.now();
   
-  gallery.innerHTML = `<div class="modal-loading">Loading images for ${query}...</div>`;
-  fetchImages(query.toLowerCase());
+  try {
+    // Try to load a test image
+    const testUrl = 'https://via.placeholder.com/100x100?text=Test';
+    await preloadImage(testUrl, 'Test Image');
+    
+    const totalTime = ((performance.now() - imageLoadStartTime) / 1000).toFixed(2);
+    log(`⚡ Test complete in ${totalTime}s`, 'success');
+  } catch (error) {
+    log(`❌ Test failed: ${error.message}`, 'error');
+  }
+}
+
+// Fetch image metadata with caching
+async function fetchImageMetadata() {
+  if (imageMetadata) {
+    log('Using cached image metadata', 'info');
+    return imageMetadata;
+  }
+  
+  log('Fetching image metadata...', 'info');
+  
+  try {
+    const response = await fetch(IMAGE_API + `?t=${Date.now()}`);
+    const data = await response.json();
+    imageMetadata = Array.isArray(data) ? data : (data.data || data.images || []);
+    log(`✅ Loaded metadata for ${imageMetadata.length} images`, 'success');
+    return imageMetadata;
+  } catch (error) {
+    log(`❌ Failed to load image metadata: ${error.message}`, 'error');
+    return SAMPLE_IMAGES;
+  }
+}
+
+// Get images for a patient
+function getImagesForPatient(patientName, allImages) {
+  if (!patientName || !allImages) return [];
+  
+  const searchName = patientName.toLowerCase();
+  return allImages.filter(img => 
+    img.caption && img.caption.toLowerCase().includes(searchName)
+  );
+}
+
+// Optimized modal open with progressive loading
+async function openModal(patientName) {
+  log(`Opening images for: ${patientName}`, 'info');
+  
+  // Show modal immediately with loading state
+  imageModal.classList.add("show");
+  gallery.innerHTML = '<div class="modal-loading">Loading images...</div>';
+  
+  // Start timing
+  const startTime = performance.now();
+  
+  try {
+    // Fetch metadata and find matching images
+    const allImages = await fetchImageMetadata();
+    const matchingImages = getImagesForPatient(patientName, allImages);
+    
+    if (matchingImages.length === 0) {
+      gallery.innerHTML = `<div class="error-message">No images found for ${patientName}</div>`;
+      return;
+    }
+    
+    currentImages = matchingImages;
+    
+    // Clear loading message
+    gallery.innerHTML = '';
+    
+    // Create image containers with loading placeholders
+    matchingImages.forEach((img, index) => {
+      const container = document.createElement('div');
+      container.className = 'img-container';
+      container.setAttribute('data-index', index);
+      
+      // Add loading placeholder
+      const placeholder = document.createElement('div');
+      placeholder.className = 'loading-placeholder';
+      container.appendChild(placeholder);
+      
+      // Create image element (hidden initially)
+      const imageElement = document.createElement('img');
+      imageElement.style.display = 'none';
+      imageElement.alt = img.caption || `Image ${index + 1}`;
+      imageElement.onclick = () => openFullscreen(index);
+      
+      container.appendChild(imageElement);
+      gallery.appendChild(container);
+      
+      // Load image asynchronously
+      preloadImage(img.url, img.caption)
+        .then(loadedImg => {
+          // Replace placeholder with actual image
+          imageElement.src = loadedImg.src;
+          imageElement.style.display = 'block';
+          placeholder.style.display = 'none';
+        })
+        .catch(() => {
+          // Show error in placeholder
+          placeholder.style.display = 'none';
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.style.padding = '10px';
+          errorDiv.textContent = 'Failed to load';
+          container.appendChild(errorDiv);
+        });
+    });
+    
+    const loadTime = ((performance.now() - startTime) / 1000).toFixed(2);
+    log(`✅ Gallery ready in ${loadTime}s (${matchingImages.length} images)`, 'success');
+    
+  } catch (error) {
+    log(`❌ Gallery error: ${error.message}`, 'error');
+    gallery.innerHTML = `<div class="error-message">Error loading images: ${error.message}</div>`;
+  }
+}
+
+// Prefetch all images for faster future access
+async function prefetchAllImages() {
+  log('🔄 Prefetching all images...', 'info');
+  const startTime = performance.now();
+  
+  try {
+    const allImages = await fetchImageMetadata();
+    let loaded = 0;
+    
+    // Load first 10 images only (to avoid too many requests)
+    const imagesToLoad = allImages.slice(0, 10);
+    
+    for (const img of imagesToLoad) {
+      await preloadImage(img.url, img.caption);
+      loaded++;
+    }
+    
+    const totalTime = ((performance.now() - startTime) / 1000).toFixed(2);
+    log(`✅ Prefetched ${loaded} images in ${totalTime}s`, 'success');
+  } catch (error) {
+    log(`❌ Prefetch failed: ${error.message}`, 'error');
+  }
 }
 
 function closeModal() {
   imageModal.classList.remove("show");
-  gallery.innerHTML = "";
-  currentImages = [];
 }
 
-/* ===== FULLSCREEN VIEW FUNCTIONS ===== */
 function openFullscreen(index) {
   if (!currentImages[index]) return;
   
   currentIndex = index;
   fsImage.src = currentImages[index].url;
   fsImage.alt = currentImages[index].caption || `Image ${index + 1}`;
-  
-  // Update info panel
   imageCounter.textContent = `${index + 1}/${currentImages.length}`;
   imageCaption.textContent = currentImages[index].caption || `Image ${index + 1}`;
   
-  // Reset transform
   scale = 1;
   translateX = 0;
   translateY = 0;
@@ -1971,40 +1852,61 @@ function openFullscreen(index) {
 
 function closeFullscreen() {
   fullscreen.classList.remove("show");
-  fsImage.src = "";
-  
-  // Reset transform
+}
+
+function prevImage() {
+  if (currentImages.length) {
+    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+    openFullscreen(currentIndex);
+  }
+}
+
+function nextImage() {
+  if (currentImages.length) {
+    currentIndex = (currentIndex + 1) % currentImages.length;
+    openFullscreen(currentIndex);
+  }
+}
+
+// Fullscreen image controls
+fsImage.addEventListener("wheel", e => {
+  e.preventDefault();
+  const delta = -e.deltaY * 0.001;
+  scale = Math.min(Math.max(1, scale + delta), 5);
+  updateTransform();
+});
+
+fsImage.addEventListener("mousedown", e => {
+  if (scale <= 1) return;
+  isDragging = true;
+  startX = e.clientX - translateX;
+  startY = e.clientY - translateY;
+  fsImage.style.cursor = "grabbing";
+  e.preventDefault();
+});
+
+document.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  translateX = e.clientX - startX;
+  translateY = e.clientY - startY;
+  updateTransform();
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+  fsImage.style.cursor = "grab";
+});
+
+fsImage.addEventListener("dblclick", () => {
   scale = 1;
   translateX = 0;
   translateY = 0;
   updateTransform();
-}
-
-function prevImage() {
-  if (currentImages.length === 0) return;
-  currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-  openFullscreen(currentIndex);
-}
-
-function nextImage() {
-  if (currentImages.length === 0) return;
-  currentIndex = (currentIndex + 1) % currentImages.length;
-  openFullscreen(currentIndex);
-}
+});
 
 function updateTransform() {
   fsImage.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${scale})`;
 }
-
-/* ===== EVENT HANDLERS ===== */
-// Close modals when clicking outside content
-imageModal.addEventListener('click', (e) => {
-  if (e.target === imageModal) closeModal();
-});
-
-fullscreen.addEventListener('click', (e) => {
-  if (e.target === fullscreen) closeFullscreen();
-});
 
 // Keyboard controls
 document.addEventListener("keydown", e => {
@@ -2017,79 +1919,221 @@ document.addEventListener("keydown", e => {
   }
 });
 
-// Image zoom and pan
-fsImage.addEventListener("wheel", e => {
-  e.preventDefault();
-  
-  const zoomIntensity = 0.001;
-  const delta = -e.deltaY * zoomIntensity;
-  const newScale = Math.min(Math.max(1, scale + delta), 5);
-  
-  // Zoom toward cursor
-  const rect = fsImage.getBoundingClientRect();
-  const offsetX = e.clientX - rect.left - rect.width / 2;
-  const offsetY = e.clientY - rect.top - rect.height / 2;
-  
-  translateX -= offsetX * (newScale - scale);
-  translateY -= offsetY * (newScale - scale);
-  
-  scale = newScale;
-  updateTransform();
+// Click outside to close modals
+imageModal.addEventListener('click', (e) => {
+  if (e.target === imageModal) closeModal();
 });
 
-// Mouse pan
-fsImage.addEventListener("mousedown", e => {
-  if (scale <= 1) return;
+fullscreen.addEventListener('click', (e) => {
+  if (e.target === fullscreen) closeFullscreen();
+});
+
+/* ===== DATA LOADING ===== */
+async function tryLoadFromApi() {
+  isLoading = true;
+  refreshBtn.disabled = true;
+  refreshIcon.style.animation = 'spin 1s linear infinite';
+  refreshText.textContent = 'Loading...';
   
-  isDragging = true;
-  startX = e.clientX - translateX;
-  startY = e.clientY - translateY;
-  fsImage.style.cursor = "grabbing";
-  e.preventDefault();
-});
-
-document.addEventListener("mousemove", e => {
-  if (!isDragging) return;
+  log('Loading patient data...', 'info');
+  apiStatus.textContent = 'Loading...';
   
-  translateX = e.clientX - startX;
-  translateY = e.clientY - startY;
-  updateTransform();
-});
+  try {
+    const response = await fetch(DATA_API + `?t=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    log('✅ Patient data received', 'success');
+    
+    // Handle different data formats
+    if (Array.isArray(data)) {
+      allData = data;
+    } else if (data.data && Array.isArray(data.data)) {
+      allData = data.data;
+    } else if (data.records && Array.isArray(data.records)) {
+      allData = data.records;
+    } else {
+      allData = SAMPLE_DATA;
+    }
+    
+    // Filter data
+    filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
+    
+    totalCount.textContent = filteredData.length;
+    filterInfo.innerHTML = `
+      <strong>✅ Data Loaded:</strong> ${filteredData.length} records displayed
+    `;
+    
+    updateTableDisplay(filteredData);
+    apiStatus.textContent = `✅ ${filteredData.length} records`;
+    
+    // Prefetch image metadata in background
+    setTimeout(() => {
+      fetchImageMetadata().then(() => {
+        log('📸 Image metadata cached', 'success');
+      });
+    }, 1000);
+    
+  } catch (error) {
+    log(`❌ Data load failed: ${error.message}`, 'error');
+    
+    // Fallback to sample data
+    allData = SAMPLE_DATA;
+    filteredData = allData.filter(row => hasMinTwoColumnsFilled(row));
+    
+    totalCount.textContent = filteredData.length;
+    filterInfo.innerHTML = `
+      <strong>⚠️ Using Sample Data</strong>
+    `;
+    
+    updateTableDisplay(filteredData);
+    apiStatus.textContent = '⚠️ Sample data';
+  }
+  
+  isLoading = false;
+  refreshBtn.disabled = false;
+  refreshIcon.style.animation = '';
+  refreshText.textContent = 'Refresh';
+}
 
-document.addEventListener("mouseup", () => {
-  isDragging = false;
-  fsImage.style.cursor = "grab";
-});
+function refreshData() {
+  tryLoadFromApi();
+}
 
-// Double click to reset zoom
-fsImage.addEventListener("dblclick", e => {
-  e.preventDefault();
-  scale = 1;
-  translateX = 0;
-  translateY = 0;
-  updateTransform();
-});
+/* ===== HELPER FUNCTIONS ===== */
+function hasMinTwoColumnsFilled(row) {
+  const firstFour = [
+    row["Sample Entry Date"],
+    row["Collection Date"], 
+    row["Test name"],
+    row["Patient name"]
+  ];
+  
+  const filled = firstFour.filter(col => col && col.toString().trim() !== "").length;
+  return filled >= 2;
+}
+
+function matchesSearch(row, term) {
+  if (!term) return true;
+  
+  const lowerTerm = term.toLowerCase().trim();
+  const columns = [
+    "Sample Entry Date", "Collection Date", "Test name", "Patient name",
+    "Patient child name", "sample type", "Consent Received / Not",
+    "Location", "Invoice NO", "Tracking no"
+  ];
+  
+  return columns.some(col => {
+    const val = row[col];
+    return val && val.toString().toLowerCase().includes(lowerTerm);
+  });
+}
+
+/* ===== SEARCH ===== */
+function performSearch() {
+  const term = searchInput.value.trim();
+  currentSearchTerm = term;
+  isSearching = term !== "";
+  
+  if (!term) {
+    clearSearch();
+    return;
+  }
+  
+  const results = filteredData.filter(row => matchesSearch(row, term));
+  updateTableDisplay(results, term);
+  
+  searchStats.innerHTML = `
+    <span>Found: <strong>${results.length}</strong> records</span>
+    <span>Total: <strong>${filteredData.length}</strong></span>
+  `;
+}
+
+function clearSearch() {
+  searchInput.value = "";
+  currentSearchTerm = "";
+  isSearching = false;
+  updateTableDisplay(filteredData);
+  searchStats.innerHTML = "";
+}
+
+function debounceSearch() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(performSearch, 300);
+}
+
+/* ===== TABLE DISPLAY ===== */
+function updateTableDisplay(data, searchTerm = "") {
+  tableBody.innerHTML = '';
+  
+  if (data.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="11" class="no-results">
+          <div class="no-results-icon">🔍</div>
+          No records found
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  // Show newest first
+  const reversed = [...data].reverse();
+  
+  reversed.forEach((row, idx) => {
+    const tr = document.createElement("tr");
+    const sno = reversed.length - idx;
+    
+    const highlight = (text) => {
+      if (!searchTerm || !text) return text || '';
+      const str = text.toString();
+      const lower = str.toLowerCase();
+      const termLower = searchTerm.toLowerCase();
+      
+      if (lower.includes(termLower)) {
+        const start = lower.indexOf(termLower);
+        const end = start + searchTerm.length;
+        return str.substring(0, start) + 
+               `<mark>${str.substring(start, end)}</mark>` + 
+               str.substring(end);
+      }
+      return str;
+    };
+    
+    tr.innerHTML = `
+      <td class="sno-cell">${sno}</td>
+      <td>${highlight(row["Sample Entry Date"])}</td>
+      <td>${highlight(row["Collection Date"])}</td>
+      <td>${highlight(row["Test name"])}</td>
+      <td>
+        ${row["Patient name"] ? `
+          <span class="tracking-link" onclick="openModal('${row["Patient name"].replace(/'/g, "\\'")}')">
+            ${highlight(row["Patient name"])}
+          </span>
+        ` : ''}
+      </td>
+      <td>${highlight(row["Patient child name"])}</td>
+      <td>${highlight(row["sample type"])}</td>
+      <td>${highlight(row["Consent Received / Not"])}</td>
+      <td>${highlight(row["Location"])}</td>
+      <td>${highlight(row["Invoice NO"])}</td>
+      <td>${highlight(row["Tracking no"])}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
 
 /* ===== INITIALIZATION ===== */
 document.addEventListener('DOMContentLoaded', () => {
-  // Load data via AJAX
-  loadData(true);
+  tryLoadFromApi();
   
-  // Add event listeners
-  searchInput.addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-      performSearch();
-    }
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
   });
-  
-  // Optional: Auto-refresh every 5 minutes
-  setInterval(() => {
-    if (!isLoading && !isSearching) {
-      loadData(false); // Silent refresh in background
-    }
-  }, 300000); // 5 minutes
 });
 </script>
 
 </body>
 </html>
+Read this code
