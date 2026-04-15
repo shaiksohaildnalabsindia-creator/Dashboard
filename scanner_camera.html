@@ -1058,7 +1058,7 @@ const manualTrackingInput = document.getElementById('manualTracking');
 const trackingDropdown = document.getElementById('trackingDropdown');
 
 // Google Apps Script URL for loading tracking numbers
-const TRACKING_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0eXdOvzB5zVGRNkQkCnCmLixnZdH3E-uXpZRkv4nIZfqMDmOcuU1DvcFGVshO3yyG/exec";
+const TRACKING_SCRIPT_URL = "https://script.google.com/macros/s//exec";
 
 // Get courier & count from URL
 const params = new URLSearchParams(window.location.search);
@@ -1069,7 +1069,7 @@ const courier = params.get("courier") || "Unknown";
 courierInfo.textContent = courier;
 countInfo.textContent = totalCount;
 
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwiTXXO1ypYhs-fykSl9apgTV4ZM9sGvdK5uKp-hkxGYcJjCJoaNZzsuXXFouq9ziY/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/exec";
 
 let scanned = new Set();
 let currentStream = null;
